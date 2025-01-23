@@ -1,36 +1,42 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🎓 Rajamangala University of Technology Thanyaburi University Complaint Web App
 
-## Getting Started
+## 📝 Introduction
+This web application is a dedicated platform for **university students** to submit and track complaints related to their academic or campus experience. Designed to streamline communication between students and university administration, this app aims to improve the overall campus environment by ensuring **transparency** and **accountability**.
 
-First, run the development server:
+🗓 **Year:** 2024  
+⚡ **Tech Stack:** Powered by **Next.js** for seamless performance and scalability.
 
+Developed by:
+- **Nattanun Naknare**
+- **Rittinun Disaraphong**
+
+---
+
+## 🚀 Getting Started
+
+Follow these steps to get started with development:
+
+### 1️⃣ Clone the Repository
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+git clone <https://github.com/Basssss2003s/ReportGraduationProject.git>
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Install Dependencies
+- npm install
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Run the Development Server
+- npm run dev
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Access the Application
+Open your browser and go to:
 
-## Learn More
+http://localhost:3000
 
-To learn more about Next.js, take a look at the following resources:
+---
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+📬 Contact
+For any queries or suggestions, feel free to reach out to the developers:ฃ
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- Nattanun Naknare ( 1164105051741@mail.rmutt.ac.th )
+- Rittinun Disaraphong ( 4105051653@mail.rmutt.ac.th )
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+# ReportGraduationProject
