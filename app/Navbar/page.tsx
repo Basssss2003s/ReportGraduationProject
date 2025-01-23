@@ -27,8 +27,8 @@ const Navbar = () => {
           </Link>
         </li>
         <li>
-          {/* <Link href="/Reportproblem" className="hover:underline"> */}
-          <Link href="/NotAvailable" className="hover:underline">
+          <Link href="/Reportproblem" className="hover:underline">
+          {/* <Link href="/NotAvailable" className="hover:underline"> */}
             แจ้งปัญหาการใช้งาน
           </Link>
         </li>
