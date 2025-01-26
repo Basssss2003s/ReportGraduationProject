@@ -3,6 +3,8 @@
 import React, { useState } from "react";
 import Swal from "sweetalert2";
 import Navbar from "../Adminnavbar/page";
+import EditIcon from "@mui/icons-material/Edit";
+import DeleteIcon from "@mui/icons-material/Delete";
 
 interface Complaint {
   id: number;
@@ -11,71 +13,80 @@ interface Complaint {
   subCategory: string;
   details: string;
   status: string;
-}
-
-interface Filters {
-  from: string;
-  subCategory: string;
-  startDate: string;
-  endDate: string;
-  status: string;
+  firstName: string;
+  lastName: string;
+  phone: string;
 }
 
 const ComplaintTable: React.FC = () => {
   const [complaints, setComplaints] = useState<Complaint[]>([
-    {
-      id: 1,
-      date: "2025-01-01",
-      from: "นักศึกษา",
-      subCategory: "ร้องเรียนระบบอินเทอร์เน็ต",
-      details: "อินเทอร์เน็ตช้าในห้องเรียน A101",
-      status: "รอดำเนินการ",
-    },
-    {
-      id: 2,
-      date: "2025-01-05",
-      from: "บุคคลภายนอก",
-      subCategory: "ร้องเรียนนักศึกษา",
-      details: "นักศึกษาส่งเสียงดังในหอพัก",
-      status: "กำลังดำเนินการ",
-    },
+    { id: 1, date: "2025-01-01", from: "นักศึกษา", subCategory: "ระบบอินเทอร์เน็ต", details: "อินเทอร์เน็ตช้าในห้องเรียน A101", status: "รอดำเนินการ", firstName: "สมชาย", lastName: "ใจดี", phone: "0812345678" },
+  { id: 2, date: "2025-01-02", from: "อาจารย์", subCategory: "อุปกรณ์ในห้องเรียน", details: "โปรเจคเตอร์ไม่ทำงาน", status: "กำลังดำเนินการ", firstName: "วิชาญ", lastName: "นามสมมติ", phone: "0898765432" },
+  { id: 3, date: "2025-01-03", from: "บุคคลภายนอก", subCategory: "พื้นที่ส่วนกลาง", details: "ห้องน้ำสกปรก", status: "รอดำเนินการ", firstName: "สายไหม", lastName: "ดีพร้อม", phone: "0998887776" },
+  { id: 4, date: "2025-01-04", from: "นักศึกษา", subCategory: "พื้นที่ส่วนกลาง", details: "ไม่มีที่นั่งในห้องสมุด", status: "เสร็จสิ้น", firstName: "อรพรรณ", lastName: "ใจงาม", phone: "0867654321" },
+  { id: 5, date: "2025-01-05", from: "อาจารย์", subCategory: "ระบบอินเทอร์เน็ต", details: "Wi-Fi ในห้องพักอาจารย์หลุดบ่อย", status: "รอดำเนินการ", firstName: "ก้องภพ", lastName: "แสงทอง", phone: "0823456789" },
+  { id: 6, date: "2025-01-06", from: "บุคคลภายนอก", subCategory: "เจ้าหน้าที่", details: "พนักงานพูดจาไม่สุภาพ", status: "รอดำเนินการ", firstName: "จิราภรณ์", lastName: "พงษ์พิพัฒน์", phone: "0955551234" },
+  { id: 7, date: "2025-01-07", from: "นักศึกษา", subCategory: "อุปกรณ์ในห้องเรียน", details: "เก้าอี้เสีย", status: "รอดำเนินการ", firstName: "มนัส", lastName: "รุ่งเรือง", phone: "0834567890" },
+  { id: 8, date: "2025-01-08", from: "อาจารย์", subCategory: "ที่จอดรถ", details: "ที่จอดรถไม่เพียงพอ", status: "รอดำเนินการ", firstName: "ประภาส", lastName: "อินทร์ทอง", phone: "0845678901" },
+  { id: 9, date: "2025-01-09", from: "บุคคลภายนอก", subCategory: "ห้องเรียน", details: "ห้องเรียนไม่สะอาด", status: "กำลังดำเนินการ", firstName: "สุนีย์", lastName: "ดวงแก้ว", phone: "0866781234" },
+  { id: 10, date: "2025-01-10", from: "นักศึกษา", subCategory: "ระบบอินเทอร์เน็ต", details: "Wi-Fi ไม่ครอบคลุม", status: "รอดำเนินการ", firstName: "วิไล", lastName: "รัตนวดี", phone: "0878904321" },
   ]);
 
-  const [filters, setFilters] = useState<Filters>({
+  const [filters, setFilters] = useState({
+    date: "",
     from: "",
     subCategory: "",
-    startDate: "",
-    endDate: "",
     status: "",
   });
 
-  const categories: Record<string, string[]> = {
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 9;
+
+  const subCategoryOptions: { [key: string]: string[] } = {
     อาจารย์: [
-      "ร้องเรียนห้องพักอาจารย์",
-      "ร้องเรียนอุปกรณ์ในห้องเรียน",
-      "ร้องเรียนระบบอินเทอร์เน็ต",
-      "ร้องเรียนพื้นที่ส่วนกลาง",
-      "ร้องเรียนเจ้าหน้าที่",
-      "ร้องเรียนที่จอดรถ",
+      "ห้องพักอาจารย์",
+      "อุปกรณ์ในห้องเรียน",
+      "ระบบอินเทอร์เน็ต",
+      "พื้นที่ส่วนกลาง",
+      "เจ้าหน้าที่",
+      "ที่จอดรถ",
       "เรื่องอื่นๆ",
     ],
     นักศึกษา: [
-      "ร้องเรียนห้องเรียน",
-      "ร้องเรียนอุปกรณ์ในห้องเรียน",
-      "ร้องเรียนระบบอินเทอร์เน็ต",
-      "ร้องเรียนพื้นที่ส่วนกลาง",
-      "ร้องเรียนบุคลากร",
-      "ร้องเรียนเจ้าหน้าที่",
+      "ห้องพักอาจารย์",
+      "อุปกรณ์ในห้องเรียน",
+      "ระบบอินเทอร์เน็ต",
+      "พื้นที่ส่วนกลาง",
+      "เจ้าหน้าที่",
+      "ที่จอดรถ",
       "เรื่องอื่นๆ",
     ],
     บุคคลภายนอก: [
-      "ร้องเรียนนักศึกษา",
-      "ร้องเรียนบุคลากร",
-      "ร้องเรียนเจ้าหน้าที่",
-      "ร้องเรียนที่จอดรถ",
+      "ห้องเรียน",
+      "อุปกรณ์ในห้องเรียน",
+      "ระบบอินเทอร์เน็ต",
+      "พื้นที่ส่วนกลาง",
+      "บุคลากร",
+      "เจ้าหน้าที่",
       "เรื่องอื่นๆ",
     ],
   };
+
+  const filteredComplaints = complaints.filter((complaint) => {
+    return (
+      (filters.date === "" || complaint.date.includes(filters.date)) &&
+      (filters.from === "" || complaint.from.includes(filters.from)) &&
+      (filters.subCategory === "" || complaint.subCategory.includes(filters.subCategory)) &&
+      (filters.status === "" || complaint.status.includes(filters.status))
+    );
+  });
+
+  const paginatedComplaints = filteredComplaints.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+
+  const totalPages = Math.ceil(filteredComplaints.length / itemsPerPage);
 
   const handleDelete = (id: number) => {
     Swal.fire({
@@ -85,8 +96,6 @@ const ComplaintTable: React.FC = () => {
       showCancelButton: true,
       confirmButtonText: "ลบ",
       cancelButtonText: "ยกเลิก",
-      confirmButtonColor: "#e3342f",
-      cancelButtonColor: "#6c757d",
     }).then((result) => {
       if (result.isConfirmed) {
         setComplaints(complaints.filter((complaint) => complaint.id !== id));
@@ -95,44 +104,7 @@ const ComplaintTable: React.FC = () => {
     });
   };
 
-  const handleStatusChange = (id: number) => {
-    Swal.fire({
-      title: "เปลี่ยนสถานะ",
-      input: "select",
-      inputOptions: {
-        "รอดำเนินการ": "รอดำเนินการ",
-        "กำลังดำเนินการ": "กำลังดำเนินการ",
-        "เสร็จสิ้น": "เสร็จสิ้น",
-      },
-      inputPlaceholder: "เลือกสถานะใหม่",
-      showCancelButton: true,
-      confirmButtonText: "เปลี่ยนสถานะ",
-      cancelButtonText: "ยกเลิก",
-    }).then((result) => {
-      if (result.isConfirmed && result.value) {
-        const updatedComplaints = complaints.map((complaint) =>
-          complaint.id === id ? { ...complaint, status: result.value } : complaint
-        );
-        setComplaints(updatedComplaints);
-        Swal.fire(
-          "เปลี่ยนสถานะสำเร็จ!",
-          `สถานะถูกเปลี่ยนเป็น "${result.value}"`,
-          "success"
-        );
-      }
-    });
-  };
-
-  const formatDate = (date: string): string => {
-    const options: Intl.DateTimeFormatOptions = {
-      day: "2-digit",
-      month: "2-digit",
-      year: "numeric",
-    };
-    return new Date(date).toLocaleDateString("th-TH", options);
-  };
-
-  const getStatusStyle = (status: string): string => {
+  const statusColor = (status: string) => {
     switch (status) {
       case "รอดำเนินการ":
         return "text-red-500 font-bold";
@@ -145,82 +117,197 @@ const ComplaintTable: React.FC = () => {
     }
   };
 
-  const handleFilter = (): Complaint[] => {
-    return complaints.filter((complaint) => {
-      const { from, subCategory, startDate, endDate, status } = filters;
-      const complaintDate = new Date(complaint.date);
-
-      const isWithinDateRange =
-        (!startDate || new Date(startDate) <= complaintDate) &&
-        (!endDate || new Date(endDate) >= complaintDate);
-      const matchesFrom = !from || complaint.from.includes(from);
-      const matchesSubCategory = !subCategory || complaint.subCategory.includes(subCategory);
-      const matchesStatus = !status || complaint.status === status;
-
-      return isWithinDateRange && matchesFrom && matchesSubCategory && matchesStatus;
+  const handleEdit = (complaint: Complaint) => {
+    Swal.fire({
+      title: '<h2 style="font-size: 1.5rem; font-weight: bold;">แก้ไขข้อมูล</h2>',
+      html: `
+        <div style="text-align: left; font-size: 1rem; margin: 10px 20px;">
+          <label for="swal-date" style="font-weight: bold;">วันที่:</label>
+          <input type="text" id="swal-date" value="${complaint.date}" class="swal2-input" style="width: 90%; margin-top: 5px;" readonly>
+        </div>
+        <div style="text-align: left; font-size: 1rem; margin: 10px 20px;">
+          <label for="swal-from" style="font-weight: bold;">ร้องเรียนจาก:</label>
+          <input type="text" id="swal-from" value="${complaint.from}" class="swal2-input" style="width: 90%; margin-top: 5px;" readonly>
+        </div>
+        <div style="text-align: left; font-size: 1rem; margin: 10px 20px;">
+          <label for="swal-subCategory" style="font-weight: bold;">หัวข้อร้องเรียน:</label>
+          <input type="text" id="swal-subCategory" value="${complaint.subCategory}" class="swal2-input" style="width: 90%; margin-top: 5px;" readonly>
+        </div>
+        <div style="text-align: left; font-size: 1rem; margin: 10px 20px;">
+          <label for="swal-details" style="font-weight: bold;">รายละเอียด:</label>
+          <textarea id="swal-details" class="swal2-textarea" style="width: 90%; margin-top: 5px;" readonly>${complaint.details}</textarea>
+        </div>
+        <div style="text-align: left; font-size: 1rem; margin: 10px 20px;">
+          <label style="font-weight: bold;">ชื่อผู้ร้องเรียน:</label>
+          <input type="text" id="swal-fullName" value="${complaint.firstName} ${complaint.lastName}" class="swal2-input" style="width: 90%; margin-top: 5px;" readonly>
+        </div>
+        <div style="text-align: left; font-size: 1rem; margin: 10px 20px;">
+          <label for="swal-phone" style="font-weight: bold;">เบอร์โทร:</label>
+          <input type="text" id="swal-phone" value="${complaint.phone}" class="swal2-input" style="width: 90%; margin-top: 5px;" readonly>
+        </div>
+        <div style="text-align: left; font-size: 1rem; margin: 10px 20px;">
+          <label for="swal-status" style="font-weight: bold;">สถานะ:</label>
+          <select id="swal-status" class="swal2-input" style="width: 90%; margin-top: 5px;">
+            <option value="รอดำเนินการ" ${complaint.status === "รอดำเนินการ" ? "selected" : ""}>รอดำเนินการ</option>
+            <option value="กำลังดำเนินการ" ${complaint.status === "กำลังดำเนินการ" ? "selected" : ""}>กำลังดำเนินการ</option>
+            <option value="เสร็จสิ้น" ${complaint.status === "เสร็จสิ้น" ? "selected" : ""}>เสร็จสิ้น</option>
+          </select>
+        </div>
+      `,
+      showCancelButton: true,
+      confirmButtonText: 'บันทึก',
+      preConfirm: () => {
+        const status = (document.getElementById('swal-status') as HTMLSelectElement).value;
+  
+        if (!status) {
+          Swal.showValidationMessage('กรุณาเลือกสถานะ');
+          return;
+        }
+  
+        return { status };
+      },
+    }).then((result) => {
+      if (result.isConfirmed && result.value) {
+        const { status } = result.value;
+        setComplaints((prev) =>
+          prev.map((comp) =>
+            comp.id === complaint.id ? { ...complaint, status } : comp
+          )
+        );
+        Swal.fire('บันทึกสำเร็จ!', 'ข้อมูลได้ถูกแก้ไขเรียบร้อยแล้ว', 'success');
+      }
     });
-  };
+  };  
 
   return (
-    <div>
-      <Navbar />
+    <div className="min-h-screen bg-[#e8edff] flex flex-col items-center">
+      <div className="w-full bg-gradient-to-b from-green-200 to-blue-200 h-32 rounded-b-lg shadow-md"></div>
 
-      <div className="p-6">
-        <h1 className="text-2xl font-bold mb-6">ข้อมูลคำร้องเรียน</h1>
-
-        {/* Filters */}
-        <div className="flex flex-wrap items-end gap-4 mb-6">
-          {/* Filter inputs */}
+      <div className="w-full max-w-[90%] -mt-10 z-10">
+        <div className="bg-white shadow-lg rounded-xl">
+          <Navbar />
         </div>
+      </div>
 
-        {/* Table */}
-        <table className="min-w-full bg-white border rounded shadow-md">
-          <thead className="bg-gray-200">
+      <div className="bg-white shadow-lg rounded-lg p-4 mt-6 max-w-[90%] w-full">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <input
+            type="date"
+            placeholder="วันที่"
+            value={filters.date}
+            onChange={(e) => setFilters({ ...filters, date: e.target.value })}
+            className="border rounded p-2"
+          />
+          <select
+            value={filters.from}
+            onChange={(e) => setFilters({ ...filters, from: e.target.value, subCategory: "" })}
+            className="border rounded p-2"
+          >
+            <option value="">ทั้งหมด</option>
+            <option value="อาจารย์">อาจารย์</option>
+            <option value="นักศึกษา">นักศึกษา</option>
+            <option value="บุคคลภายนอก">บุคคลภายนอก</option>
+          </select>
+          <select
+            value={filters.subCategory}
+            onChange={(e) => setFilters({ ...filters, subCategory: e.target.value })}
+            className="border rounded p-2"
+            disabled={!filters.from}
+          >
+            <option value="">หัวข้อร้องเรียน</option>
+            {filters.from &&
+              subCategoryOptions[filters.from].map((option) => (
+                <option key={option} value={option}>
+                  {option}
+                </option>
+              ))}
+          </select>
+          <select
+            value={filters.status}
+            onChange={(e) => setFilters({ ...filters, status: e.target.value })}
+            className="border rounded p-2"
+          >
+            <option value="">ทั้งหมด</option>
+            <option value="รอดำเนินการ">รอดำเนินการ</option>
+            <option value="กำลังดำเนินการ">กำลังดำเนินการ</option>
+            <option value="เสร็จสิ้น">เสร็จสิ้น</option>
+          </select>
+        </div>
+      </div>
+
+      <div className="bg-white shadow-lg rounded-lg p-6 mt-6 max-w-[90%] w-full flex-grow mb-12">
+      <table className="min-w-full table-auto">
+          <thead>
             <tr>
-              <th className="text-left p-4 border">ลำดับ</th>
-              <th className="text-left p-4 border">วันที่</th>
-              <th className="text-left p-4 border">ร้องเรียนจาก</th>
-              <th className="text-left p-4 border">รายละเอียดหัวข้อร้องเรียน</th>
-              <th className="text-left p-4 border">รายละเอียดปัญหา</th>
-              <th className="text-left p-4 border">สถานะ</th>
-              <th className="text-center p-4 border">แก้ไข</th>
-              <th className="text-center p-4 border">ลบ</th>
+              <th className="px-4 py-2 border">ลำดับ</th>
+              <th className="px-4 py-2 border">วันที่</th>
+              <th className="px-4 py-2 border">ร้องเรียนจาก</th>
+              <th className="px-4 py-2 border">หัวข้อร้องเรียน</th>
+              <th className="px-4 py-2 border">รายละเอียด</th>
+              <th className="px-4 py-2 border">สถานะ</th>
+              <th className="px-4 py-2 border">แก้ไข</th>
+              <th className="px-4 py-2 border">ลบ</th>
             </tr>
           </thead>
           <tbody>
-            {handleFilter().map((complaint, index) => (
+            {paginatedComplaints.map((complaint, index) => (
               <tr key={complaint.id} className="hover:bg-gray-100">
-                <td className="p-4 border">{index + 1}</td>
-                <td className="p-4 border">{formatDate(complaint.date)}</td>
-                <td className="p-4 border">{complaint.from}</td>
-                <td className="p-4 border">{complaint.subCategory}</td>
-                <td className="p-4 border">{complaint.details}</td>
-                <td className={`p-4 border ${getStatusStyle(complaint.status)}`}>
-                  {complaint.status}
-                </td>
-                <td className="p-4 border text-center">
+                <td className="px-4 py-2 border">{(currentPage - 1) * itemsPerPage + index + 1}</td>
+                <td className="px-4 py-2 border">{complaint.date}</td>
+                <td className="px-4 py-2 border">{complaint.from}</td>
+                <td className="px-4 py-2 border">{complaint.subCategory}</td>
+                <td className="px-4 py-2 border">{complaint.details}</td>
+                <td className={`px-4 py-2 border ${statusColor(complaint.status)}`}>{complaint.status}</td>
+                <td className="px-4 py-2 border text-center">
                   <button
-                    onClick={() => handleStatusChange(complaint.id)}
-                    className="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600"
+                    onClick={() => handleEdit(complaint)}
+                    className="text-blue-500 hover:text-blue-700"
                   >
-                    แก้ไข
+                    <EditIcon />
                   </button>
                 </td>
-                <td className="p-4 border text-center">
+                <td className="px-4 py-2 border text-center">
                   <button
                     onClick={() => handleDelete(complaint.id)}
-                    className="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600"
+                    className="text-red-500 hover:text-red-700"
                   >
-                    ลบ
+                    <DeleteIcon />
                   </button>
                 </td>
               </tr>
             ))}
           </tbody>
         </table>
+
+        <div className="flex justify-between mt-4">
+          <button
+            onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+            disabled={currentPage === 1}
+            className="bg-gray-500 text-white px-4 py-2 rounded disabled:opacity-50"
+          >
+            ก่อนหน้า
+          </button>
+          <span>
+            หน้า {currentPage} จาก {totalPages}
+          </span>
+          <button
+            onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+            disabled={currentPage === totalPages}
+            className="bg-gray-500 text-white px-4 py-2 rounded disabled:opacity-50"
+          >
+            ถัดไป
+          </button>
+        </div>
       </div>
+
+      <style jsx global>{`
+        .swal2-popup {
+          width: 700px !important; /* Extend modal width */
+        }
+      `}</style>
     </div>
   );
 };
 
 export default ComplaintTable;
+
