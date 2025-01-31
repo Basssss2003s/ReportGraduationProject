@@ -6,7 +6,14 @@ const MainPage = () => {
   return (
     <div className="min-h-screen bg-[#e8edff] flex flex-col items-center">
       {/* Gradient Header */}
-      <div className="w-full bg-gradient-to-b from-green-200 to-blue-200 h-32 rounded-b-lg shadow-md"></div>
+      <div className="w-full bg-gradient-to-b from-green-200 to-blue-200 h-32 rounded-b-lg shadow-md">
+        <img
+          src="/images/logo.png"
+          width={150}
+          className="absolute top-2 left-2 z-20"
+          alt="Logo"
+        />
+      </div>
 
       {/* Navbar */}
       <div className="w-full max-w-[90%] -mt-10 z-10">
@@ -53,8 +60,8 @@ const MainPage = () => {
           <div className="bg-purple-100 rounded-lg p-6 shadow-md text-center transform transition-transform hover:scale-105">
             <h2 className="text-xl font-semibold text-purple-800">คำร้องของคุณ</h2>
             <p className="mt-4 text-3xl font-bold text-purple-800">15</p>
-            <button 
-              onClick={() => (window.location.href = '/Followreport')} 
+            <button
+              onClick={() => (window.location.href = '/Followreport')}
               className="mt-4 px-6 py-2 bg-purple-500 text-white rounded-lg hover:bg-purple-600 focus:outline-none focus:ring-2 focus:ring-purple-400"
             >
               ดูรายละเอียด
@@ -65,8 +72,8 @@ const MainPage = () => {
           <div className="bg-teal-100 rounded-lg p-6 shadow-md text-center transform transition-transform hover:scale-105">
             <h2 className="text-xl font-semibold text-teal-800">คำร้องที่รอตรวจสอบ</h2>
             <p className="mt-4 text-3xl font-bold text-teal-800">5</p>
-            <button 
-              onClick={() => (window.location.href = '/Followreport')} 
+            <button
+              onClick={() => (window.location.href = '/Followreport')}
               className="mt-4 px-6 py-2 bg-teal-500 text-white rounded-lg hover:bg-teal-600 focus:outline-none focus:ring-2 focus:ring-teal-400"
             >
               ดูรายละเอียด
@@ -75,8 +82,8 @@ const MainPage = () => {
         </div>
 
         <div className="mt-12 text-center">
-          <button 
-            onClick={() => (window.location.href = '/Complaint')} 
+          <button
+            onClick={() => (window.location.href = '/Complaint')}
             className="px-6 py-3 bg-blue-500 text-white text-lg font-semibold rounded-lg shadow-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400 transform transition-transform hover:scale-105"
           >
             สร้างคำร้องใหม่

@@ -249,7 +249,14 @@ const MainPage: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-[#e8edff] flex flex-col items-center">
-      <div className="w-full bg-gradient-to-b from-green-200 to-blue-200 h-32 rounded-b-lg shadow-md"></div>
+      <div className="w-full bg-gradient-to-b from-green-200 to-blue-200 h-32 rounded-b-lg shadow-md">
+      <img
+          src="/images/logo.png"
+          width={150}
+          className="absolute top-2 left-2 z-20"
+          alt="Logo"
+        />
+      </div>
 
       <div className="w-full max-w-[90%] -mt-10 z-10">
         <div className="bg-white shadow-lg rounded-xl">
