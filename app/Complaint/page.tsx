@@ -1,6 +1,6 @@
 "use client";
 import React, { useState } from "react";
-import Navbar from "../Navbar/page"; // Adjust path if necessary
+import Navbar from "../Navbar/page";
 import Swal from "sweetalert2";
 import { motion } from "framer-motion";
 
@@ -87,124 +87,160 @@ const MainPage: React.FC = () => {
   };
 
   return (
-    <div>
-      <Navbar />
-      <motion.div
-        className="p-6 mt-4 min-h-screen"
-        initial={{ opacity: 0, y: 50 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-      >
-        <motion.h1
-          className="text-3xl font-extrabold text-center text-blue-600"
-          initial={{ scale: 0.8, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          transition={{ duration: 0.3 }}
-        >
-          เขียนคำร้องเรียน
-        </motion.h1>
-        <motion.p
-          className="mt-4 text-lg text-center text-gray-700"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.2, duration: 0.3 }}
-        >
-          ยินดีต้อนรับเข้าสู่หน้าเขียนคำร้องเรียน กรุณากรอกรายละเอียดปัญหาที่พบ
-        </motion.p>
+    <div className="min-h-screen bg-[#e8edff] flex flex-col items-center">
+      {/* Gradient Header */}
+      <div className="w-full bg-gradient-to-b from-green-200 to-blue-200 h-32 rounded-b-lg shadow-md">
+        <img
+          src="/images/logo.png"
+          width={150}
+          className="absolute top-2 left-2 z-20"
+          alt="Logo"
+        />
+      </div>
 
-        {/* Category Selection */}
-        <div className="mt-10 max-w-3xl mx-auto bg-white p-6 rounded-lg shadow-md">
-          <label className="block text-xl font-medium text-gray-700">หัวข้อร้องเรียนสำหรับ</label>
-          <select
-            className="mt-2 p-3 border rounded-lg w-full text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-400"
-            value={selectedCategory}
-            onChange={(e) => {
-              setSelectedCategory(e.target.value);
-              setSelectedSubCategory("");
-            }}
-          >
-            <option value="">เลือกหัวข้อ</option>
-            {Object.keys(categories)
-              .filter((key) => key !== "")
-              .map((key) => (
-                <option key={key} value={key}>
-                  {key}
-                </option>
-              ))}
-          </select>
+      {/* Navbar */}
+      <div className="w-full max-w-[90%] -mt-10 z-10">
+        <div className="bg-white shadow-lg rounded-xl">
+          <Navbar />
         </div>
+      </div>
 
-        {/* Subcategory Selection */}
-        {selectedCategory && categories[selectedCategory].length > 0 && (
-          <div className="mt-6 max-w-3xl mx-auto bg-white p-6 rounded-lg shadow-md">
-            <label className="block text-xl font-medium text-gray-700">รายละเอียดหัวข้อร้องเรียน</label>
-            <select
-              className="mt-2 p-3 border rounded-lg w-full text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-400"
-              value={selectedSubCategory}
-              onChange={(e) => setSelectedSubCategory(e.target.value)}
-            >
-              <option value="">เลือกหัวข้อย่อย</option>
-              {categories[selectedCategory].map((subCategory, index) => (
-                <option key={index} value={subCategory}>
-                  {subCategory}
-                </option>
-              ))}
-            </select>
+      {/* Main Content */}
+      <div className="bg-white shadow-lg rounded-lg p-6 mt-6 max-w-[90%] w-full flex-grow mb-12">
+        <motion.div
+          className="p-6"
+          initial={{ opacity: 0, y: 50 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+        >
+          <motion.h1
+            className="text-3xl font-extrabold text-center mt-8 text-blue-600"
+            initial={{ scale: 0.8, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ duration: 0.3 }}
+          >
+            เขียนคำร้องเรียน
+          </motion.h1>
+
+          {/* Form Layout */}
+          <div className="mt-10 grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
+            {/* Left Column */}
+            <div className="col-span-1 space-y-6">
+              <div>
+                <label className="block text-xl font-medium text-gray-700">
+                  หัวข้อร้องเรียนสำหรับ
+                  <span className="text-red-500"> *</span>
+                </label>
+                <select
+                  className="mt-2 p-3 border rounded-lg w-full text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                  value={selectedCategory}
+                  onChange={(e) => {
+                    setSelectedCategory(e.target.value);
+                    setSelectedSubCategory("");
+                  }}
+                  required
+                >
+                  <option value="">เลือกหัวข้อ</option>
+                  {Object.keys(categories)
+                    .filter((key) => key !== "")
+                    .map((key) => (
+                      <option key={key} value={key}>
+                        {key}
+                      </option>
+                    ))}
+                </select>
+              </div>
+
+
+              {selectedCategory && categories[selectedCategory].length > 0 && (
+                <div>
+                  <label className="block text-xl font-medium text-gray-700">
+                    รายละเอียดหัวข้อร้องเรียน
+                    <span className="text-red-500"> *</span>
+                  </label>
+                  <select
+                    className="mt-2 p-3 border rounded-lg w-full text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                    value={selectedSubCategory}
+                    onChange={(e) => setSelectedSubCategory(e.target.value)}
+                    required
+                  >
+                    <option value="">เลือกหัวข้อย่อย</option>
+                    {categories[selectedCategory].map((subCategory, index) => (
+                      <option key={index} value={subCategory}>
+                        {subCategory}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
+
+              {/* Contact Details */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label className="block text-xl font-medium text-gray-700">
+                    เบอร์โทร
+                    <span className="text-red-500"> *</span>
+                  </label>
+                  <input
+                    type="text"
+                    className="mt-2 p-3 border rounded-lg w-full text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                    placeholder="กรุณากรอกเบอร์โทร"
+                    value={phoneNumber}
+                    onChange={(e) => setPhoneNumber(e.target.value)}
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-xl font-medium text-gray-700">
+                    อีเมลล์
+                    <span className="text-red-500"> *</span>
+                  </label>
+                  <input
+                    type="email"
+                    className="mt-2 p-3 border rounded-lg w-full text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                    placeholder="กรุณากรอกอีเมลล์"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Right Column */}
+            <div className="col-span-1 flex flex-col justify-between">
+              <label className="block text-xl font-medium text-gray-700">
+                รายละเอียดปัญหา
+                <span className="text-red-500"> *</span>
+              </label>
+              <textarea
+                className="mt-2 p-3 border rounded-lg w-full h-full text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                rows={10}
+                placeholder="กรุณากรอกรายละเอียดปัญหาที่พบ"
+                value={problemDetails}
+                onChange={(e) => setProblemDetails(e.target.value)}
+                required
+              ></textarea>
+            </div>
           </div>
-        )}
 
-        {/* Problem Details */}
-        <div className="mt-6 max-w-3xl mx-auto bg-white p-6 rounded-lg shadow-md">
-          <label className="block text-xl font-medium text-gray-700">รายละเอียดปัญหา</label>
-          <textarea
-            className="mt-2 p-3 border rounded-lg w-full text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-400"
-            rows={4}
-            placeholder="กรุณากรอกรายละเอียดปัญหาที่พบ"
-            value={problemDetails}
-            onChange={(e) => setProblemDetails(e.target.value)}
-          ></textarea>
-        </div>
-
-        {/* Phone Number */}
-        <div className="mt-6 max-w-3xl mx-auto bg-white p-6 rounded-lg shadow-md">
-          <label className="block text-xl font-medium text-gray-700">เบอร์โทร</label>
-          <input
-            type="text"
-            className="mt-2 p-3 border rounded-lg w-full text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-400"
-            placeholder="กรุณากรอกเบอร์โทรสำหรับติดต่อกลับ"
-            value={phoneNumber}
-            onChange={(e) => setPhoneNumber(e.target.value)}
-          />
-        </div>
-
-        {/* Email */}
-        <div className="mt-6 max-w-3xl mx-auto bg-white p-6 rounded-lg shadow-md">
-          <label className="block text-xl font-medium text-gray-700">อีเมลล์</label>
-          <input
-            type="email"
-            className="mt-2 p-3 border rounded-lg w-full text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-400"
-            placeholder="กรุณากรอกอีเมลล์สำหรับติดต่อกลับ"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-          />
-        </div>
-
-        {/* Submit and Reset Buttons */}
-        <div className="mt-6 max-w-3xl mx-auto text-center">
-          <button
-            onClick={handleSubmit}
-            className="px-6 py-3 bg-blue-500 text-white text-lg font-semibold rounded-lg shadow-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400"
-          >
-            ส่งข้อมูล
-          </button>
-          <button
-            onClick={resetForm}
-            className="ml-4 px-6 py-3 bg-gray-300 text-gray-700 text-lg font-semibold rounded-lg shadow-md hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-400"
-          >
-            ล้างข้อมูล
-          </button>
-        </div>
-      </motion.div>
+          {/* Buttons */}
+          <div className="mt-8 text-center">
+            <button
+              onClick={handleSubmit}
+              className="px-6 py-3 bg-blue-500 text-white text-lg font-semibold rounded-lg shadow-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400"
+            >
+              ส่งข้อมูล
+            </button>
+            <button
+              onClick={resetForm}
+              className="ml-4 px-6 py-3 bg-gray-300 text-gray-700 text-lg font-semibold rounded-lg shadow-md hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-400"
+            >
+              ล้างข้อมูล
+            </button>
+          </div>
+        </motion.div>
+      </div>
     </div>
   );
 };
