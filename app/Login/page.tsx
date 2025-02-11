@@ -41,14 +41,14 @@ export default function Login(){
             เข้าสู่ระบบ
           </button>
         </form>
-        <Link href="/Register">
+        <Link href="/register">
           <button
             className="w-full p-3 bg-green-500 text-white rounded-lg hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500 mt-4"
           >
             สมัครสมาชิกสำหรับบุคคลภายนอก
           </button>
         </Link>
-        <Link href="/Adminlogin">
+        <Link href="/adminlogin">
           <button
             className="w-full p-3 bg-white text-gray-600 rounded-lg hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-400 mt-4"
           >

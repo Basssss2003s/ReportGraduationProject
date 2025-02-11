@@ -5,7 +5,7 @@ export default function Register() {
     <div
       className="flex justify-center items-center min-h-screen bg-gray-100 bg-cover bg-center"
       style={{
-        backgroundImage: 'url(/images/BackgroundLogin.jpg)',
+        backgroundImage: 'url(/images/Backgroundlogin.jpg)',
       }}
     >
       <div className="flex justify-center rounded-lg items-center  bg-gray-100">
@@ -48,7 +48,7 @@ export default function Register() {
           </form>
   
           <div className="text-center">
-          <Link href="/Login">
+          <Link href="/login">
             <p className="text-gray-600 mb-4">มีบัญชีอยู่แล้ว?</p>
             <button
               className="w-full p-3 bg-green-500 text-white rounded-lg hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500"

@@ -36,7 +36,7 @@ export default function Login() {
             เข้าสู่ระบบ
           </button>
         </form>
-        <Link href="/Login">
+        <Link href="/login">
           <button
             className="w-full p-3 bg-white text-gray-600 rounded-lg hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-400 mt-4"
           >

@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import Swal from "sweetalert2";
-import Navbar from "../Navbar/page";
+import Navbar from "../navbar/page";
 import { Visibility as VisibilityIcon } from "@mui/icons-material";
 
 interface StatusHistory {
