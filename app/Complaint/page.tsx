@@ -1,6 +1,6 @@
 "use client";
 import React, { useState } from "react";
-import Navbar from "../Navbar/page";
+import Navbar from "../navbar/page";
 import Swal from "sweetalert2";
 import { motion } from "framer-motion";
 

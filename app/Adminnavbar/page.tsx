@@ -12,22 +12,22 @@ const Navbar = () => {
 
       <ul className="flex gap-6">
         <li>
-          <Link href="/Adminmain" className="hover:underline">
+          <Link href="/adminmain" className="hover:underline">
             หน้าหลัก
           </Link>
         </li>
         <li>
-          <Link href="/Admincomplaint" className="hover:underline">
+          <Link href="/admincomplaint" className="hover:underline">
             คำร้องเรียน
           </Link>
         </li>
         <li>
-          <Link href="/NotAvailable" className="hover:underline">
+          <Link href="/notAvailable" className="hover:underline">
             ติดตามสถานะ
           </Link>
         </li>
         <li>
-          <Link href="/Login" className="hover:underline">
+          <Link href="/login" className="hover:underline">
             ออกจากระบบ
           </Link>
         </li>

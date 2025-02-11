@@ -1,6 +1,6 @@
 "use client";
 import React, { useState } from "react";
-import Navbar from "../Navbar/page"; // Adjust path if necessary
+import Navbar from "../navbar/page"; // Adjust path if necessary
 import Swal from "sweetalert2";
 import { motion } from "framer-motion";
 

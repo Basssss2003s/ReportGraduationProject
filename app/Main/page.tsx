@@ -1,6 +1,6 @@
 "use client";
 import React from "react";
-import Navbar from "../Navbar/page";
+import Navbar from "../navbar/page";
 
 const MainPage = () => {
   return (
@@ -61,7 +61,7 @@ const MainPage = () => {
             <h2 className="text-xl font-semibold text-purple-800">คำร้องของคุณ</h2>
             <p className="mt-4 text-3xl font-bold text-purple-800">15</p>
             <button
-              onClick={() => (window.location.href = '/Followreport')}
+              onClick={() => (window.location.href = '/followreport')}
               className="mt-4 px-6 py-2 bg-purple-500 text-white rounded-lg hover:bg-purple-600 focus:outline-none focus:ring-2 focus:ring-purple-400"
             >
               ดูรายละเอียด
@@ -73,7 +73,7 @@ const MainPage = () => {
             <h2 className="text-xl font-semibold text-teal-800">คำร้องที่รอตรวจสอบ</h2>
             <p className="mt-4 text-3xl font-bold text-teal-800">5</p>
             <button
-              onClick={() => (window.location.href = '/Followreport')}
+              onClick={() => (window.location.href = '/followreport')}
               className="mt-4 px-6 py-2 bg-teal-500 text-white rounded-lg hover:bg-teal-600 focus:outline-none focus:ring-2 focus:ring-teal-400"
             >
               ดูรายละเอียด
@@ -83,7 +83,7 @@ const MainPage = () => {
 
         <div className="mt-12 text-center">
           <button
-            onClick={() => (window.location.href = '/Complaint')}
+            onClick={() => (window.location.href = '/complaint')}
             className="px-6 py-3 bg-blue-500 text-white text-lg font-semibold rounded-lg shadow-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400 transform transition-transform hover:scale-105"
           >
             สร้างคำร้องใหม่

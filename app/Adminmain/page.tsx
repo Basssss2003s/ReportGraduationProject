@@ -1,6 +1,6 @@
 "use client";
 import React, { useState } from "react";
-import Navbar from "../Adminnavbar/page";
+import Navbar from "../adminnavbar/page";
 import { Pie, Bar, Line } from "react-chartjs-2";
 import {
   Chart as ChartJS,
