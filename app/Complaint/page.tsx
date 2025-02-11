@@ -36,19 +36,19 @@ const MainPage: React.FC = () => {
   useEffect(() => {
     let redirectTimeout: NodeJS.Timeout;
     
-    if (openAlert && typeAlert === "success") {
-      setShouldRedirect(true);
+    if (shouldRedirect) {
       redirectTimeout = setTimeout(() => {
         router.push("/main");
+        setShouldRedirect(false); // Reset the redirect state
       }, 1500);
     }
-
+  
     return () => {
       if (redirectTimeout) {
         clearTimeout(redirectTimeout);
       }
     };
-  }, [openAlert, typeAlert, router]);
+  }, [shouldRedirect, router]);
 
   const handleAddComplaint = async () => {
     if (isSubmitting) return;
@@ -89,6 +89,7 @@ const MainPage: React.FC = () => {
       const res = await mutateAsyncCreate(payload);
       if (res) {
         handleAlert("success", "Create Success");
+        setShouldRedirect(true); // Set redirect flag after successful creation
       } else {
         handleAlert("error", "Failed to create problem.");
       }
