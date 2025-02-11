@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import Swal from "sweetalert2";
-import Navbar from "../Adminnavbar/page";
+import Navbar from "../adminnavbar/page";
 
 interface Complaint {
   id: number;
