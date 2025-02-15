@@ -1,7 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { complaintCreateApi } from "../app/api/complaint";
 import { ComplaintCreate } from "../types/complaintCreate";
-import { advancedSearch } from "./queries/QueriesKey";
+import { getAll } from "./queries/QueriesKey";
 
 export default function useComplaintCreate() {
   const queryClient = useQueryClient();
@@ -11,7 +11,7 @@ export default function useComplaintCreate() {
       return complaintCreateApi(payload);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: advancedSearch });
+      queryClient.invalidateQueries({ queryKey: getAll });
     },
     onError: (error: any) => {
       console.error("Error creating problem service:", error);

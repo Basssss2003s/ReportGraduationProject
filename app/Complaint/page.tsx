@@ -7,16 +7,22 @@ import { motion } from "framer-motion";
 import useComplaintCreate from "../../hooks/useComplaintCreate";
 import { ComplaintCreate } from "../../types/complaintCreate";
 import AlertBox from "../../components/modal/Alert";
+import { useSession } from "../../utils/useSession";
+import { useAuth } from "../../utils/auth";
+import ApplicantTracking from "../../navbar/Breadcrump";
+import PersonIcon from '@mui/icons-material/Person';
 
 const MainPage: React.FC = () => {
+  const { session } = useSession();
+  const { logout } = useAuth();
   const router = useRouter();
+  const [userName, setUserName] = useState<string>("");
   const [topicOfComplaint, setTopicOfComplaint] = useState<string>("");
   const [detailsOfTheTopic, setDetailsOfTheTopic] = useState<string>("");
   const [selectedCategory, setSelectedCategory] = useState<string>("");
   const [selectedSubCategory, setSelectedSubCategory] = useState<string>("");
   const [problemDetails, setProblemDetails] = useState<string>("");
   const [phoneNumber, setPhoneNumber] = useState<string>("");
-  const [email, setEmail] = useState<string>("");
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
 
 
@@ -34,21 +40,48 @@ const MainPage: React.FC = () => {
   }
 
   useEffect(() => {
+    if (session?.fullName) {
+      setUserName(session.fullName);
+    }
+  }, [session]);
+  useEffect(() => {
     let redirectTimeout: NodeJS.Timeout;
-    
+
     if (shouldRedirect) {
       redirectTimeout = setTimeout(() => {
-        router.push("/main");
+        router.push("/followreport");
         setShouldRedirect(false); // Reset the redirect state
       }, 1500);
     }
-  
+
     return () => {
       if (redirectTimeout) {
         clearTimeout(redirectTimeout);
       }
     };
   }, [shouldRedirect, router]);
+
+
+  const handleLogout = async () => {
+    try {
+      logout();
+      router.push("/login");
+    } catch (error) {
+      console.error("Logout failed:", error);
+      alert("เกิดข้อผิดพลาดในการออกจากระบบ กรุณาลองใหม่อีกครั้ง");
+    }
+  };
+
+
+  // useEffect(() => {
+  //   if (!isAuthenticated) {
+  //     router.push('/login');
+  //   }
+  // }, [isAuthenticated, router]);
+
+  // if (!user) {
+  //   return null;
+  // }  
 
   const handleAddComplaint = async () => {
     if (isSubmitting) return;
@@ -58,7 +91,6 @@ const MainPage: React.FC = () => {
     if (!selectedSubCategory) errors.push("รายละเอียดหัวข้อร้องเรียน");
     if (!problemDetails.trim()) errors.push("รายละเอียดปัญหา");
     if (!phoneNumber.trim()) errors.push("เบอร์โทร");
-    if (!email.trim()) errors.push("อีเมลล์");
 
     if (errors.length > 0) {
       Swal.fire({
@@ -73,16 +105,16 @@ const MainPage: React.FC = () => {
     setIsSubmitting(true);
 
     const payload: ComplaintCreate = {
-      name: "",
-      surName: "",
-      emailAddress: email,
+      firstName: session?.firstName || "",
+      lastName: session?.lastName || "",
+      emailAddress: session?.emailAddress || "",
       topicOfComplaint: topicOfComplaint,
       detailsOfTheTopic: detailsOfTheTopic,
       problemDetail: problemDetails,
       telephone: phoneNumber,
-      status: "OPEN",
+      status: "รอดำเนินการ",
       createDate: new Date(),
-      fullName: ""
+      fullName: session?.fullName || "",
     };
 
     try {
@@ -136,7 +168,6 @@ const MainPage: React.FC = () => {
     setSelectedSubCategory("");
     setProblemDetails("");
     setPhoneNumber("");
-    setEmail("");
     setTopicOfComplaint("");
     setDetailsOfTheTopic("");
   };
@@ -190,6 +221,17 @@ const MainPage: React.FC = () => {
             className="absolute top-2 left-2 z-20"
             alt="Logo"
           />
+          <div className="text-right mr-[60px] mt-[40px] w-[95%]">
+            <button
+              onClick={handleLogout}
+              className="inline-flex items-center"
+            >
+              <span className="text-gray-800 font-medium">
+                {userName}
+                <PersonIcon style={{ marginBottom: "8px", marginLeft: "5px" }} />
+              </span>
+            </button>
+          </div>
         </div>
 
         {/* Navbar */}
@@ -198,9 +240,11 @@ const MainPage: React.FC = () => {
             <Navbar />
           </div>
         </div>
-
+        <div className="rounded-lg mt-6 ml-8 w-[90%]">
+          <ApplicantTracking />
+        </div>
         {/* Main Content */}
-        <div className="bg-white shadow-lg rounded-lg p-6 mt-6 max-w-[90%] w-full flex-grow mb-12">
+        <div className="bg-white shadow-lg rounded-lg p-6 mt-2 max-w-[90%] w-full flex-grow mb-12">
           <motion.div
             className="p-6"
             initial={{ opacity: 0, y: 50 }}
@@ -286,8 +330,15 @@ const MainPage: React.FC = () => {
                       className="mt-2 p-3 border rounded-lg w-full text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-400"
                       placeholder="กรุณากรอกเบอร์โทร"
                       value={phoneNumber}
-                      onChange={(e) => setPhoneNumber(e.target.value)}
+                      onChange={(e) => {
+                        // ดักพิมพ์เฉพาะตัวเลข 10 ตัว
+                        const value = e.target.value.replace(/\D/g, ''); // ลบอักขระที่ไม่ใช่ตัวเลข
+                        if (value.length <= 10) {
+                          setPhoneNumber(value);
+                        }
+                      }}
                       required
+                      maxLength={10} // กำหนดความยาวไม่เกิน 10 ตัว
                     />
                   </div>
                   <div>
@@ -297,11 +348,11 @@ const MainPage: React.FC = () => {
                     </label>
                     <input
                       type="email"
-                      className="mt-2 p-3 border rounded-lg w-full text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                      className="mt-2 p-3 border rounded-lg w-full text-gray-500 bg-gray-100 cursor-not-allowed focus:outline-none"
                       placeholder="กรุณากรอกอีเมลล์"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      required
+                      value={session?.emailAddress}
+                      readOnly
+                      style={{ pointerEvents: 'none' }} // ป้องกันการคลิกหรือโฟกัส
                     />
                   </div>
                 </div>
