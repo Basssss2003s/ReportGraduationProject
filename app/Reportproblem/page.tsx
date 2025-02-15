@@ -1,15 +1,38 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Navbar from "../navbar/page"; // Adjust path if necessary
 import Swal from "sweetalert2";
-import { motion } from "framer-motion";
+import { useSession } from '../../utils/useSession';
+import { useAuth } from "../../utils/auth";
+import { useRouter } from "next/navigation";
+import ApplicantTracking from "../../navbar/Breadcrump";
+import PersonIcon from '@mui/icons-material/Person';
 
 const MainPage: React.FC = () => {
+  const { session } = useSession();
+  const { logout } = useAuth();
+  const router = useRouter();
+  const [userName, setUserName] = useState<string>("");
   const [selectedCategory, setSelectedCategory] = useState<string>("");
   const [selectedSubCategory, setSelectedSubCategory] = useState<string>("");
   const [problemDetails, setProblemDetails] = useState<string>("");
   const [phoneNumber, setPhoneNumber] = useState<string>("");
   const [email, setEmail] = useState<string>("");
+
+  useEffect(() => {
+    if (session?.fullName) {
+      setUserName(session.fullName);
+    }
+  }, [session]);
+  const handleLogout = async () => {
+    try {
+      logout();
+      router.push("/login");
+    } catch (error) {
+      console.error("Logout failed:", error);
+      alert("เกิดข้อผิดพลาดในการออกจากระบบ กรุณาลองใหม่อีกครั้ง");
+    }
+  };
 
   const categories: Record<string, string[]> = {
     "": [],
@@ -65,6 +88,7 @@ const MainPage: React.FC = () => {
       cancelButtonText: "ยกเลิก",
     }).then((result) => {
       if (result.isConfirmed) {
+        // Show success message
         resetForm();
         Swal.fire({
           title: "ส่งข้อมูลสำเร็จ!",
@@ -77,124 +101,125 @@ const MainPage: React.FC = () => {
   };
 
   return (
-    <div>
-      <Navbar />
-      <motion.div
-        className="p-6 mt-4 min-h-screen"
-        initial={{ opacity: 0, y: 50 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-      >
-        <motion.h1
-          className="text-3xl font-extrabold text-center text-blue-600"
-          initial={{ scale: 0.8, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          transition={{ duration: 0.3 }}
-        >
-          แจ้งปัญหาการใช้งาน
-        </motion.h1>
-        <motion.p
-          className="mt-4 text-lg text-center text-gray-700"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.2, duration: 0.3 }}
-        >
-          ยินดีต้อนรับเข้าสู่หน้าแจ้งปัญหาการใช้งาน กรุณากรอกรายละเอียดปัญหาที่พบ
-        </motion.p>
-
-        {/* Category Selection */}
-        <div className="mt-10 max-w-3xl mx-auto bg-white p-6 rounded-lg shadow-md">
-          <label className="block text-xl font-medium text-gray-700">หัวข้อปัญหาที่พบ</label>
-          <select
-            className="mt-2 p-3 border rounded-lg w-full text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-400"
-            value={selectedCategory}
-            onChange={(e) => {
-              setSelectedCategory(e.target.value);
-              setSelectedSubCategory("");
-            }}
+    <div className="min-h-screen bg-[#e8edff] flex flex-col items-center">
+      <div className="w-full bg-gradient-to-b from-green-200 to-blue-200 h-32 rounded-b-lg shadow-md">
+        <img
+          src="/images/logo.png"
+          width={150}
+          className="absolute top-2 left-2 z-20"
+          alt="Logo"
+        />
+        <div className="text-right mr-[60px] mt-[40px] w-[95%]">
+          <button
+            onClick={handleLogout}
+            className="inline-flex items-center"
           >
-            <option value="">เลือกหัวข้อ</option>
-            {Object.keys(categories)
-              .filter((key) => key !== "")
-              .map((key) => (
-                <option key={key} value={key}>
-                  {key}
-                </option>
-              ))}
-          </select>
+            <span className="text-gray-800 font-medium">
+              {userName}
+              <PersonIcon style={{ marginBottom: "8px", marginLeft: "5px" }} />
+            </span>
+          </button>
         </div>
+      </div>
 
-        {/* Subcategory Selection */}
-        {selectedCategory && categories[selectedCategory].length > 0 && (
-          <div className="mt-6 max-w-3xl mx-auto bg-white p-6 rounded-lg shadow-md">
-            <label className="block text-xl font-medium text-gray-700">รายละเอียดหัวข้อร้องเรียน</label>
+      <div className="w-full max-w-[90%] -mt-10 z-10">
+        <div className="bg-white shadow-lg rounded-xl">
+          <Navbar />
+        </div>
+      </div>
+      <div className="rounded-lg mt-6 ml-8 w-[90%]">
+        <ApplicantTracking />
+      </div>
+      <div className="bg-white shadow-lg rounded-lg p-6 mt-2 max-w-[90%] w-full flex-grow mb-12">
+        <h1 className="text-2xl mt-6 font-bold text-center text-blue-600">ระบบแจ้งปัญหาการใช้งาน</h1>
+
+        <div className="mt-10 max-w-4xl mx-auto bg-white p-6 rounded-lg shadow-md grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <label className="block text-xl font-medium text-gray-700">หัวข้อปัญหาที่พบ</label>
             <select
               className="mt-2 p-3 border rounded-lg w-full text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-400"
-              value={selectedSubCategory}
-              onChange={(e) => setSelectedSubCategory(e.target.value)}
+              value={selectedCategory}
+              onChange={(e) => {
+                setSelectedCategory(e.target.value);
+                setSelectedSubCategory(""); // Reset subcategory when category changes
+              }}
             >
-              <option value="">เลือกหัวข้อย่อย</option>
-              {categories[selectedCategory].map((subCategory, index) => (
-                <option key={index} value={subCategory}>
-                  {subCategory}
-                </option>
-              ))}
+              <option value="">เลือกหัวข้อ</option>
+              {Object.keys(categories)
+                .filter((key) => key !== "")
+                .map((key) => (
+                  <option key={key} value={key}>
+                    {key}
+                  </option>
+                ))}
             </select>
+            {/* Subcategory select displayed based on category selection */}
+            {selectedCategory && (
+              <div className="mt-4">
+                <label className="block text-xl font-medium text-gray-700">ปัญหาที่พบ</label>
+                <select
+                  className="mt-2 p-3 border rounded-lg w-full text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                  value={selectedSubCategory}
+                  onChange={(e) => setSelectedSubCategory(e.target.value)}
+                >
+                  <option value="">เลือกปัญหาที่พบ</option>
+                  {categories[selectedCategory].map((subCategory, index) => (
+                    <option key={index} value={subCategory}>
+                      {subCategory}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
+            <div className="grid grid-cols-2 gap-4 mt-4">
+              <div>
+                <label className="block text-xl font-medium text-gray-700">เบอร์โทร</label>
+                <input
+                  type="text"
+                  className="mt-2 p-3 border rounded-lg w-full text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                  placeholder="กรุณากรอกเบอร์โทรสำหรับติดต่อกลับ"
+                  value={phoneNumber}
+                  onChange={(e) => setPhoneNumber(e.target.value)}
+                />
+              </div>
+              <div>
+                <label className="block text-xl font-medium text-gray-700">อีเมลล์</label>
+                <input
+                  type="email"
+                  className="mt-2 p-3 border rounded-lg w-full text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                  placeholder="กรุณากรอกอีเมลล์สำหรับติดต่อกลับ"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                />
+              </div>
+            </div>
           </div>
-        )}
-
-        {/* Problem Details */}
-        <div className="mt-6 max-w-3xl mx-auto bg-white p-6 rounded-lg shadow-md">
-          <label className="block text-xl font-medium text-gray-700">รายละเอียดปัญหา</label>
-          <textarea
-            className="mt-2 p-3 border rounded-lg w-full text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-400"
-            rows={4}
-            placeholder="กรุณากรอกรายละเอียดปัญหาที่พบ"
-            value={problemDetails}
-            onChange={(e) => setProblemDetails(e.target.value)}
-          ></textarea>
+          <div>
+            <label className="block text-xl font-medium text-gray-700">รายละเอียดปัญหา</label>
+            <textarea
+              className="mt-2 p-3 border rounded-lg w-full h-[200px] text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-400"
+              placeholder="กรุณากรอกรายละเอียดปัญหาที่พบ"
+              value={problemDetails}
+              onChange={(e) => setProblemDetails(e.target.value)}
+            ></textarea>
+          </div>
         </div>
 
-        {/* Phone Number */}
-        <div className="mt-6 max-w-3xl mx-auto bg-white p-6 rounded-lg shadow-md">
-          <label className="block text-xl font-medium text-gray-700">เบอร์โทร</label>
-          <input
-            type="text"
-            className="mt-2 p-3 border rounded-lg w-full text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-400"
-            placeholder="กรุณากรอกเบอร์โทรสำหรับติดต่อกลับ"
-            value={phoneNumber}
-            onChange={(e) => setPhoneNumber(e.target.value)}
-          />
-        </div>
-
-        {/* Email */}
-        <div className="mt-6 max-w-3xl mx-auto bg-white p-6 rounded-lg shadow-md">
-          <label className="block text-xl font-medium text-gray-700">อีเมลล์</label>
-          <input
-            type="email"
-            className="mt-2 p-3 border rounded-lg w-full text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-400"
-            placeholder="กรุณากรอกอีเมลล์สำหรับติดต่อกลับ"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-          />
-        </div>
-
-        {/* Submit and Reset Buttons */}
-        <div className="mt-6 max-w-3xl mx-auto text-center">
+        <div className="flex justify-center gap-4 mt-6">
           <button
             onClick={handleSubmit}
-            className="px-6 py-3 bg-blue-500 text-white text-lg font-semibold rounded-lg shadow-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400"
+            className="px-6 py-3 bg-blue-500 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
           >
             ส่งข้อมูล
           </button>
           <button
             onClick={resetForm}
-            className="ml-4 px-6 py-3 bg-gray-300 text-gray-700 text-lg font-semibold rounded-lg shadow-md hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-400"
+            className="px-6 py-3 bg-gray-400 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-300"
           >
             ล้างข้อมูล
           </button>
         </div>
-      </motion.div>
+      </div>
     </div>
   );
 };

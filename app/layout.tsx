@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import QueryProvider from "../utils/QueryProvider";
+import { SessionProvider } from "../utils/useSession";
+import { AuthProvider } from "../utils/auth"; // ตรวจสอบ path ให้ถูกต้อง
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -32,9 +34,13 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-         <QueryProvider>
-        {children}
-        </QueryProvider>
+        <SessionProvider>
+          <QueryProvider>
+            <AuthProvider> {/* เพิ่ม AuthProvider ตรงนี้ */}
+              {children}
+            </AuthProvider>
+          </QueryProvider>
+        </SessionProvider>
       </body>
     </html>
   );

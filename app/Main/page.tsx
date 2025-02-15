@@ -1,8 +1,34 @@
 "use client";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Navbar from "../navbar/page";
+import { useSession } from '../../utils/useSession';
+import { useAuth } from "../../utils/auth";
+import { useRouter } from "next/navigation";
+import ApplicantTracking from "../../navbar/Breadcrump";
+import PersonIcon from '@mui/icons-material/Person';
 
 const MainPage = () => {
+  const { session } = useSession();
+  const { logout } = useAuth();
+  const router = useRouter();
+  const [userName, setUserName] = useState<string>("");
+
+  useEffect(() => {
+    if (session?.fullName) {
+      setUserName(session.fullName);
+    }
+  }, [session]);
+  const handleLogout = async () => {
+    try {
+      logout();
+      router.push("/login");
+    } catch (error) {
+      console.error("Logout failed:", error);
+      alert("เกิดข้อผิดพลาดในการออกจากระบบ กรุณาลองใหม่อีกครั้ง");
+    }
+  };
+
+
   return (
     <div className="min-h-screen bg-[#e8edff] flex flex-col items-center">
       {/* Gradient Header */}
@@ -13,6 +39,17 @@ const MainPage = () => {
           className="absolute top-2 left-2 z-20"
           alt="Logo"
         />
+        <div className="text-right mr-[60px] mt-[40px] w-[95%]">
+          <button
+            onClick={handleLogout}
+            className="inline-flex items-center"
+          >
+            <span className="text-gray-800 font-medium">
+              {userName}
+              <PersonIcon style={{ marginBottom: "8px", marginLeft: "5px" }} />
+            </span>
+          </button>
+        </div>
       </div>
 
       {/* Navbar */}
@@ -21,9 +58,11 @@ const MainPage = () => {
           <Navbar />
         </div>
       </div>
-
+      <div className="rounded-lg mt-6 ml-8 w-[90%]">
+        <ApplicantTracking />
+      </div>
       {/* Main Content */}
-      <div className="bg-white shadow-lg rounded-lg p-6 mt-6 max-w-[90%] w-full flex-grow mb-12">
+      <div className="bg-white shadow-lg rounded-lg p-6 mt-2 max-w-[90%] w-full flex-grow mb-12">
         <h1 className="text-2xl font-bold text-center text-blue-600">ระบบจัดการการร้องเรียน</h1>
         <p className="mt-4 text-center text-gray-600">
           ยินดีต้อนรับเข้าสู่ระบบร้องเรียนคณะบริหารธุรกิจ
