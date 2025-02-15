@@ -53,7 +53,7 @@ const MainPage: React.FC = () => {
         setShouldRedirect(false); // Reset the redirect state
       }, 1500);
     }
-
+  
     return () => {
       if (redirectTimeout) {
         clearTimeout(redirectTimeout);
