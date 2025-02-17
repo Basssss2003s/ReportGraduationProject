@@ -6,6 +6,7 @@ import { useAuth } from "../../utils/auth";
 import { useRouter } from "next/navigation";
 import ApplicantTracking from "../../navbar/Breadcrump";
 import PersonIcon from '@mui/icons-material/Person';
+import Link from "next/link";
 
 const MainPage = () => {
   const { session } = useSession();
@@ -33,12 +34,14 @@ const MainPage = () => {
     <div className="min-h-screen bg-[#e8edff] flex flex-col items-center">
       {/* Gradient Header */}
       <div className="w-full bg-gradient-to-b from-green-200 to-blue-200 h-32 rounded-b-lg shadow-md">
+        <Link href="/main" className="hover:underline">
         <img
           src="/images/logo.png"
           width={150}
           className="absolute top-2 left-2 z-20"
           alt="Logo"
         />
+        </Link>
         <div className="text-right mr-[60px] mt-[40px] w-[95%]">
           <button
             onClick={handleLogout}
