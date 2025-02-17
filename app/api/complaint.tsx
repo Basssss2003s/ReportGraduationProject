@@ -22,9 +22,19 @@ export const complaintCreateApi = async (payload:ComplaintCreate) => {
     }
   }
 
- export const getComplaintByIdApi = async (emailAddress: string) => {
+ export const getComplaintByEmailAddressApi = async (emailAddress: string) => {
   try {
-    const response = await axiosApi<IResponse[]>('get',`/auth/email?emailAddress=${emailAddress}`);
+    const response = await axiosApi<IResponse[]>('get',`/auth/email?emailAddress=${emailAddress}`);    
+    return response;
+  } catch (err) {
+    console.error('Error:', err);
+    throw err;
+  }
+};
+
+export const getComplaintByIdApi = async (id: string) => {
+  try {
+    const response = await axiosApi<IResponse>(`get`,`/auth/getById?id=${id}`);
     return response;
   } catch (err) {
     console.error('Error:', err);
