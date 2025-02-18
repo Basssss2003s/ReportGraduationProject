@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Navbar from "../adminnavbar/page";
 import { Pie, Bar, Line } from "react-chartjs-2";
 import {
@@ -13,7 +13,12 @@ import {
   LineElement,
   PointElement,
 } from "chart.js";
-
+import { useSession } from "../../utils/useSession";
+import { useAuth } from "../../utils/auth";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
+import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
+import ApplicantTrackingAdmin from "../../navbar/BreadcrumpAdmin";
 ChartJS.register(
   ArcElement,
   Tooltip,
@@ -27,7 +32,25 @@ ChartJS.register(
 
 const MainPage = () => {
   const [view, setView] = useState("ทั้งหมด");
+  const { session } = useSession();
+  const { logout } = useAuth();
+  const router = useRouter();
+  const [userName, setUserName] = useState<string>("");
 
+  useEffect(() => {
+    if (session?.fullName) {
+      setUserName(session.fullName);
+    }
+  }, [session]);
+  const handleLogout = async () => {
+    try {
+      logout();
+      router.push("/adminlogin");
+    } catch (error) {
+      console.error("Logout failed:", error);
+      alert("รหัสผ่านหรืออีเมลไม่ถูกต้อง");
+    }
+  };
   // Data for each group
   const lineDataTeacher = {
     labels: ["มกราคม", "กุมภาพันธ์", "มีนาคม", "เมษายน", "พฤษภาคม"],
@@ -277,7 +300,27 @@ const MainPage = () => {
   return (
     <div className="min-h-screen bg-[#e8edff] flex flex-col items-center">
       {/* Gradient Header */}
-      <div className="w-full bg-gradient-to-b from-green-200 to-blue-200 h-32 rounded-b-lg shadow-md"></div>
+      <div className="w-full bg-gradient-to-b from-green-200 to-blue-200 h-32 rounded-b-lg shadow-md">
+        <Link href="/adminmain" className="hover:underline">
+          <img
+            src="/images/logo.png"
+            width={150}
+            className="absolute top-2 left-2 z-20"
+            alt="Logo"
+          />
+        </Link>
+        <div className="text-right mr-[60px] mt-[40px] w-[95%]">
+          <button
+            onClick={handleLogout}
+            className="inline-flex items-center"
+          >
+            <span className="text-gray-800 font-medium">
+              {userName}
+              <AdminPanelSettingsIcon style={{ marginBottom: "8px", marginLeft: "5px" }} />
+            </span>
+          </button>
+        </div>
+      </div>
 
       {/* Navbar */}
       <div className="w-full max-w-[90%] -mt-10 z-10">
@@ -285,9 +328,11 @@ const MainPage = () => {
           <Navbar />
         </div>
       </div>
-
+      <div className="rounded-lg mt-6 ml-8 w-[90%]">
+        <ApplicantTrackingAdmin />
+      </div>
       {/* Summary Cards */}
-      <div className="mt-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className=" grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <div className="bg-blue-100 rounded-lg p-6 shadow-md text-center transform transition-transform hover:scale-105">
           <h2 className="text-xl font-semibold text-blue-800">การรายงานทั้งหมด</h2>
           <p className="mt-4 text-3xl font-bold text-blue-800">120</p>
@@ -312,33 +357,29 @@ const MainPage = () => {
       {/* Tabs for Switching Views */}
       <div className="mt-8 flex gap-4">
         <button
-          className={`px-4 py-2 rounded-lg shadow-md ${
-            view === "ทั้งหมด" ? "bg-blue-500 text-white" : "bg-gray-200"
-          }`}
+          className={`px-4 py-2 rounded-lg shadow-md ${view === "ทั้งหมด" ? "bg-blue-500 text-white" : "bg-gray-200"
+            }`}
           onClick={() => setView("ทั้งหมด")}
         >
           ทั้งหมด
         </button>
         <button
-          className={`px-4 py-2 rounded-lg shadow-md ${
-            view === "อาจารย์" ? "bg-blue-500 text-white" : "bg-gray-200"
-          }`}
+          className={`px-4 py-2 rounded-lg shadow-md ${view === "อาจารย์" ? "bg-blue-500 text-white" : "bg-gray-200"
+            }`}
           onClick={() => setView("อาจารย์")}
         >
           อาจารย์
         </button>
         <button
-          className={`px-4 py-2 rounded-lg shadow-md ${
-            view === "นักศึกษา" ? "bg-blue-500 text-white" : "bg-gray-200"
-          }`}
+          className={`px-4 py-2 rounded-lg shadow-md ${view === "นักศึกษา" ? "bg-blue-500 text-white" : "bg-gray-200"
+            }`}
           onClick={() => setView("นักศึกษา")}
         >
           นักศึกษา
         </button>
         <button
-          className={`px-4 py-2 rounded-lg shadow-md ${
-            view === "บุคคลภายนอก" ? "bg-blue-500 text-white" : "bg-gray-200"
-          }`}
+          className={`px-4 py-2 rounded-lg shadow-md ${view === "บุคคลภายนอก" ? "bg-blue-500 text-white" : "bg-gray-200"
+            }`}
           onClick={() => setView("บุคคลภายนอก")}
         >
           บุคคลภายนอก

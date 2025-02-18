@@ -43,3 +43,12 @@ export interface StatusComplaint{
     complaintId: string
 }
 
+export interface ReportProblemCreate {
+    topic: string,  
+    problem: string  ,
+    problemDetail: string  ,
+    telephone: string  ,
+    emailAddress: string,  
+    createDate:  Date
+}
+

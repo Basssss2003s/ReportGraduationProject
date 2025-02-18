@@ -26,11 +26,6 @@ const Navbar = () => {
             ติดตามสถานะ
           </Link>
         </li>
-        <li>
-          <Link href="/login" className="hover:underline">
-            ออกจากระบบ
-          </Link>
-        </li>
       </ul>
     </nav>
   );

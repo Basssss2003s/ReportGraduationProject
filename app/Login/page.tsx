@@ -12,13 +12,13 @@ export default function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
+  // const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const { refreshSession } = useSession(); // ดึง refreshSession มาจาก useSession
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsLoading(true);
+    // setIsLoading(true);
     setError('');
 
     try {
@@ -27,7 +27,7 @@ export default function Login() {
       router.push("/main");
     } catch (error) {
       console.error("Logout failed:", error);
-      alert("เกิดข้อผิดพลาดในการออกจากระบบ กรุณาลองใหม่อีกครั้ง");
+      alert("รหัสผ่านหรืออีเมลไม่ถูกต้อง");
     }
   };
 
@@ -58,7 +58,7 @@ export default function Login() {
               className="w-full p-3 border border-gray-300 rounded-lg mt-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
               placeholder="กรอกอีเมล"
               required
-              disabled={isLoading}
+              // disabled={isLoading}
             />
           </div>
 
@@ -72,7 +72,7 @@ export default function Login() {
                 className="w-full p-3 border border-gray-300 rounded-lg mt-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 placeholder="กรอกรหัสผ่าน"
                 required
-                disabled={isLoading}
+                // disabled={isLoading}
               />
               <button
                 type="button"
@@ -86,9 +86,9 @@ export default function Login() {
           <button
             type="submit"
             className="w-full p-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-blue-300"
-            disabled={isLoading}
+            // disabled={isLoading}
           >
-            {isLoading ? 'กำลังเข้าสู่ระบบ...' : 'เข้าสู่ระบบ'}
+            {'เข้าสู่ระบบ'}
           </button>
         </form>
 

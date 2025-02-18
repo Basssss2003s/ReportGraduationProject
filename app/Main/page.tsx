@@ -7,12 +7,19 @@ import { useRouter } from "next/navigation";
 import ApplicantTracking from "../../navbar/Breadcrump";
 import PersonIcon from '@mui/icons-material/Person';
 import Link from "next/link";
+import { useGetAll } from "../../hooks/useGetAll";
+import { Complaint } from "../../types/complaintCreate";
+import { useGetComplaintByEmailAddress } from "../../hooks/useGetComplaintByEmailAddress";
+
 
 const MainPage = () => {
   const { session } = useSession();
   const { logout } = useAuth();
   const router = useRouter();
   const [userName, setUserName] = useState<string>("");
+  const { data: getAll } = useGetAll();
+  const { data: responseData } = useGetComplaintByEmailAddress(session?.emailAddress) as { data?: Complaint[] };
+  const userComplaintsCount = responseData?.length || 0; // นับจำนวนคำร้องทั้งหมดของ user ปัจจุบัน
 
   useEffect(() => {
     if (session?.fullName) {
@@ -25,7 +32,7 @@ const MainPage = () => {
       router.push("/login");
     } catch (error) {
       console.error("Logout failed:", error);
-      alert("เกิดข้อผิดพลาดในการออกจากระบบ กรุณาลองใหม่อีกครั้ง");
+      alert("รหัสผ่านหรืออีเมลไม่ถูกต้อง");
     }
   };
 
@@ -35,12 +42,12 @@ const MainPage = () => {
       {/* Gradient Header */}
       <div className="w-full bg-gradient-to-b from-green-200 to-blue-200 h-32 rounded-b-lg shadow-md">
         <Link href="/main" className="hover:underline">
-        <img
-          src="/images/logo.png"
-          width={150}
-          className="absolute top-2 left-2 z-20"
-          alt="Logo"
-        />
+          <img
+            src="/images/logo.png"
+            width={150}
+            className="absolute top-2 left-2 z-20"
+            alt="Logo"
+          />
         </Link>
         <div className="text-right mr-[60px] mt-[40px] w-[95%]">
           <button
@@ -75,25 +82,31 @@ const MainPage = () => {
           {/* Card: All Reports */}
           <div className="bg-blue-100 rounded-lg p-6 shadow-md text-center transform transition-transform hover:scale-105">
             <h2 className="text-xl font-semibold text-blue-800">การรายงานทั้งหมด</h2>
-            <p className="mt-4 text-3xl font-bold text-blue-800">120</p>
+            <p className="mt-4 text-3xl font-bold text-blue-800">{getAll?.length}</p>
           </div>
 
           {/* Card: Pending Reports */}
           <div className="bg-orange-100 rounded-lg p-6 shadow-md text-center transform transition-transform hover:scale-105">
             <h2 className="text-xl font-semibold text-orange-800">รอดำเนินการ</h2>
-            <p className="mt-4 text-3xl font-bold text-orange-800">30</p>
+            <p className="mt-4 text-3xl font-bold text-orange-800">
+              {getAll?.filter(item => item.status === 'รอดำเนินการ').length}
+            </p>
           </div>
 
           {/* Card: In Progress */}
           <div className="bg-yellow-100 rounded-lg p-6 shadow-md text-center transform transition-transform hover:scale-105">
             <h2 className="text-xl font-semibold text-yellow-800">กำลังดำเนินการ</h2>
-            <p className="mt-4 text-3xl font-bold text-yellow-800">50</p>
+            <p className="mt-4 text-3xl font-bold text-yellow-800">
+              {getAll?.filter(item => item.status === 'กำลังดำเนินการ').length}
+            </p>
           </div>
 
           {/* Card: Resolved Reports */}
           <div className="bg-green-100 rounded-lg p-6 shadow-md text-center transform transition-transform hover:scale-105">
-            <h2 className="text-xl font-semibold text-green-800">คำร้องที่ถูกแก้ไข</h2>
-            <p className="mt-4 text-3xl font-bold text-green-800">10</p>
+            <h2 className="text-xl font-semibold text-green-800">เสร็จสิ้น</h2>
+            <p className="mt-4 text-3xl font-bold text-green-800">
+              {getAll?.filter(item => item.status === 'เสร็จสิ้น').length}
+            </p>
           </div>
         </div>
 
@@ -101,7 +114,9 @@ const MainPage = () => {
           {/* Card: Your Reports */}
           <div className="bg-purple-100 rounded-lg p-6 shadow-md text-center transform transition-transform hover:scale-105">
             <h2 className="text-xl font-semibold text-purple-800">คำร้องของคุณ</h2>
-            <p className="mt-4 text-3xl font-bold text-purple-800">15</p>
+            <p className="mt-4 text-3xl font-bold text-purple-800">
+              {userComplaintsCount}
+            </p>
             <button
               onClick={() => (window.location.href = '/followreport')}
               className="mt-4 px-6 py-2 bg-purple-500 text-white rounded-lg hover:bg-purple-600 focus:outline-none focus:ring-2 focus:ring-purple-400"
@@ -113,7 +128,9 @@ const MainPage = () => {
           {/* Card: Resolved Reports */}
           <div className="bg-teal-100 rounded-lg p-6 shadow-md text-center transform transition-transform hover:scale-105">
             <h2 className="text-xl font-semibold text-teal-800">คำร้องที่รอตรวจสอบ</h2>
-            <p className="mt-4 text-3xl font-bold text-teal-800">5</p>
+            <p className="mt-4 text-3xl font-bold text-teal-800">
+              {responseData?.filter(item => item.status === 'รอตรวจสอบ').length}
+            </p>
             <button
               onClick={() => (window.location.href = '/followreport')}
               className="mt-4 px-6 py-2 bg-teal-500 text-white rounded-lg hover:bg-teal-600 focus:outline-none focus:ring-2 focus:ring-teal-400"

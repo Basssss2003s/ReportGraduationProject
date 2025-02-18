@@ -1,11 +1,16 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Swal from "sweetalert2";
 import Navbar from "../adminnavbar/page";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
-
+import Link from "next/link";
+import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
+import { useSession } from "../../utils/useSession";
+import { useAuth } from "../../utils/auth";
+import { useRouter } from "next/navigation";
+import ApplicantTrackingAdmin from "../../navbar/BreadcrumpAdmin";
 interface Complaint {
   id: number;
   date: string;
@@ -19,17 +24,37 @@ interface Complaint {
 }
 
 const ComplaintTable: React.FC = () => {
+  const { session } = useSession();
+  const { logout } = useAuth();
+  const router = useRouter();
+  const [userName, setUserName] = useState<string>("");
+
+  useEffect(() => {
+    if (session?.fullName) {
+      setUserName(session.fullName);
+    }
+  }, [session]);
+  const handleLogout = async () => {
+    try {
+      logout();
+      router.push("/adminlogin");
+    } catch (error) {
+      console.error("Logout failed:", error);
+      alert("รหัสผ่านหรืออีเมลไม่ถูกต้อง");
+    }
+  };
+
   const [complaints, setComplaints] = useState<Complaint[]>([
     { id: 1, date: "2025-01-01", from: "นักศึกษา", subCategory: "ระบบอินเทอร์เน็ต", details: "อินเทอร์เน็ตช้าในห้องเรียน A101", status: "รอดำเนินการ", firstName: "สมชาย", lastName: "ใจดี", phone: "0812345678" },
-  { id: 2, date: "2025-01-02", from: "อาจารย์", subCategory: "อุปกรณ์ในห้องเรียน", details: "โปรเจคเตอร์ไม่ทำงาน", status: "กำลังดำเนินการ", firstName: "วิชาญ", lastName: "นามสมมติ", phone: "0898765432" },
-  { id: 3, date: "2025-01-03", from: "บุคคลภายนอก", subCategory: "พื้นที่ส่วนกลาง", details: "ห้องน้ำสกปรก", status: "รอดำเนินการ", firstName: "สายไหม", lastName: "ดีพร้อม", phone: "0998887776" },
-  { id: 4, date: "2025-01-04", from: "นักศึกษา", subCategory: "พื้นที่ส่วนกลาง", details: "ไม่มีที่นั่งในห้องสมุด", status: "เสร็จสิ้น", firstName: "อรพรรณ", lastName: "ใจงาม", phone: "0867654321" },
-  { id: 5, date: "2025-01-05", from: "อาจารย์", subCategory: "ระบบอินเทอร์เน็ต", details: "Wi-Fi ในห้องพักอาจารย์หลุดบ่อย", status: "รอดำเนินการ", firstName: "ก้องภพ", lastName: "แสงทอง", phone: "0823456789" },
-  { id: 6, date: "2025-01-06", from: "บุคคลภายนอก", subCategory: "เจ้าหน้าที่", details: "พนักงานพูดจาไม่สุภาพ", status: "รอดำเนินการ", firstName: "จิราภรณ์", lastName: "พงษ์พิพัฒน์", phone: "0955551234" },
-  { id: 7, date: "2025-01-07", from: "นักศึกษา", subCategory: "อุปกรณ์ในห้องเรียน", details: "เก้าอี้เสีย", status: "รอดำเนินการ", firstName: "มนัส", lastName: "รุ่งเรือง", phone: "0834567890" },
-  { id: 8, date: "2025-01-08", from: "อาจารย์", subCategory: "ที่จอดรถ", details: "ที่จอดรถไม่เพียงพอ", status: "รอดำเนินการ", firstName: "ประภาส", lastName: "อินทร์ทอง", phone: "0845678901" },
-  { id: 9, date: "2025-01-09", from: "บุคคลภายนอก", subCategory: "ห้องเรียน", details: "ห้องเรียนไม่สะอาด", status: "กำลังดำเนินการ", firstName: "สุนีย์", lastName: "ดวงแก้ว", phone: "0866781234" },
-  { id: 10, date: "2025-01-10", from: "นักศึกษา", subCategory: "ระบบอินเทอร์เน็ต", details: "Wi-Fi ไม่ครอบคลุม", status: "รอดำเนินการ", firstName: "วิไล", lastName: "รัตนวดี", phone: "0878904321" },
+    { id: 2, date: "2025-01-02", from: "อาจารย์", subCategory: "อุปกรณ์ในห้องเรียน", details: "โปรเจคเตอร์ไม่ทำงาน", status: "กำลังดำเนินการ", firstName: "วิชาญ", lastName: "นามสมมติ", phone: "0898765432" },
+    { id: 3, date: "2025-01-03", from: "บุคคลภายนอก", subCategory: "พื้นที่ส่วนกลาง", details: "ห้องน้ำสกปรก", status: "รอดำเนินการ", firstName: "สายไหม", lastName: "ดีพร้อม", phone: "0998887776" },
+    { id: 4, date: "2025-01-04", from: "นักศึกษา", subCategory: "พื้นที่ส่วนกลาง", details: "ไม่มีที่นั่งในห้องสมุด", status: "เสร็จสิ้น", firstName: "อรพรรณ", lastName: "ใจงาม", phone: "0867654321" },
+    { id: 5, date: "2025-01-05", from: "อาจารย์", subCategory: "ระบบอินเทอร์เน็ต", details: "Wi-Fi ในห้องพักอาจารย์หลุดบ่อย", status: "รอดำเนินการ", firstName: "ก้องภพ", lastName: "แสงทอง", phone: "0823456789" },
+    { id: 6, date: "2025-01-06", from: "บุคคลภายนอก", subCategory: "เจ้าหน้าที่", details: "พนักงานพูดจาไม่สุภาพ", status: "รอดำเนินการ", firstName: "จิราภรณ์", lastName: "พงษ์พิพัฒน์", phone: "0955551234" },
+    { id: 7, date: "2025-01-07", from: "นักศึกษา", subCategory: "อุปกรณ์ในห้องเรียน", details: "เก้าอี้เสีย", status: "รอดำเนินการ", firstName: "มนัส", lastName: "รุ่งเรือง", phone: "0834567890" },
+    { id: 8, date: "2025-01-08", from: "อาจารย์", subCategory: "ที่จอดรถ", details: "ที่จอดรถไม่เพียงพอ", status: "รอดำเนินการ", firstName: "ประภาส", lastName: "อินทร์ทอง", phone: "0845678901" },
+    { id: 9, date: "2025-01-09", from: "บุคคลภายนอก", subCategory: "ห้องเรียน", details: "ห้องเรียนไม่สะอาด", status: "กำลังดำเนินการ", firstName: "สุนีย์", lastName: "ดวงแก้ว", phone: "0866781234" },
+    { id: 10, date: "2025-01-10", from: "นักศึกษา", subCategory: "ระบบอินเทอร์เน็ต", details: "Wi-Fi ไม่ครอบคลุม", status: "รอดำเนินการ", firstName: "วิไล", lastName: "รัตนวดี", phone: "0878904321" },
   ]);
 
   const [filters, setFilters] = useState({
@@ -40,7 +65,7 @@ const ComplaintTable: React.FC = () => {
   });
 
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 9;
+  const itemsPerPage = 10;
 
   const subCategoryOptions: { [key: string]: string[] } = {
     อาจารย์: [
@@ -158,12 +183,12 @@ const ComplaintTable: React.FC = () => {
       confirmButtonText: 'บันทึก',
       preConfirm: () => {
         const status = (document.getElementById('swal-status') as HTMLSelectElement).value;
-  
+
         if (!status) {
           Swal.showValidationMessage('กรุณาเลือกสถานะ');
           return;
         }
-  
+
         return { status };
       },
     }).then((result) => {
@@ -177,19 +202,42 @@ const ComplaintTable: React.FC = () => {
         Swal.fire('บันทึกสำเร็จ!', 'ข้อมูลได้ถูกแก้ไขเรียบร้อยแล้ว', 'success');
       }
     });
-  };  
+  };
 
   return (
     <div className="min-h-screen bg-[#e8edff] flex flex-col items-center">
-      <div className="w-full bg-gradient-to-b from-green-200 to-blue-200 h-32 rounded-b-lg shadow-md"></div>
+      <div className="w-full bg-gradient-to-b from-green-200 to-blue-200 h-32 rounded-b-lg shadow-md">
+        <Link href="/adminmain" className="hover:underline">
+          <img
+            src="/images/logo.png"
+            width={150}
+            className="absolute top-2 left-2 z-20"
+            alt="Logo"
+          />
+        </Link>
+        <div className="text-right mr-[60px] mt-[40px] w-[95%]">
+          <button
+            onClick={handleLogout}
+            className="inline-flex items-center"
+          >
+            <span className="text-gray-800 font-medium">
+              {userName}
+              <AdminPanelSettingsIcon style={{ marginBottom: "8px", marginLeft: "5px" }} />
+            </span>
+          </button>
+        </div>
+
+      </div>
 
       <div className="w-full max-w-[90%] -mt-10 z-10">
         <div className="bg-white shadow-lg rounded-xl">
           <Navbar />
         </div>
       </div>
-
-      <div className="bg-white shadow-lg rounded-lg p-4 mt-6 max-w-[90%] w-full">
+      <div className="rounded-lg mt-6 ml-8 w-[90%]">
+        <ApplicantTrackingAdmin />
+      </div>
+      <div className="bg-white shadow-lg rounded-lg p-4 max-w-[90%] w-full">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <input
             type="date"
@@ -236,7 +284,7 @@ const ComplaintTable: React.FC = () => {
       </div>
 
       <div className="bg-white shadow-lg rounded-lg p-6 mt-6 max-w-[90%] w-full flex-grow mb-12">
-      <table className="min-w-full table-auto">
+        <table className="min-w-full table-auto">
           <thead>
             <tr>
               <th className="px-4 py-2 border">ลำดับ</th>
