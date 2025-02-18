@@ -132,66 +132,37 @@ const MainPage: React.FC = () => {
     }
   }, [urlId, decrypt]);
 
-  useEffect(() => {
-    console.log("1. Original stages:", stages);
-    console.log("2. Sorted stages:", sortedStages);
-    console.log("3. Grouped stages:", groupedStages);
-    console.log("4. Reorganized stages:", reorganizedStages);
-  }, [stages, sortedStages, groupedStages, reorganizedStages]);
-
-  //   useEffect(() => {
-  //     if (isSuccess && dataById) {
-  //         // ค้นหา stages ที่มี activity เป็น "In progress"
-  //         const inProgressStages = dataById.data.stageStatus.filter((stage: { activity: string; }) => stage.activity === "IN PROGRESS");
-  //         const resolvedStage = dataById.data.stageStatus.filter((stage: { activity: string; }) => stage.activity === "RESOLVED");
-
-  //         // ดึง stageStatus ล่าสุดที่ตรงกับ "In progress"
-  //         const latestInProgressStage = inProgressStages[inProgressStages.length - 1];
-  //         const latestInResolved = resolvedStage[resolvedStage.length - 1];
-
-
-  //         // ตั้งค่า comment ของ stageStatus ล่าสุด
-  //         setLatestComment(latestInProgressStage?.comment || 'No comment');
-  //         setLatestCommens(latestInResolved?.comment || 'No comment');
-  //     }
-  // }, [dataById, isSuccess]);
-
-
   const handleLogout = async () => {
     try {
       logout();
       router.push("/login");
     } catch (error) {
       console.error("Logout failed:", error);
-      alert("เกิดข้อผิดพลาดในการออกจากระบบ กรุณาลองใหม่อีกครั้ง");
+      alert("รหัสผ่านหรืออีเมลไม่ถูกต้อง");
     }
   };
-
-  // const getBgColor = (status: any) => {
-  //   if (status === 'รอดำเนินการ') {
-  //     const bgCancelColor = '#c12314';
-  //     return bgCancelColor ? bgCancelColor : '#CCCCCC';
-  //   }
-  //   return getStatusColor(status);
-  // };
-
-
   const getStatusColor = (state: string) => {
-    const currentState = dataById?.data.stageStatus[0].state;
-    if (state === currentState) {
+    // ตรวจสอบว่ามี stageStatus หรือไม่
+    const currentState = dataById?.data.stageStatus.some((status: { state: string; }) => status.state === state);
+
+    if (currentState) {
+      // กำหนดสีตามสถานะ
       switch (state) {
         case 'รอดำเนินการ':
-          return '#FFA500';
+          return '#FFA500';  // สีส้ม
         case 'กำลังดำเนินการ':
-          return '#FFA500';
+          return '#3190FF';  // สีส้ม
         case 'เสร็จสิ้น':
-          return '#008000';
+          return '#008000';  // สีเขียว
         default:
-          return '#CCCCCC';
+          return '#CCCCCC';  // สีเทา
       }
     }
+
+    // ถ้าไม่มีสถานะที่ตรงกัน ให้ใช้สีเทา
     return '#CCCCCC';
   };
+
 
   return (
     <div className="min-h-screen bg-[#e8edff] flex flex-col items-center">
@@ -229,7 +200,7 @@ const MainPage: React.FC = () => {
       <div className="bg-white shadow-lg rounded-lg p-6 mt-2 max-w-[90%] w-full flex-grow mb-12">
         <div className="mb-6 items-center">
           <h2 className="text-xl font-semibold">รายละเอียดการร้องเรียน</h2>
-          <div className="mt-4 grid grid-cols-2 gap-4">
+          <div className="mt-4 grid grid-cols-2 gap-4 ">
             <p><strong>ชื่อผู้ร้องเรียน:</strong> {dataById?.data.fullName}</p>
             <p><strong>อีเมล:</strong> {dataById?.data.emailAddress}</p>
             <p><strong>เบอร์โทร:</strong> {dataById?.data.telephone}</p>
@@ -242,66 +213,71 @@ const MainPage: React.FC = () => {
         </div>
         <Timeline>
           {reorganizedStages.map((stageGroup, index) => {
-            const isCurrentState = stageGroup.stages[0].state === dataById?.data.stageStatus[0].state;
-            return (
-              <TimelineItem key={`${stageGroup.activity}-${index}`}>
-                <TimelineSeparator>
-                  <TimelineDot
-                    style={{
-                      backgroundColor: getStatusColor(stageGroup.stages[0].state),
-                      width: '48px',
-                      height: '48px',
-                      transition: 'all 0.3s ease'
-                    }}
-                  />
-                  {/* แสดงเส้นทุกครั้งยกเว้น item สุดท้าย */}
-                  <TimelineConnector
-                    style={{
-                      backgroundColor: '#CCCCCC',
-                      width: '2px',
-                      height: '60px'
-                    }}
-                  />
-                  {/* จุดเล็กที่ปลายเส้นสุดท้าย */}
-                  {index === reorganizedStages.length - 1 && (
+            return stageGroup.stages.map((stage, stageIndex) => {
+              const isCurrentState = dataById?.data.stageStatus.some((status: { state: any; }) => status.state === stage.state);
+              return (
+                <TimelineItem key={`${stageGroup.activity}-${index}-${stageIndex}`}>
+                  <TimelineSeparator>
                     <TimelineDot
                       style={{
-                        backgroundColor: '#CCCCCC',
-                        width: '24px',
-                        height: '24px',
-                        marginLeft: 'auto',
-                        marginRight: 'auto',
+                        backgroundColor: getStatusColor(stage.state),
+                        width: '48px',
+                        height: '48px',
+                        transition: 'all 0.3s ease',
                       }}
                     />
-                  )}
-                </TimelineSeparator>
-                <TimelineContent>
-                  <div className="ml-4">
-                    <h3 className={`font-semibold text-lg ${isCurrentState ? 'text-gray-900' : 'text-gray-400'}`}>
-                      {stageGroup.stages[0].state}
-                    </h3>
-                    {isCurrentState && (
-                      <div className="mt-2">
-                        <p className="text-gray-600">
-                          {new Date(stageGroup.stages[0].createDate).toLocaleString('th-TH', {
-                            year: 'numeric',
-                            month: 'long',
-                            day: 'numeric',
-                            hour: '2-digit',
-                            minute: '2-digit'
-                          })}
-                        </p>
-                        {stageGroup.stages[0].detailsOfTheTopic && (
-                          <p className="mt-1 text-gray-700">{stageGroup.stages[0].detailsOfTheTopic}</p>
-                        )}
-                      </div>
+                    {/* แสดงเส้นทุกครั้งยกเว้น item สุดท้าย */}
+                    {(index === reorganizedStages.length - 1 || stageIndex < stageGroup.stages.length - 1) && stage.state !== 'เสร็จสิ้น' ? (
+                      <TimelineConnector
+                        style={{
+                          backgroundColor: getStatusColor(stage.state),
+                          width: '2px',
+                          height: '60px',
+                        }}
+                      />
+                    ) : null}
+                    {/* จุดเล็กที่ปลายเส้นสุดท้าย */}
+                    {(index === reorganizedStages.length - 1 && stageIndex === stageGroup.stages.length - 1) && stage.state !== 'เสร็จสิ้น' && (
+                      <TimelineDot
+                        style={{
+                          backgroundColor: '#CCCCCC',
+                          width: '24px',
+                          height: '24px',
+                          marginLeft: 'auto',
+                          marginRight: 'auto',
+                        }}
+                      />
                     )}
-                  </div>
-                </TimelineContent>
-              </TimelineItem>
-            );
+                  </TimelineSeparator>
+                  <TimelineContent>
+                    <div className="ml-4">
+                      <h3 className={`font-semibold text-lg ${isCurrentState ? 'text-gray-900' : 'text-gray-400'}`}>
+                        {stage.state}
+                      </h3>
+                      {isCurrentState && (
+                        <div className="mt-2">
+                          <p className="text-gray-600">
+                            {new Date(stage.createDate).toLocaleString('th-TH', {
+                              year: 'numeric',
+                              month: 'long',
+                              day: 'numeric',
+                              hour: '2-digit',
+                              minute: '2-digit',
+                            })}
+                          </p>
+                          {stage.detailsOfTheTopic && (
+                            <p className="mt-1 text-gray-700">{stage.detailsOfTheTopic}</p>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  </TimelineContent>
+                </TimelineItem>
+              );
+            });
           })}
         </Timeline>
+
       </div>
 
       <style jsx global>{`

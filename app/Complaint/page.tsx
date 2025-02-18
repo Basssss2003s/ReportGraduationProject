@@ -69,7 +69,7 @@ const MainPage: React.FC = () => {
       router.push("/login");
     } catch (error) {
       console.error("Logout failed:", error);
-      alert("เกิดข้อผิดพลาดในการออกจากระบบ กรุณาลองใหม่อีกครั้ง");
+      alert("รหัสผ่านหรืออีเมลไม่ถูกต้อง");
     }
   };
 
@@ -172,44 +172,6 @@ const MainPage: React.FC = () => {
     setTopicOfComplaint("");
     setDetailsOfTheTopic("");
   };
-
-  // const handleSubmit = () => {
-  //   const errors: string[] = [];
-  //   if (!selectedCategory) errors.push("หัวข้อร้องเรียนสำหรับ");
-  //   if (!selectedSubCategory) errors.push("รายละเอียดหัวข้อร้องเรียน");
-  //   if (!problemDetails.trim()) errors.push("รายละเอียดปัญหา");
-  //   if (!phoneNumber.trim()) errors.push("เบอร์โทร");
-  //   if (!email.trim()) errors.push("อีเมลล์");
-
-  //   if (errors.length > 0) {
-  //     Swal.fire({
-  //       title: "กรุณากรอกข้อมูลให้ครบถ้วน!",
-  //       text: `กรุณาระบุ: ${errors.join(", ")}`,
-  //       icon: "warning",
-  //       confirmButtonText: "ตกลง",
-  //     });
-  //     return;
-  //   }
-
-  //   Swal.fire({
-  //     title: "คุณต้องการส่งข้อมูลหรือไม่?",
-  //     text: "โปรดยืนยันว่าคุณต้องการส่งข้อมูลนี้",
-  //     icon: "question",
-  //     showCancelButton: true,
-  //     confirmButtonText: "ส่งข้อมูล",
-  //     cancelButtonText: "ยกเลิก",
-  //   }).then((result) => {
-  //     if (result.isConfirmed) {
-  //       resetForm();
-  //       Swal.fire({
-  //         title: "ส่งข้อมูลสำเร็จ!",
-  //         text: "เราได้รับข้อมูลของคุณแล้ว ขอบคุณที่แจ้งปัญหา",
-  //         icon: "success",
-  //         confirmButtonText: "ตกลง",
-  //       });
-  //     }
-  //   });
-  // };
 
   return (
     <>
@@ -346,13 +308,13 @@ const MainPage: React.FC = () => {
                   </div>
                   <div>
                     <label className="block text-xl font-medium text-gray-700">
-                      อีเมลล์
+                      อีเมล
                       <span className="text-red-500"> *</span>
                     </label>
                     <input
                       type="email"
                       className="mt-2 p-3 border rounded-lg w-full text-gray-500 bg-gray-100 cursor-not-allowed focus:outline-none"
-                      placeholder="กรุณากรอกอีเมลล์"
+                      placeholder="กรุณากรอกอีเมล"
                       value={session?.emailAddress}
                       readOnly
                       style={{ pointerEvents: 'none' }} // ป้องกันการคลิกหรือโฟกัส

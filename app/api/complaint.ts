@@ -1,7 +1,7 @@
-import { ComplaintCreate } from '../../types/complaintCreate';
+import { ComplaintCreate, GetComplaint, ReportProblemCreate } from '../../types/complaintCreate';
 import { IResponse } from '../../other/IResponse';
 import { axiosApi } from '../../utils/axios';
-import axios from 'axios';
+import axios, { isAxiosError } from 'axios';
 
 
 export const complaintCreateApi = async (payload:ComplaintCreate) => {
@@ -41,3 +41,39 @@ export const getComplaintByIdApi = async (id: string) => {
     throw err;
   }
 };
+
+export const getAllApi = async (): Promise<GetComplaint[]> => {
+  try {
+    const response = await axiosApi<GetComplaint[]>(`get`,`/auth/getAll`);
+    if (!response || !Array.isArray(response)) {
+      throw new Error("Response data is not an array or is undefined");
+    }
+    return response;
+  } catch (err) {
+    if (isAxiosError(err)) {
+      console.error(err);
+      throw err;
+    } else {
+      console.error(err);
+      throw err;
+    }
+  }
+};
+
+export const reportProblemCreateApi = async (payload:ReportProblemCreate) => {
+  try {
+    const response = await axiosApi<IResponse>('post', `/auth/addreport`,
+      payload,
+      { headers: { 'Content-Type': 'application/json' } }
+     );
+    return response;
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      console.error("Axios error:", error.message);
+      console.error("Axios error details:", error.response?.data);
+    } else {
+      console.error("Unexpected error:", error);
+    }
+    throw error;
+  }
+}

@@ -1,6 +1,37 @@
+"use client";
 import Link from 'next/link';
-
+import { useState } from 'react';
+import { useRouter } from "next/navigation";
+import VisibilityIcon from '@mui/icons-material/Visibility';
+import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
+import { useAuth } from '../../utils/auth';
+import { useSession } from '../../utils/useSession';
 export default function Login() {
+  const router = useRouter();
+  const { loginAdmin } = useAuth();
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const { refreshSession2 } = useSession(); // ดึง refreshSession มาจาก useSession
+
+
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    // setIsLoading(true);
+    setError('');
+
+    try {
+      await loginAdmin(email, password);
+      await refreshSession2(); // รีเฟรช session
+      router.push("/adminmain");
+    } catch (error) {
+      console.error("Logout failed:", error);
+      alert("รหัสผ่านหรืออีเมลไม่ถูกต้อง");
+    }
+  };
+
+
   return (
     <div
       className="flex justify-center items-center min-h-screen bg-gray-100 bg-cover bg-center"
@@ -10,24 +41,45 @@ export default function Login() {
     >
       <div className="bg-white p-8 rounded-lg shadow-lg w-96 opacity-100">
         <h2 className="text-2xl font-semibold text-center text-gray-700 mb-6">เข้าสู่ระบบ</h2>
-        <form>
+        {error && (
+          <div className="mb-4 p-3 bg-red-100 text-red-700 rounded-lg text-center">
+            {error}
+          </div>
+        )}
+        <form onSubmit={handleLogin}>
           <div className="mb-4">
-            <label htmlFor="username" className="block text-gray-700">ชื่อผู้ใช้</label>
+            <label htmlFor="email" className="block text-gray-700">อีเมล</label>
             <input
-              type="text"
-              id="username"
+              type="email"
+              id="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
               className="w-full p-3 border border-gray-300 rounded-lg mt-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="กรอกชื่อผู้ใช้"
+              placeholder="กรอกอีเมล"
+              required
+            // disabled={isLoading}
             />
           </div>
           <div className="mb-4">
-            <label htmlFor="password" className="block text-gray-700">คำผ่าน</label>
-            <input
-              type="password"
-              id="password"
-              className="w-full p-3 border border-gray-300 rounded-lg mt-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="ระบุคำผ่าน"
-            />
+            <label className="block text-gray-700 mb-2">รหัสผ่าน</label>
+            <div className="relative">
+              <input
+                type={showPassword ? "text" : "password"}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="w-full p-3 border border-gray-300 rounded-lg mt-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="กรอกรหัสผ่าน"
+                required
+              // disabled={isLoading}
+              />
+              <button
+                type="button"
+                className="absolute right-3 top-8 transform -translate-y-1/2 text-gray-500"
+                onClick={() => setShowPassword(!showPassword)}
+              >
+                {showPassword ? <VisibilityOffIcon /> : <VisibilityIcon />}
+              </button>
+            </div>
           </div>
           <button
             type="submit"

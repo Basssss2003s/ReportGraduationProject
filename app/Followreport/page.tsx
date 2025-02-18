@@ -1,5 +1,5 @@
 "use client";
-import React, {useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import Navbar from "../navbar/page";
 import { useSession } from "../../utils/useSession";
 import { useAuth } from "../../utils/auth";
@@ -31,7 +31,7 @@ const MainPage: React.FC = () => {
       router.push("/login");
     } catch (error) {
       console.error("Logout failed:", error);
-      alert("เกิดข้อผิดพลาดในการออกจากระบบ กรุณาลองใหม่อีกครั้ง");
+      alert("รหัสผ่านหรืออีเมลไม่ถูกต้อง");
     }
   };
 
@@ -93,7 +93,7 @@ const MainPage: React.FC = () => {
               <th className="px-4 py-2 border text-center">วันที่</th>
               <th className="px-4 py-2 border">หัวข้อร้องเรียน</th>
               <th className="px-4 py-2 border">รายละเอียด</th>
-              <th className="px-4 py-2 border">สถานะ</th>
+              <th className="px-4 py-2 border w-40">สถานะ</th>
               <th className="px-4 py-2 border text-center">หมายเหตุ</th>
             </tr>
           </thead>
@@ -101,25 +101,31 @@ const MainPage: React.FC = () => {
             {responseData && responseData.length > 0 ? (
               responseData.map((complaint, index) => (
                 <tr key={index}>
-                  <td className="px-4 py-2 border text-center">{complaint.id}</td>
+                  <td className="px-4 py-2 border text-center">{index + 1}</td>
                   <td className="px-4 py-2 border text-center">
                     {formatDate(complaint.createDate?.toString())}
                   </td>
                   <td className="px-4 py-2 border text-center">{complaint.detailsOfTheTopic || '-'}</td>
                   <td className="px-4 py-2 border">{complaint.problemDetail || '-'}</td>
-                  <td
-                    style={{
-                      backgroundColor:
-                        complaint.status === 'รอดำเนินการ' ? '#FFA500' :
-                          complaint.status === 'เสร็จสิ้น' ? 'green' :
-                            complaint.status === 'ไม่สามารถดำเนินการได้' ? 'red' :
-                              '', // หากไม่มี status ที่ตรงกับที่กำหนดจะไม่ใส่สีพื้นหลัง
-                      fontWeight: 'bold',
-                    }}
-                    className="text-white px-3 py-0.5 rounded-full ml-2 text-center w-32 border">
-                    {complaint.status || '-'}
+                  <td className="border text-center">
+                    <span
+                      style={{
+                        backgroundColor:
+                          complaint.status === 'รอดำเนินการ' ? '#FFA500' :
+                            complaint.status === 'กำลังดำเนินการ' ? '#FFA500' :
+                              complaint.status === 'รอตรวจสอบ' ? 'green' :
+                                complaint.status === 'เสร็จสิ้น' ? 'green' :
+                                '',
+                        fontWeight: 'bold',
+                        padding: '2px 12px',
+                        display: 'inline-block',
+                        borderRadius: '9999px',
+                      }}
+                      className="text-white ">
+                      {complaint.status || '-'}
+                    </span>
                   </td>
-                  <td className="px-4 py-2 border text-center">
+                  <td className="px-4 py-2 border text-center ">
                     <button className="text-blue-500 hover:text-blue-700" onClick={() => handleViewComplaint({ id: complaint.id })}>
                       <RemoveRedEyeIcon />
                     </button>
