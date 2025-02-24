@@ -19,6 +19,8 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
 import ApplicantTrackingAdmin from "../../navbar/BreadcrumpAdmin";
+import { useGetAll } from "../../hooks/useGetAll";
+
 ChartJS.register(
   ArcElement,
   Tooltip,
@@ -36,6 +38,9 @@ const MainPage = () => {
   const { logout } = useAuth();
   const router = useRouter();
   const [userName, setUserName] = useState<string>("");
+  const { data: getAll } = useGetAll();
+  
+
 
   useEffect(() => {
     if (session?.fullName) {
@@ -335,22 +340,28 @@ const MainPage = () => {
       <div className=" grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <div className="bg-blue-100 rounded-lg p-6 shadow-md text-center transform transition-transform hover:scale-105">
           <h2 className="text-xl font-semibold text-blue-800">การรายงานทั้งหมด</h2>
-          <p className="mt-4 text-3xl font-bold text-blue-800">120</p>
+          <p className="mt-4 text-3xl font-bold text-blue-800">{getAll?.length}</p>
         </div>
 
         <div className="bg-orange-100 rounded-lg p-6 shadow-md text-center transform transition-transform hover:scale-105">
           <h2 className="text-xl font-semibold text-orange-800">รอดำเนินการ</h2>
-          <p className="mt-4 text-3xl font-bold text-orange-800">30</p>
+          <p className="mt-4 text-3xl font-bold text-orange-800">
+            {getAll?.filter(item => item.status === 'รอดำเนินการ').length}
+          </p>
         </div>
 
         <div className="bg-yellow-100 rounded-lg p-6 shadow-md text-center transform transition-transform hover:scale-105">
           <h2 className="text-xl font-semibold text-yellow-800">กำลังดำเนินการ</h2>
-          <p className="mt-4 text-3xl font-bold text-yellow-800">50</p>
+          <p className="mt-4 text-3xl font-bold text-yellow-800">
+          {getAll?.filter(item => item.status === 'กำลังดำเนินการ').length}
+          </p>
         </div>
 
         <div className="bg-green-100 rounded-lg p-6 shadow-md text-center transform transition-transform hover:scale-105">
-          <h2 className="text-xl font-semibold text-green-800">คำร้องที่ถูกแก้ไข</h2>
-          <p className="mt-4 text-3xl font-bold text-green-800">10</p>
+          <h2 className="text-xl font-semibold text-green-800">เสร็จสิ้น</h2>
+          <p className="mt-4 text-3xl font-bold text-green-800">
+          {getAll?.filter(item => item.status === 'เสร็จสิ้น').length}
+          </p>
         </div>
       </div>
 

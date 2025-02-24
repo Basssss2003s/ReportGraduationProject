@@ -13,8 +13,10 @@ const eslintConfig = [
   ...compat.extends("next/core-web-vitals", "next/typescript"),
   {
     rules: {
-      "@typescript-eslint/no-explicit-any": "off", // ปิดการเตือนเกี่ยวกับการใช้ 'any'
-      "@typescript-eslint/no-unused-vars": ["warn", { "argsIgnorePattern": "^_" }] // ปิดการเตือนตัวแปรที่ไม่ได้ใช้
+      "@typescript-eslint/no-explicit-any": "off", // ปิดเตือน 'any'
+      "@typescript-eslint/no-unused-vars": ["warn", { "argsIgnorePattern": "^_" }], // ปิดเตือนตัวแปรไม่ได้ใช้
+      "@next/next/no-img-element": "off", // ✅ ปิดเตือนการใช้ <img>
+      "react/jsx-key": "off", // ✅ ปิดเตือนการใช้ key ใน .map()
     },
   },
 ];

@@ -77,3 +77,25 @@ export const reportProblemCreateApi = async (payload:ReportProblemCreate) => {
     throw error;
   }
 }
+
+export const updateComplaintApi = async (id: number, payload: {
+  status:string
+  state: string;
+  firstName: string;
+  lastName: string;
+  fullName: string;
+  emailAddress: string;
+}) => {
+  try {
+    const response = await axiosApi('put', `/auth/update/${id}`, payload);
+    return response;
+  } catch (err) {
+    if (isAxiosError(err)) {
+      console.error(err);
+      throw Promise.reject(err);
+    } else {
+      console.error(err);
+      throw Promise.reject(err);
+    }
+  }
+}

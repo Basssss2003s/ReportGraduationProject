@@ -1,6 +1,6 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import PersonIcon from '@mui/icons-material/Person';
 import { useSession } from "../../../utils/useSession";
 import { useAuth } from "../../../utils/auth";
@@ -12,12 +12,16 @@ import TimelineSeparator from "@mui/lab/TimelineSeparator";
 import TimelineConnector from "@mui/lab/TimelineConnector";
 import TimelineContent from "@mui/lab/TimelineContent";
 import TimelineDot from "@mui/lab/TimelineDot";
-import Image from "next/image";
-import logo from "../../../public/images/logo.png";
 import Link from "next/link";
 import { useGetComplaintById } from "../../../hooks/useGetComplaintById";
 import useDecryptData from "../../../hooks/Encryption/Decryption";
-import { GetComplaint } from "../../../types/complaintCreate";
+import Box from '@mui/material/Box';
+import Tabs from '@mui/material/Tabs';
+import Tab from '@mui/material/Tab';
+import DescriptionIcon from '@mui/icons-material/Description';
+import TimelineIcon from '@mui/icons-material/Timeline';
+import CustomTabPanel, { a11yProps } from "../../../components/tabs";
+import Card from "@mui/material/Card";
 const MainPage: React.FC = () => {
   const { session } = useSession();
   const { logout } = useAuth();
@@ -25,22 +29,14 @@ const MainPage: React.FC = () => {
   const [userName, setUserName] = useState<string>("");
   const [decryptedId, setDecryptedId] = useState<string | null>(null);
   const [urlId, setUrlId] = useState<string | null>(null);
-  const { data: dataById, isSuccess } = useGetComplaintById(decryptedId?.toString());
+  const [tabValue, setTabValue] = useState(0);
+  const { data: dataById } = useGetComplaintById(decryptedId?.toString());
   const { mutate: decrypt } = useDecryptData();
 
-  //   const [formData, setFormData] = useState<GetComplaint>({
-  //     id: dataById?.data.id || null,
-  //     firstName: dataById?.data.firstName || null,
-  //     lastName: dataById?.data.lastName || null,
-  //     emailAddress: dataById?.data.lastName || null,
-  //     topicOfComplaint:  dataById?.data.lastName || null,
-  //     detailsOfTheTopic:  dataById?.data.lastName || null,
-  //     problemDetail:  dataById?.data.lastName || null,
-  //     telephone: dataById?.data.lastName || null, 
-  //     status:  dataById?.data.lastName || null, 
-  //     createDate: dataById?.data.createDate ? new Date(dataById.data.createDate) : null,
-  //     fullName: dataById?.data.fullName || null,
-  // });
+  const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
+    setTabValue(newValue);
+  };
+
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const id = params.get('id');
@@ -198,86 +194,152 @@ const MainPage: React.FC = () => {
         <ApplicantTracking />
       </div>
       <div className="bg-white shadow-lg rounded-lg p-6 mt-2 max-w-[90%] w-full flex-grow mb-12">
-        <div className="mb-6 items-center">
-          <h2 className="text-xl font-semibold">รายละเอียดการร้องเรียน</h2>
-          <div className="mt-4 grid grid-cols-2 gap-4 ">
-            <p><strong>ชื่อผู้ร้องเรียน:</strong> {dataById?.data.fullName}</p>
-            <p><strong>อีเมล:</strong> {dataById?.data.emailAddress}</p>
-            <p><strong>เบอร์โทร:</strong> {dataById?.data.telephone}</p>
-            <p><strong>หัวข้อ:</strong> {dataById?.data.detailsOfTheTopic}</p>
-            <p><strong>รายละเอียด:</strong> {dataById?.data.problemDetail}</p>
-          </div>
-        </div>
-        <div className="mb-6 ">
+        <Box sx={{ width: '100%' }}>
+          <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
+            <Tabs
+              value={tabValue}
+              onChange={handleTabChange}
+              aria-label="complaint details tabs"
+              variant="fullWidth"
+            >
+              <Tab
+                icon={<DescriptionIcon />}
+                iconPosition="start"
+                label="รายละเอียดการร้องเรียน"
+                {...a11yProps(0)}
+              />
+              <Tab
+                icon={<TimelineIcon />}
+                iconPosition="start"
+                label="Timeline"
+                {...a11yProps(1)}
+              />
+            </Tabs>
+          </Box>
+
+          <CustomTabPanel value={tabValue} index={0}>
+            <div className="grid grid-cols-2 gap-6">
+              {/* ฝั่งซ้าย - ข้อมูลผู้ร้องเรียน */}
+              <Card className="p-6 h-full">
+                <div className="space-y-6">
+                  <h3 className="text-xl font-semibold text-[#3190FF] pb-2 border-b">
+                    ข้อมูลผู้ร้องเรียน
+                  </h3>
+
+                  <div className="space-y-4">
+                    <div className="grid grid-cols-[120px,1fr] gap-2 items-baseline">
+                      <span className="text-gray-600">ชื่อ-นามสกุล:</span>
+                      <span className="font-medium text-gray-900">{dataById?.data?.fullName}</span>
+                    </div>
+
+                    <div className="grid grid-cols-[120px,1fr] gap-2 items-baseline">
+                      <span className="text-gray-600">อีเมล:</span>
+                      <span className="font-medium text-gray-900">{dataById?.data?.emailAddress}</span>
+                    </div>
+
+                    <div className="grid grid-cols-[120px,1fr] gap-2 items-baseline">
+                      <span className="text-gray-600">เบอร์โทร:</span>
+                      <span className="font-medium text-gray-900">{dataById?.data?.telephone}</span>
+                    </div>
+                  </div>
+                </div>
+              </Card>
+
+              {/* ฝั่งขวา - รายละเอียดการร้องเรียน */}
+              <Card className="p-6 h-full">
+                <div className="space-y-6">
+                  <h3 className="text-xl font-semibold text-[#3190FF] pb-2 border-b">
+                    รายละเอียดการร้องเรียน
+                  </h3>
+
+                  <div className="space-y-4">
+                    <div>
+                      <h4 className="text-gray-600 mb-2">หัวข้อร้องเรียน</h4>
+                      <div className="p-3 bg-gray-50 rounded-lg font-medium text-gray-900">
+                        {dataById?.data?.detailsOfTheTopic}
+                      </div>
+                    </div>
+
+                    <div>
+                      <h4 className="text-gray-600 mb-2">รายละเอียด</h4>
+                      <div className="p-3 bg-gray-50 rounded-lg font-medium text-gray-900 min-h-[200px] whitespace-pre-wrap">
+                        {dataById?.data?.problemDetail}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </Card>
+            </div>
+          </CustomTabPanel>
+
+          <CustomTabPanel value={tabValue} index={1}>
           <h2 className="text-2xl font-bold mb-4 text-[#3190FF]">STATE</h2>
-        </div>
-        <Timeline>
-          {reorganizedStages.map((stageGroup, index) => {
-            return stageGroup.stages.map((stage, stageIndex) => {
-              const isCurrentState = dataById?.data.stageStatus.some((status: { state: any; }) => status.state === stage.state);
-              return (
-                <TimelineItem key={`${stageGroup.activity}-${index}-${stageIndex}`}>
-                  <TimelineSeparator>
-                    <TimelineDot
-                      style={{
-                        backgroundColor: getStatusColor(stage.state),
-                        width: '48px',
-                        height: '48px',
-                        transition: 'all 0.3s ease',
-                      }}
-                    />
-                    {/* แสดงเส้นทุกครั้งยกเว้น item สุดท้าย */}
-                    {(index === reorganizedStages.length - 1 || stageIndex < stageGroup.stages.length - 1) && stage.state !== 'เสร็จสิ้น' ? (
-                      <TimelineConnector
-                        style={{
-                          backgroundColor: getStatusColor(stage.state),
-                          width: '2px',
-                          height: '60px',
-                        }}
-                      />
-                    ) : null}
-                    {/* จุดเล็กที่ปลายเส้นสุดท้าย */}
-                    {(index === reorganizedStages.length - 1 && stageIndex === stageGroup.stages.length - 1) && stage.state !== 'เสร็จสิ้น' && (
-                      <TimelineDot
-                        style={{
-                          backgroundColor: '#CCCCCC',
-                          width: '24px',
-                          height: '24px',
-                          marginLeft: 'auto',
-                          marginRight: 'auto',
-                        }}
-                      />
-                    )}
-                  </TimelineSeparator>
-                  <TimelineContent>
-                    <div className="ml-4">
-                      <h3 className={`font-semibold text-lg ${isCurrentState ? 'text-gray-900' : 'text-gray-400'}`}>
-                        {stage.state}
-                      </h3>
-                      {isCurrentState && (
-                        <div className="mt-2">
-                          <p className="text-gray-600">
-                            {new Date(stage.createDate).toLocaleString('th-TH', {
-                              year: 'numeric',
-                              month: 'long',
-                              day: 'numeric',
-                              hour: '2-digit',
-                              minute: '2-digit',
-                            })}
-                          </p>
-                          {stage.detailsOfTheTopic && (
-                            <p className="mt-1 text-gray-700">{stage.detailsOfTheTopic}</p>
+            <Timeline>
+              {reorganizedStages.map((stageGroup, index) => {
+                return stageGroup.stages.map((stage, stageIndex) => {
+                  const isCurrentState = dataById?.data.stageStatus.some((status: { state: any; }) => status.state === stage.state);
+                  return (
+                    <TimelineItem key={`${stageGroup.activity}-${index}-${stageIndex}`}>
+                      <TimelineSeparator>
+                        <TimelineDot
+                          style={{
+                            backgroundColor: getStatusColor(stage.state),
+                            width: '48px',
+                            height: '48px',
+                            transition: 'all 0.3s ease',
+                          }}
+                        />
+                        {(index === reorganizedStages.length - 1 || stageIndex < stageGroup.stages.length - 1) && stage.state !== 'เสร็จสิ้น' && (
+                          <TimelineConnector
+                            style={{
+                              backgroundColor: getStatusColor(stage.state),
+                              width: '2px',
+                              height: '60px',
+                            }}
+                          />
+                        )}
+                        {(index === reorganizedStages.length - 1 && stageIndex === stageGroup.stages.length - 1) && stage.state !== 'เสร็จสิ้น' && (
+                          <TimelineDot
+                            style={{
+                              backgroundColor: '#CCCCCC',
+                              width: '24px',
+                              height: '24px',
+                              marginLeft: 'auto',
+                              marginRight: 'auto',
+                            }}
+                          />
+                        )}
+                      </TimelineSeparator>
+                      <TimelineContent>
+                        <div className="ml-4">
+                          <h3 className={`font-semibold text-lg ${isCurrentState ? 'text-gray-900' : 'text-gray-400'}`}>
+                            {stage.state}
+                          </h3>
+                          {isCurrentState && (
+                            <div className="mt-2">
+                              <p className="text-gray-600">
+                                {new Date(stage.createDate).toLocaleString('th-TH', {
+                                  year: 'numeric',
+                                  month: 'long',
+                                  day: 'numeric',
+                                  hour: '2-digit',
+                                  minute: '2-digit',
+                                })}
+                              </p>
+                              {stage.detailsOfTheTopic && (
+                                <p className="mt-1 text-gray-700">{stage.detailsOfTheTopic}</p>
+                              )}
+                            </div>
                           )}
                         </div>
-                      )}
-                    </div>
-                  </TimelineContent>
-                </TimelineItem>
-              );
-            });
-          })}
-        </Timeline>
-
+                      </TimelineContent>
+                    </TimelineItem>
+                  );
+                });
+              })}
+            </Timeline>
+          </CustomTabPanel>
+        </Box>
       </div>
 
       <style jsx global>{`
