@@ -63,7 +63,7 @@ export const SessionProvider = ({ children }: { children: React.ReactNode }) => 
 
   const redirectToLogin = () => {
     if (session?.emailAddress?.includes('@mail.rmutt.ac.th')) {
-      router.push('/loginadmin'); // ถ้าเป็น admin → ไปที่ /loginadmin
+      router.push('/adminlogin'); // ถ้าเป็น admin → ไปที่ /loginadmin
     } else {
       router.push('/login'); // ถ้าเป็น user ธรรมดา → ไปที่ /login
     }

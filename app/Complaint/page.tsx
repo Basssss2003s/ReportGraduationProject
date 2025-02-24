@@ -138,28 +138,24 @@ const MainPage: React.FC = () => {
   const categories: Record<string, string[]> = {
     "": [],
     "อาจารย์": [
-      "ร้องเรียนห้องพักอาจารย์",
-      "ร้องเรียนอุปกรณ์ในห้องเรียน",
-      "ร้องเรียนระบบอินเทอร์เน็ต",
-      "ร้องเรียนพื้นที่ส่วนกลาง",
-      "ร้องเรียนเจ้าหน้าที่",
-      "ร้องเรียนที่จอดรถ",
+      "บุคลากร",
+      "การเรียน/การสอน",
+      "ผลการเรียน",
+      "สิ่งอำนวยความสะดวก",
       "เรื่องอื่นๆ",
     ],
     "นักศึกษา": [
-      "ร้องเรียนห้องเรียน",
-      "ร้องเรียนอุปกรณ์ในห้องเรียน",
-      "ร้องเรียนระบบอินเทอร์เน็ต",
-      "ร้องเรียนพื้นที่ส่วนกลาง",
-      "ร้องเรียนบุคลากร",
-      "ร้องเรียนเจ้าหน้าที่",
+      "บุคลากร",
+      "การเรียน/การสอน",
+      "ผลการเรียน",
+      "สิ่งอำนวยความสะดวก",
       "เรื่องอื่นๆ",
     ],
     "บุคคลภายนอก": [
-      "ร้องเรียนนักศึกษา",
-      "ร้องเรียนบุคลากร",
-      "ร้องเรียนเจ้าหน้าที่",
-      "ร้องเรียนที่จอดรถ",
+      "บุคลากร",
+      "การเรียน/การสอน",
+      "ผลการเรียน",
+      "สิ่งอำนวยความสะดวก",
       "เรื่องอื่นๆ",
     ],
   };
@@ -217,21 +213,49 @@ const MainPage: React.FC = () => {
             transition={{ duration: 0.5 }}
           >
             <motion.h1
-              className="text-3xl font-extrabold text-center mt-8 text-blue-600"
+              className="text-3xl font-extrabold text-center mt-8 text-[#3190FF]"
               initial={{ scale: 0.8, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               transition={{ duration: 0.3 }}
             >
-              เขียนคำร้องเรียน
+              เขียนคำร้องทุกข์/ร้องเรียน
             </motion.h1>
 
             {/* Form Layout */}
             <div className="mt-10 grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
               {/* Left Column */}
               <div className="col-span-1 space-y-6">
+                <div className="flex gap-4 items-start">
+                  <div className="flex-1">
+                    <label className="block text-xl font-medium text-gray-700">
+                      ชื่อ
+                      <span className="text-red-500"> *</span>
+                    </label>
+                    <input
+                      type="text"
+                      className="mt-2 p-3 w-full border rounded-lg text-gray-500 bg-gray-100 cursor-not-allowed focus:outline-none"
+                      value={session?.firstName}
+                      readOnly
+                      style={{ pointerEvents: 'none' }}
+                    />
+                  </div>
+                  <div className="flex-1">
+                    <label className="block text-xl font-medium text-gray-700">
+                      นามสกุล
+                      <span className="text-red-500"> *</span>
+                    </label>
+                    <input
+                      type="text"
+                      className="mt-2 p-3 w-full border rounded-lg text-gray-500 bg-gray-100 cursor-not-allowed focus:outline-none"
+                      value={session?.lastName}
+                      readOnly
+                      style={{ pointerEvents: 'none' }}
+                    />
+                  </div>
+                </div>
                 <div>
                   <label className="block text-xl font-medium text-gray-700">
-                    หัวข้อร้องเรียนสำหรับ
+                    หัวข้อร้องทุกข์/ร้องเรียนสำหรับ
                     <span className="text-red-500"> *</span>
                   </label>
                   <select
@@ -260,7 +284,7 @@ const MainPage: React.FC = () => {
                 {selectedCategory && categories[selectedCategory].length > 0 && (
                   <div>
                     <label className="block text-xl font-medium text-gray-700">
-                      รายละเอียดหัวข้อร้องเรียน
+                      มีเรื่องร้องทุกข์/ร้องเรียน ดังนี้
                       <span className="text-red-500"> *</span>
                     </label>
                     <select
@@ -326,7 +350,7 @@ const MainPage: React.FC = () => {
               {/* Right Column */}
               <div className="col-span-1 flex flex-col justify-between">
                 <label className="block text-xl font-medium text-gray-700">
-                  รายละเอียดปัญหา
+                  รายละเอียดที่ต้องการร้องทุกข์/ร้องเรียน
                   <span className="text-red-500"> *</span>
                 </label>
                 <textarea
@@ -335,8 +359,12 @@ const MainPage: React.FC = () => {
                   placeholder="กรุณากรอกรายละเอียดปัญหาที่พบ"
                   value={problemDetails}
                   onChange={(e) => setProblemDetails(e.target.value)}
+                  maxLength={1000}
                   required
                 ></textarea>
+                <p className="text-right text-gray-500 text-sm mt-1">
+                  {problemDetails.length}/1000 ตัวอักษร
+                </p>
               </div>
             </div>
 

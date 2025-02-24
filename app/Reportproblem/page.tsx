@@ -253,7 +253,11 @@ const MainPage: React.FC = () => {
                 placeholder="กรุณากรอกรายละเอียดปัญหาที่พบ"
                 value={problemDetails}
                 onChange={(e) => setProblemDetails(e.target.value)}
+                maxLength={1000}
               ></textarea>
+                <p className="text-right text-gray-500 text-sm mt-1">
+                  {problemDetails.length}/1000 ตัวอักษร
+                </p>
             </div>
           </div>
 

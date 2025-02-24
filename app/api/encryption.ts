@@ -1,4 +1,3 @@
-import axios from "axios";
 import { axiosApi } from "../../utils/axios";
 
 export const EncryptApi = async (data: string) => {
