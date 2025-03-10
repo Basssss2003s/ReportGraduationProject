@@ -20,6 +20,8 @@ export default function ApplicantTrackingAdmin() {
 
     const pathMapping: { [key: string]: string } = {
       'admincomplaint': 'AdminComplaint',
+      'adminproblem': 'AdminProblem',
+      'complaintdetail': 'AdminComplaintDetail',
       // เพิ่ม mapping อื่นๆ ตามต้องการ
     };
 

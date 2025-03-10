@@ -11,7 +11,6 @@ import Swal from "sweetalert2";
 export default function Register() {
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
-  const [error, setError] = useState({ firstName: "", lastName: "" });
   const router = useRouter();
   const { register } = useAuth();
   const [email, setEmail] = useState('');
@@ -32,14 +31,6 @@ export default function Register() {
   const formatName = (value: string) => {
     // ตรวจสอบว่าขึ้นต้นด้วยตัวพิมพ์ใหญ่ และตัวที่เหลือเป็นพิมพ์เล็ก
     return value.charAt(0).toUpperCase() + value.slice(1).toLowerCase();
-  };
-
-  const validateInput = (value: string, field: "firstName" | "lastName") => {
-    if (/^[A-Za-z]*$/.test(value)) {
-      setError((prev) => ({ ...prev, [field]: "" }));
-    } else {
-      setError((prev) => ({ ...prev, [field]: "กรุณากรอกเฉพาะตัวอักษรภาษาอังกฤษ" }));
-    }
   };
 
 
@@ -74,7 +65,12 @@ export default function Register() {
         router.push("/login");
       }, 1500);
     } catch (error) {
-      handleAlert("warning", "Register Already Registered");
+      handleAlert("warning", "Register Already");
+      setTimeout(() => {
+        window.location.reload(); // รีเฟรชหน้าเมื่อเกิด error
+      }, 1500);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -93,7 +89,7 @@ export default function Register() {
               <div>
                 <div className="mb-4">
                   <label htmlFor="name" className="block text-gray-700">
-                    ชื่อ (ภาษาอังกฤษ) <span className="text-red-500">*</span>
+                    ชื่อ <span className="text-red-500">*</span>
                   </label>
                   <input
                     type="text"
@@ -103,18 +99,15 @@ export default function Register() {
                     required
                     value={firstName}
                     onChange={(e) => {
-                      let value = e.target.value.replace(/[^A-Za-z]/g, ""); // ลบอักขระที่ไม่ใช่ภาษาอังกฤษ
-                      value = formatName(value); // แปลงเป็นพิมพ์ใหญ่ตัวแรก
+                      const value = formatName(e.target.value); // แปลงเป็นพิมพ์ใหญ่ตัวแรก
                       setFirstName(value);
-                      validateInput(value, "firstName");
                     }}
                   />
-                  {error.firstName && <p className="text-red-500 mt-1">{error.firstName}</p>}
                 </div>
 
                 <div className="mb-4">
                   <label htmlFor="surname" className="block text-gray-700">
-                    นามสกุล (ภาษาอังกฤษ) <span className="text-red-500">*</span>
+                    นามสกุล<span className="text-red-500">*</span>
                   </label>
                   <input
                     type="text"
@@ -124,13 +117,10 @@ export default function Register() {
                     required
                     value={lastName}
                     onChange={(e) => {
-                      let value = e.target.value.replace(/[^A-Za-z]/g, ""); // ลบอักขระที่ไม่ใช่ภาษาอังกฤษ
-                      value = formatName(value); // แปลงเป็นพิมพ์ใหญ่ตัวแรก
+                      const value = formatName(e.target.value); // แปลงเป็นพิมพ์ใหญ่ตัวแรก
                       setLastName(value);
-                      validateInput(value, "lastName");
                     }}
                   />
-                  {error.lastName && <p className="text-red-500 mt-1">{error.lastName}</p>}
                 </div>
               </div>
               <div className="mb-4">
@@ -166,7 +156,7 @@ export default function Register() {
                     className="absolute right-3 top-8 transform -translate-y-1/2 text-gray-500"
                     onClick={() => setShowPassword(!showPassword)}
                   >
-                    {showPassword ? <VisibilityIcon /> : <VisibilityOffIcon />}
+                    {showPassword ? <VisibilityOffIcon /> : <VisibilityIcon />}
                   </button>
                 </div>
               </div>

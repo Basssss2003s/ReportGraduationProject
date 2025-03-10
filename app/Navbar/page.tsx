@@ -7,7 +7,7 @@ const Navbar = () => {
   return (
     <nav className="flex justify-between rounded-lg items-center bg-white text-black px-6 py-4 shadow-md">
       <div className="text-lg font-semibold">
-        ระบบร้องเรียนคณะบริหารธุรกิจ
+        ระบบรับเรื่องร้องเรียน/ร้องทุกข์คณะบริหารธุรกิจ
       </div>
 
       <ul className="flex gap-6">

@@ -22,6 +22,13 @@ const MainPage = () => {
   const userComplaintsCount = responseData?.length || 0; // นับจำนวนคำร้องทั้งหมดของ user ปัจจุบัน
 
   useEffect(() => {
+    console.log(session); // ดูค่า session ที่ได้มา
+    if (session === null) {
+      router.push('/login');
+    }
+  }, [session]);
+  
+  useEffect(() => {
     if (session?.fullName) {
       setUserName(session.fullName);
     }
@@ -73,12 +80,12 @@ const MainPage = () => {
       </div>
       {/* Main Content */}
       <div className="bg-white shadow-lg rounded-lg p-6 mt-2 max-w-[90%] w-full flex-grow mb-12">
-        <h1 className="text-2xl font-bold text-center text-blue-600">ระบบจัดการการร้องเรียน</h1>
+        <h1 className="text-2xl font-bold text-center text-blue-600">ระบบจัดการการร้องเรียน/ร้องทุกข์</h1>
         <p className="mt-4 text-center text-gray-600">
-          ยินดีต้อนรับเข้าสู่ระบบร้องเรียนคณะบริหารธุรกิจ
+          ยินดีต้อนรับเข้าสู่ระบบรับเรื่องร้องเรียน/ร้องทุกข์คณะบริหารธุรกิจ
         </p>
 
-        <div className="mt-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="mt-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
           {/* Card: All Reports */}
           <div className="bg-blue-100 rounded-lg p-6 shadow-md text-center transform transition-transform hover:scale-105">
             <h2 className="text-xl font-semibold text-blue-800">การรายงานทั้งหมด</h2>
@@ -101,6 +108,14 @@ const MainPage = () => {
             </p>
           </div>
 
+           {/* Card: Resolved Reports */}
+           <div className="bg-teal-100 rounded-lg p-6 shadow-md text-center transform transition-transform hover:scale-105">
+            <h2 className="text-xl font-semibold text-teal-800">คำร้องที่รอตรวจสอบ</h2>
+            <p className="mt-4 text-3xl font-bold text-teal-800">
+              {getAll?.filter(item => item.status === 'รอตรวจสอบ').length}
+            </p>
+          </div>
+
           {/* Card: Resolved Reports */}
           <div className="bg-green-100 rounded-lg p-6 shadow-md text-center transform transition-transform hover:scale-105">
             <h2 className="text-xl font-semibold text-green-800">เสร็จสิ้น</h2>
@@ -118,7 +133,7 @@ const MainPage = () => {
               {userComplaintsCount}
             </p>
             <button
-              onClick={() => (window.location.href = '/followreport')}
+              onClick={() => (router.push('/followreport'))}
               className="mt-4 px-6 py-2 bg-purple-500 text-white rounded-lg hover:bg-purple-600 focus:outline-none focus:ring-2 focus:ring-purple-400"
             >
               ดูรายละเอียด
@@ -127,26 +142,17 @@ const MainPage = () => {
 
           {/* Card: Resolved Reports */}
           <div className="bg-teal-100 rounded-lg p-6 shadow-md text-center transform transition-transform hover:scale-105">
-            <h2 className="text-xl font-semibold text-teal-800">คำร้องที่รอตรวจสอบ</h2>
+            <h2 className="text-xl font-semibold text-teal-800">คำร้องที่รอตรวจสอบของคุณ</h2>
             <p className="mt-4 text-3xl font-bold text-teal-800">
-              {responseData?.filter(item => item.status === 'รอตรวจสอบ').length}
+              {responseData?.filter(item => item.status === 'รอตรวจสอบ').length || 0}
             </p>
             <button
-              onClick={() => (window.location.href = '/followreport')}
+              onClick={() => (router.push('/followreport'))}
               className="mt-4 px-6 py-2 bg-teal-500 text-white rounded-lg hover:bg-teal-600 focus:outline-none focus:ring-2 focus:ring-teal-400"
             >
               ดูรายละเอียด
             </button>
           </div>
-        </div>
-
-        <div className="mt-12 text-center">
-          <button
-            onClick={() => (window.location.href = '/complaint')}
-            className="px-6 py-3 bg-blue-500 text-white text-lg font-semibold rounded-lg shadow-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400 transform transition-transform hover:scale-105"
-          >
-            สร้างคำร้องใหม่
-          </button>
         </div>
       </div>
     </div>

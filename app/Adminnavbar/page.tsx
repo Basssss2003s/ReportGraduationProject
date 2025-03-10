@@ -7,7 +7,7 @@ const Navbar = () => {
   return (
     <nav className="flex justify-between items-center rounded-xl bg-white text-black px-6 py-4 shadow-md">
       <div className="text-lg font-semibold">
-        ระบบร้องเรียนคณะบริหารธุรกิจ
+        ระบบรับเรื่องร้องเรียน/ร้องทุกข์คณะบริหารธุรกิจ
       </div>
 
       <ul className="flex gap-6">
@@ -22,8 +22,8 @@ const Navbar = () => {
           </Link>
         </li>
         <li>
-          <Link href="/notAvailable" className="hover:underline">
-            ติดตามสถานะ
+          <Link href="/adminproblem" className="hover:underline">
+            ติดตามปัญหา
           </Link>
         </li>
       </ul>
