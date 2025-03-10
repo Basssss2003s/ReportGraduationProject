@@ -63,16 +63,110 @@ const MainPage: React.FC = () => {
     problemDetail: "",
     status: "",
   });
+  // ฟังก์ชั่นสำหรับ handle การเลือกหัวข้อ
+  const handleCategoryChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setFilters({
+      ...filters,
+      topicOfComplaint: e.target.value,
+      detailsOfTheTopic: "",  // รีเซ็ตค่ารายละเอียดเมื่อลองเลือกหัวข้อใหม่
+    });
+  };
+
+  // ฟังก์ชั่นสำหรับ handle การเลือกรายละเอียดของหัวข้อ
+  const handleDetailChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setFilters({
+      ...filters,
+      detailsOfTheTopic: e.target.value,
+    });
+  };
 
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
 
-  // กำหนดตัวเลือกสำหรับ filter
-  // const subCategoryOptions = {
-  //   "นักศึกษา": ["การเรียนการสอน", "สิ่งอำนวยความสะดวก", "อาคารสถานที่", "อื่นๆ"],
-  //   "อาจารย์": ["การเรียนการสอน", "สิ่งอำนวยความสะดวก", "อาคารสถานที่", "อื่นๆ"],
-  //   "บุคคลภายนอก": ["การเรียนการสอน", "สิ่งอำนวยความสะดวก", "อาคารสถานที่", "อื่นๆ"]
-  // };
+  const categories: Record<string, string[]> = {
+    "": [],
+    "บุคลากร": [
+      "พฤติกรรมการให้บริการ",
+      "การขาดงาน/มาสาย",
+      "ความไม่เป็นกลางในการปฏิบัติงาน",
+      "การใช้วาจาไม่สุภาพ",
+      "ความล่าช้าในการให้บริการ",
+      "อื่นๆ เกี่ยวกับบุคลากร"
+    ],
+    "การเรียนการสอน": [
+      "เนื้อหาไม่ตรงกับคำอธิบายรายวิชา",
+      "อาจารย์ขาดสอน/มาสอนสาย",
+      "การประเมินผลไม่เป็นธรรม",
+      "สื่อการสอนไม่ทันสมัย",
+      "เอกสารประกอบการสอนไม่เพียงพอ",
+      "อื่นๆ เกี่ยวกับการเรียนการสอน"
+    ],
+    "บริการนักศึกษา": [
+      "ปัญหาด้านทุนการศึกษา",
+      "การให้คำปรึกษา",
+      "การให้บริการห้องสมุด",
+      "ช่องทางการติดต่อ",
+      "ระบบลงทะเบียน",
+      "อื่นๆ เกี่ยวกับบริการนักศึกษา"
+    ],
+    "สิ่งอำนวยความสะดวก": [
+      "สภาพห้องเรียน/ห้องปฏิบัติการ",
+      "อุปกรณ์โสตทัศนูปกรณ์",
+      "สัญญาณอินเทอร์เน็ต",
+      "สภาพแวดล้อมในมหาวิทยาลัย",
+      "ที่จอดรถ",
+      "ห้องน้ำ",
+      "อื่นๆ เกี่ยวกับสิ่งอำนวยความสะดวก"
+    ],
+    "ค่าธรรมเนียมและการเงิน": [
+      "การชำระเงินออนไลน์",
+      "การคืนเงินค่าธรรมเนียม",
+      "การออกใบเสร็จ",
+      "ค่าปรับล่าช้า",
+      "อื่นๆ เกี่ยวกับค่าธรรมเนียมและการเงิน"
+    ],
+    "ความปลอดภัย": [
+      "อุบัติเหตุในมหาวิทยาลัย",
+      "ทรัพย์สินสูญหาย",
+      "ระบบกล้องวงจรปิด",
+      "แสงสว่างในเวลากลางคืน",
+      "อื่นๆ เกี่ยวกับความปลอดภัย"
+    ],
+    "หอพัก/ที่พักอาศัย": [
+      "สภาพห้องพัก",
+      "สาธารณูปโภคในหอพัก",
+      "กฎระเบียบหอพัก",
+      "พฤติกรรมผู้พักอาศัยร่วม",
+      "การให้บริการของเจ้าหน้าที่หอพัก",
+      "อื่นๆ เกี่ยวกับหอพัก/ที่พักอาศัย"
+    ],
+    "IT/ระบบสารสนเทศ": [
+      "ระบบลงทะเบียน",
+      "ระบบอีเมล",
+      "เว็บไซต์มหาวิทยาลัย",
+      "แอปพลิเคชันมือถือ",
+      "ระบบสารสนเทศนักศึกษา",
+      "อื่นๆ เกี่ยวกับ IT/ระบบสารสนเทศ"
+    ],
+    "อาหารและโภชนาการ": [
+      "คุณภาพอาหาร",
+      "ราคาอาหาร",
+      "สุขอนามัยของร้านอาหาร",
+      "ความหลากหลายของร้านอาหาร",
+      "อื่นๆ เกี่ยวกับอาหารและโภชนาการ"
+    ],
+    "การขนส่ง/การเดินทาง": [
+      "รถรับส่งภายในมหาวิทยาลัย",
+      "จุดจอดรถ/ที่จอดรถ",
+      "ความปลอดภัยในการเดินทาง",
+      "ตารางเวลารถรับส่ง",
+      "อื่นๆ เกี่ยวกับการขนส่ง/การเดินทาง"
+    ],
+    "เรื่องอื่นๆ": [
+      "ข้อเสนอแนะทั่วไป",
+      "ร้องเรียนอื่นๆ ที่ไม่มีในหมวดหมู่"
+    ]
+  };
 
   const filteredComplaints = responseData?.filter((complaint) => {
     // แปลงวันที่ทั้งสองให้อยู่ในรูปแบบเดียวกันก่อนเปรียบเทียบ
@@ -94,7 +188,12 @@ const MainPage: React.FC = () => {
   );
 
   const totalPages = Math.ceil(filteredComplaints.length / itemsPerPage);
-
+  useEffect(() => {
+    console.log(session); // ดูค่า session ที่ได้มา
+    if (session === null) {
+      router.push('/login');
+    }
+  }, [session]);
 
   return (
     <div className="min-h-screen bg-[#e8edff] flex flex-col items-center">
@@ -130,106 +229,140 @@ const MainPage: React.FC = () => {
         <ApplicantTracking />
       </div>
       <div className="bg-white shadow-lg rounded-lg p-4 max-w-[90%] w-full">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <input
-            type="date"
-            value={filters.date}
-            onChange={(e) => setFilters({ ...filters, date: e.target.value })}
-            className="border rounded p-2"
-          />
-          <select
-            value={filters.detailsOfTheTopic}
-            onChange={(e) => setFilters({ ...filters, detailsOfTheTopic: e.target.value })}
-            className="border rounded p-2"
-          >
-            <option value="">หัวข้อร้องเรียนทั้งหมด</option>
-            <option value="บุคลากร">บุคลากร</option>
-            <option value="การเรียน/การสอน">การเรียน/การสอน</option>
-            <option value="ผลการเรียน">ผลการเรียน</option>
-            <option value="สิ่งอำนวยความสะดวก">สิ่งอำนวยความสะดวก</option>
-            <option value="เรื่องอื่นๆ">เรื่องอื่นๆ</option>
-          </select>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {/* Date Filter */}
+          <div className="relative">
+            <label className="block text-gray-700 mb-1">วันที่</label>
+            <div className="relative">
+              <input
+                type="date"
+                value={filters.date}
+                onChange={(e) => setFilters({ ...filters, date: e.target.value })}
+                className="border rounded p-1.5 w-full focus:border-blue-400 focus:ring-2 focus:ring-blue-200"
+              />
+            </div>
+          </div>
+          {/* Category & Subcategory Filters */}
+          <div>
+            <label className="block text-gray-700 mb-1">หมวดหมู่</label>
+            <div className="flex flex-col gap-2">
+              <select
+                value={filters.topicOfComplaint}
+                onChange={handleCategoryChange}
+                className="border rounded p-2 w-full focus:border-blue-400 focus:ring-2 focus:ring-blue-200"
+              >
+                <option value="">ประเด็นที่ร้องเรียน/ร้องทุกข์ทั้งหมด</option>
+                {Object.keys(categories).filter(cat => cat !== "").map((category, idx) => (
+                  <option key={idx} value={category}>{category}</option>
+                ))}
+              </select>
+              <select
+                value={filters.detailsOfTheTopic}
+                onChange={handleDetailChange}
+                className="border rounded p-2 w-full focus:border-blue-400 focus:ring-2 focus:ring-blue-200"
+                disabled={!filters.topicOfComplaint}
+              >
+                <option value="">เรื่องร้องเรียน/ร้องทุกข์ทั้งหมด</option>
+                {categories[filters.topicOfComplaint]?.map((detail, index) => (
+                  <option key={index} value={detail}>{detail}</option>
+                ))}
+              </select>
+            </div>
+          </div>
 
-          <select
-            value={filters.status}
-            onChange={(e) => setFilters({ ...filters, status: e.target.value })}
-            className="border rounded p-2"
-          >
-            <option value="">สถานะทั้งหมด</option>
-            <option value="รอดำเนินการ">รอดำเนินการ</option>
-            <option value="กำลังดำเนินการ">กำลังดำเนินการ</option>
-            <option value="เสร็จสิ้น">เสร็จสิ้น</option>
-          </select>
-          <div className="relative flex items-center">
-            <SearchIcon className="absolute left-3 text-gray-500" />
-            <input
-              type="text"
-              value={filters.problemDetail}
-              onChange={(e) => setFilters({ ...filters, problemDetail: e.target.value })}
-              className="border rounded p-2 pl-10" // เพิ่ม padding ซ้ายให้ไอคอนไม่ทับข้อความ
-              placeholder="ค้นหารายละเอียด..."
-            />
+          {/* Status & Search */}
+          <div className="space-y-2">
+            <div>
+              <label className="block text-gray-700 mb-1">สถานะ</label>
+              <select
+                value={filters.status}
+                onChange={(e) => setFilters({ ...filters, status: e.target.value })}
+                className="border rounded p-2 w-full focus:border-blue-400 focus:ring-2 focus:ring-blue-200"
+              >
+                <option value="">สถานะทั้งหมด</option>
+                <option value="รอดำเนินการ">รอดำเนินการ</option>
+                <option value="กำลังดำเนินการ">กำลังดำเนินการ</option>
+                <option value="รอตรวจสอบ">รอตรวจสอบ</option>
+                <option value="เสร็จสิ้น">เสร็จสิ้น</option>
+              </select>
+            </div>
+            <div className="relative">
+              <input
+                type="text"
+                value={filters.problemDetail}
+                onChange={(e) => setFilters({ ...filters, problemDetail: e.target.value })}
+                className="border rounded p-2 pl-10 w-full focus:border-blue-400 focus:ring-2 focus:ring-blue-200"
+                placeholder="ค้นหารายละเอียดปัญหา..."
+              />
+              <SearchIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500" />
+            </div>
           </div>
         </div>
       </div>
       <div className="bg-white shadow-lg rounded-lg p-6 mt-2 max-w-[90%] w-full flex-grow mb-12">
-        <table className="min-w-full table-auto">
+        <table className="min-w-full table-auto ">
           <thead>
-
-            <tr>
+            <tr className=" text-[#042278]">
               <th className="px-4 py-2 border text-center">ลำดับ</th>
               <th className="px-4 py-2 border text-center">วันที่</th>
-              <th className="px-4 py-2 border">หัวข้อร้องเรียน</th>
-              <th className="px-4 py-2 border">รายละเอียด</th>
+              <th className="px-4 py-2 border">ประเด็นที่ร้องเรียน/ร้องทุกข์</th>
+              <th className="px-4 py-2 border">เรื่องร้องเรียน/ร้องทุกข์</th>
+              <th className="px-4 py-2 border">รายละเอียดการร้องเรียน/ร้องทุกข์</th>
               <th className="px-4 py-2 border w-40">สถานะ</th>
               <th className="px-4 py-2 border text-center">หมายเหตุ</th>
             </tr>
           </thead>
-          {paginatedComplaints.map(() => (
-            <tbody>
-              {responseData && responseData.length > 0 ? (
-                responseData.map((complaint, index) => (
-                  <tr key={index}>
-                    <td className="px-4 py-2 border text-center">{index + 1}</td>
-                    <td className="px-4 py-2 border text-center">
-                      {formatDate(complaint.createDate?.toString())}
-                    </td>
-                    <td className="px-4 py-2 border text-center">{complaint.detailsOfTheTopic || '-'}</td>
-                    <td className="px-4 py-2 border">{complaint.problemDetail || '-'}</td>
-                    <td className="border text-center">
-                      <span
-                        style={{
-                          backgroundColor:
-                            complaint.status === 'รอดำเนินการ' ? '#FFA500' :
-                              complaint.status === 'กำลังดำเนินการ' ? '#FFA500' :
-                                complaint.status === 'รอตรวจสอบ' ? 'green' :
-                                  complaint.status === 'เสร็จสิ้น' ? 'green' :
-                                    '',
-                          fontWeight: 'bold',
-                          padding: '2px 12px',
-                          display: 'inline-block',
-                          borderRadius: '9999px',
-                        }}
-                        className="text-white ">
-                        {complaint.status || '-'}
-                      </span>
-                    </td>
-                    <td className="px-4 py-2 border text-center ">
-                      <button className="text-blue-500 hover:text-blue-700" onClick={() => handleViewComplaint({ id: complaint.id })}>
-                        <RemoveRedEyeIcon />
-                      </button>
-                    </td>
-                  </tr>
-                ))
-              ) : (
-                <tr>
-                  <td colSpan={6} className="px-4 py-2 border text-center">
-                    ไม่พบข้อมูลการร้องเรียน
+          <tbody>
+            {paginatedComplaints && paginatedComplaints.length > 0 ? (
+              paginatedComplaints.map((complaint, index) => (
+                <tr key={index}>
+                  <td className="px-4 py-2 border text-center">{(currentPage - 1) * itemsPerPage + index + 1}</td>
+                  <td className="px-4 py-2 border text-center">
+                    {formatDate(complaint.createDate?.toString())}
+                  </td>
+                  <td className="px-4 py-2 border">{complaint.topicOfComplaint || '-'}</td>
+                  <td className="px-4 py-2 border">{complaint.detailsOfTheTopic || '-'}</td>
+                  <td className="px-4 py-2 border" style={{
+                    whiteSpace: "nowrap",
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                    maxWidth: "200px" // ปรับตามความเหมาะสม
+                  }}>
+                    {complaint.problemDetail || '-'}
+                  </td>
+                  <td className="border text-center">
+                    <span
+                      style={{
+                        backgroundColor:
+                          complaint.status === 'รอดำเนินการ' ? '#FFA500' :
+                            complaint.status === 'กำลังดำเนินการ' ? '#3190FF' :
+                              complaint.status === 'รอตรวจสอบ' ? '#4B5563' :
+                                complaint.status === 'เสร็จสิ้น' ? 'green' :
+                                  '',
+                        fontWeight: 'bold',
+                        padding: '2px 12px',
+                        display: 'inline-block',
+                        borderRadius: '9999px',
+                      }}
+                      className="text-white ">
+                      {complaint.status || '-'}
+                    </span>
+                  </td>
+                  <td className="px-4 py-2 border text-center ">
+                    <button className="text-blue-500 hover:text-blue-700" onClick={() => handleViewComplaint({ id: complaint.id })}>
+                      <RemoveRedEyeIcon />
+                    </button>
                   </td>
                 </tr>
-              )}
-            </tbody>
-          ))}
+              ))
+            ) : (
+              <tr>
+                <td colSpan={6} className="px-4 py-2 border text-center">
+                  ไม่พบข้อมูลการร้องเรียน
+                </td>
+              </tr>
+            )}
+          </tbody>
         </table>
         <div className="flex justify-between mt-4">
           <button

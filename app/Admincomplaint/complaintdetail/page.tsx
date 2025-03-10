@@ -4,7 +4,6 @@ import { useRouter } from "next/navigation";
 import PersonIcon from '@mui/icons-material/Person';
 import { useSession } from "../../../utils/useSession";
 import { useAuth } from "../../../utils/auth";
-import Navbar from "../../navbar/page";
 import ApplicantTracking from "../../../navbar/Breadcrump";
 import Timeline from "@mui/lab/Timeline";
 import TimelineItem from "@mui/lab/TimelineItem";
@@ -22,6 +21,10 @@ import DescriptionIcon from '@mui/icons-material/Description';
 import TimelineIcon from '@mui/icons-material/Timeline';
 import CustomTabPanel, { a11yProps } from "../../../components/tabs";
 import Card from "@mui/material/Card";
+import Navbar from "../../adminnavbar/page";
+import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
+import ApplicantTrackingAdmin from "../../../navbar/BreadcrumpAdmin";
+
 const MainPage: React.FC = () => {
   const { session } = useSession();
   const { logout } = useAuth();
@@ -118,7 +121,7 @@ const MainPage: React.FC = () => {
     if (urlId) {
       decrypt(urlId, {
         onSuccess: (decryptedId) => {
-          window.history.replaceState({}, '', `/followreport/followreportdetail?id=${urlId}`);
+          window.history.replaceState({}, '', `/admincomplaint/complaintdetail?id=${urlId}`);
           setDecryptedId(decryptedId);
         },
         onError: (err) => {
@@ -169,8 +172,8 @@ const MainPage: React.FC = () => {
   }, [session]);
   return (
     <div className="min-h-screen bg-[#e8edff] flex flex-col items-center">
-      <div className="w-full bg-gradient-to-b from-green-200 to-blue-200 h-32 rounded-b-lg shadow-md">
-        <Link href="/main" className="hover:underline">
+       <div className="w-full bg-gradient-to-b from-green-200 to-blue-200 h-32 rounded-b-lg shadow-md">
+        <Link href="/adminmain" className="hover:underline">
           <img
             src="/images/logo.png"
             width={150}
@@ -179,13 +182,10 @@ const MainPage: React.FC = () => {
           />
         </Link>
         <div className="text-right mr-[60px] mt-[40px] w-[95%]">
-          <button
-            onClick={handleLogout}
-            className="inline-flex items-center"
-          >
+          <button onClick={handleLogout} className="inline-flex items-center">
             <span className="text-gray-800 font-medium">
               {userName}
-              <PersonIcon style={{ marginBottom: "8px", marginLeft: "5px" }} />
+              <AdminPanelSettingsIcon style={{ marginBottom: "8px", marginLeft: "5px" }} />
             </span>
           </button>
         </div>
@@ -198,7 +198,7 @@ const MainPage: React.FC = () => {
       </div>
 
       <div className="rounded-lg mt-6 ml-8 w-[90%]">
-        <ApplicantTracking />
+        <ApplicantTrackingAdmin />
       </div>
       <div className="bg-white shadow-lg rounded-lg p-6 mt-2 max-w-[90%] w-full flex-grow mb-12">
         <Box sx={{ width: '100%' }}>
@@ -209,86 +209,84 @@ const MainPage: React.FC = () => {
               aria-label="complaint details tabs"
               variant="fullWidth"
             >
-              <Tab
+              {/* <Tab
                 icon={<DescriptionIcon />}
                 iconPosition="start"
                 label="รายละเอียดการร้องเรียน"
                 {...a11yProps(0)}
-              />
+              /> */}
               <Tab
                 icon={<TimelineIcon />}
                 iconPosition="start"
                 label="Timeline"
-                {...a11yProps(1)}
+                {...a11yProps(0)}
               />
             </Tabs>
           </Box>
 
+            {/* <CustomTabPanel value={tabValue} index={0}>
+                <div className="grid grid-cols-2 gap-6">
+                <Card className="p-6 h-full">
+                    <div className="space-y-6">
+                    <h3 className="text-xl font-semibold text-[#3190FF] pb-2 border-b pointer-events-none select-none">
+                        ข้อมูลผู้ร้องเรียน
+                    </h3>
+
+                    <div className="space-y-4">
+                        <div className="grid grid-cols-[120px,1fr] gap-2 items-baseline">
+                        <span className="pointer-events-none select-none">ชื่อ-นามสกุล:</span>
+                        <span
+                            className="font-medium text-gray-600 pointer-events-none select-none"
+                        >
+                            {dataById?.data?.fullName}
+                        </span>
+                        </div>
+
+                        <div className="grid grid-cols-[120px,1fr] gap-2 items-baseline">
+                        <span className="pointer-events-none select-none">อีเมล:</span>
+                        <span className="text-gray-600 pointer-events-none select-none">{dataById?.data?.emailAddress}</span>
+                        </div>
+
+                        <div className="grid grid-cols-[120px,1fr] gap-2 items-baseline">
+                        <span className="pointer-events-none select-none">เบอร์โทร:</span>
+                        <span className="font-medium text-gray-600 pointer-events-none select-none">{dataById?.data?.telephone}</span>
+                        </div>
+                    </div>
+                    </div>
+                </Card>
+
+                <Card className="p-6 h-full">
+                    <div className="space-y-6">
+                    <h3 className="text-xl font-semibold text-[#3190FF] pb-2 border-b pointer-events-none select-none">
+                        รายละเอียดการร้องเรียน
+                    </h3>
+
+                    <div className="space-y-4">
+                        <div>
+                        <h4 className="mb-2 pointer-events-none select-none">ประเด็นที่ร้องเรียน/ร้องทุกข์</h4>
+                        <div className="pointer-events-none select-none p-3 bg-gray-50 rounded-lg font-medium text-gray-600">
+                            {dataById?.data?.topicOfComplaint}
+                        </div>
+                        </div>
+                        <div>
+                        <h4 className="mb-2 pointer-events-none select-none">เรื่องร้องเรียน/ร้องทุกข์</h4>
+                        <div className="pointer-events-none select-none p-3 bg-gray-50 rounded-lg font-medium text-gray-600">
+                            {dataById?.data?.detailsOfTheTopic}
+                        </div>
+                        </div>
+                        <div>
+                        <h4 className="mb-2 pointer-events-none select-none">รายละเอียดการร้องเรียน/ร้องทุกข์		</h4>
+                        <div className="pointer-events-none select-none p-3 bg-gray-50 rounded-lg font-medium text-gray-600 min-h-[200px] whitespace-pre-wrap">
+                            {dataById?.data?.problemDetail}
+                        </div>
+                        </div>
+                    </div>
+                    </div>
+                </Card>
+                </div>
+            </CustomTabPanel> */}
+
           <CustomTabPanel value={tabValue} index={0}>
-            <div className="grid grid-cols-2 gap-6">
-              {/* ฝั่งซ้าย - ข้อมูลผู้ร้องเรียน */}
-              <Card className="p-6 h-full">
-                <div className="space-y-6">
-                  <h3 className="text-xl font-semibold text-[#3190FF] pb-2 border-b pointer-events-none select-none">
-                    ข้อมูลผู้ร้องเรียน
-                  </h3>
-
-                  <div className="space-y-4">
-                    <div className="grid grid-cols-[120px,1fr] gap-2 items-baseline">
-                      <span className="pointer-events-none select-none">ชื่อ-นามสกุล:</span>
-                      <span
-                        className="font-medium text-gray-600 pointer-events-none select-none"
-                      >
-                        {dataById?.data?.fullName}
-                      </span>
-                    </div>
-
-                    <div className="grid grid-cols-[120px,1fr] gap-2 items-baseline">
-                      <span className="pointer-events-none select-none">อีเมล:</span>
-                      <span className="text-gray-600 pointer-events-none select-none">{dataById?.data?.emailAddress}</span>
-                    </div>
-
-                    <div className="grid grid-cols-[120px,1fr] gap-2 items-baseline">
-                      <span className="pointer-events-none select-none">เบอร์โทร:</span>
-                      <span className="font-medium text-gray-600 pointer-events-none select-none">{dataById?.data?.telephone}</span>
-                    </div>
-                  </div>
-                </div>
-              </Card>
-
-              {/* ฝั่งขวา - รายละเอียดการร้องเรียน */}
-              <Card className="p-6 h-full">
-                <div className="space-y-6">
-                  <h3 className="text-xl font-semibold text-[#3190FF] pb-2 border-b pointer-events-none select-none">
-                    รายละเอียดการร้องเรียน
-                  </h3>
-
-                  <div className="space-y-4">
-                    <div>
-                      <h4 className="mb-2 pointer-events-none select-none">ประเด็นที่ร้องเรียน/ร้องทุกข์</h4>
-                      <div className="pointer-events-none select-none p-3 bg-gray-50 rounded-lg font-medium text-gray-600">
-                        {dataById?.data?.topicOfComplaint}
-                      </div>
-                    </div>
-                    <div>
-                      <h4 className="mb-2 pointer-events-none select-none">เรื่องร้องเรียน/ร้องทุกข์</h4>
-                      <div className="pointer-events-none select-none p-3 bg-gray-50 rounded-lg font-medium text-gray-600">
-                        {dataById?.data?.detailsOfTheTopic}
-                      </div>
-                    </div>
-                    <div>
-                      <h4 className="mb-2 pointer-events-none select-none">รายละเอียดการร้องเรียน/ร้องทุกข์		</h4>
-                      <div className="pointer-events-none select-none p-3 bg-gray-50 rounded-lg font-medium text-gray-600 min-h-[200px] whitespace-pre-wrap">
-                        {dataById?.data?.problemDetail}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </Card>
-            </div>
-          </CustomTabPanel>
-
-          <CustomTabPanel value={tabValue} index={1}>
             <h2 className="text-2xl font-bold mb-4 text-[#3190FF]">STATE</h2>
             <Timeline>
               {reorganizedStages.map((stageGroup, index) => {

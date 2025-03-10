@@ -12,15 +12,10 @@ import { useRouter } from "next/navigation";
 import ApplicantTrackingAdmin from "../../navbar/BreadcrumpAdmin";
 import { useGetAll } from "../../hooks/useGetAll";
 import { useUpdateComplaint } from "../../hooks/useUpdateComplaint";
+import SearchIcon from '@mui/icons-material/Search';
+import useEncryptData from "../../hooks/Encryption/Encryption";
 
-interface Complaint {
-  id: number;
-  createDate: string;
-  topicOfComplaint: string;
-  detailsOfTheTopic: string;
-  problemDetail: string;
-  status: string;
-}
+import ExPdfBtn from "../../components/button/ExPdfBtn";
 
 const ComplaintTable: React.FC = () => {
   const { session } = useSession();
@@ -28,7 +23,8 @@ const ComplaintTable: React.FC = () => {
   const router = useRouter();
   const [userName, setUserName] = useState<string>("");
   const { data: getAll } = useGetAll();
-  const { mutateAsync: mutateAsyncUpdate } = useUpdateComplaint();
+  const sortedData = getAll?.sort((a, b) => a.id - b.id);
+  const { mutate: encrypting } = useEncryptData();
 
   const formatDates = (dateString: string | undefined) => {
     if (!dateString) return '-';
@@ -69,12 +65,114 @@ const ComplaintTable: React.FC = () => {
     }
   };
 
+
+
   const [filters, setFilters] = useState({
     date: "",
     topicOfComplaint: "",
     detailsOfTheTopic: "",
+    problemDetail: "",
     status: "",
   });
+  const handleCategoryChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setFilters({
+      ...filters,
+      topicOfComplaint: e.target.value,
+      detailsOfTheTopic: "",  // รีเซ็ตค่ารายละเอียดเมื่อลองเลือกหัวข้อใหม่
+    });
+  };
+
+  // ฟังก์ชั่นสำหรับ handle การเลือกรายละเอียดของหัวข้อ
+  const handleDetailChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setFilters({
+      ...filters,
+      detailsOfTheTopic: e.target.value,
+    });
+  };
+  const categories: Record<string, string[]> = {
+    "": [],
+    "บุคลากร": [
+      "พฤติกรรมการให้บริการ",
+      "การขาดงาน/มาสาย",
+      "ความไม่เป็นกลางในการปฏิบัติงาน",
+      "การใช้วาจาไม่สุภาพ",
+      "ความล่าช้าในการให้บริการ",
+      "อื่นๆ เกี่ยวกับบุคลากร"
+    ],
+    "การเรียนการสอน": [
+      "เนื้อหาไม่ตรงกับคำอธิบายรายวิชา",
+      "อาจารย์ขาดสอน/มาสอนสาย",
+      "การประเมินผลไม่เป็นธรรม",
+      "สื่อการสอนไม่ทันสมัย",
+      "เอกสารประกอบการสอนไม่เพียงพอ",
+      "อื่นๆ เกี่ยวกับการเรียนการสอน"
+    ],
+    "บริการนักศึกษา": [
+      "ปัญหาด้านทุนการศึกษา",
+      "การให้คำปรึกษา",
+      "การให้บริการห้องสมุด",
+      "ช่องทางการติดต่อ",
+      "ระบบลงทะเบียน",
+      "อื่นๆ เกี่ยวกับบริการนักศึกษา"
+    ],
+    "สิ่งอำนวยความสะดวก": [
+      "สภาพห้องเรียน/ห้องปฏิบัติการ",
+      "อุปกรณ์โสตทัศนูปกรณ์",
+      "สัญญาณอินเทอร์เน็ต",
+      "สภาพแวดล้อมในมหาวิทยาลัย",
+      "ที่จอดรถ",
+      "ห้องน้ำ",
+      "อื่นๆ เกี่ยวกับสิ่งอำนวยความสะดวก"
+    ],
+    "ค่าธรรมเนียมและการเงิน": [
+      "การชำระเงินออนไลน์",
+      "การคืนเงินค่าธรรมเนียม",
+      "การออกใบเสร็จ",
+      "ค่าปรับล่าช้า",
+      "อื่นๆ เกี่ยวกับค่าธรรมเนียมและการเงิน"
+    ],
+    "ความปลอดภัย": [
+      "อุบัติเหตุในมหาวิทยาลัย",
+      "ทรัพย์สินสูญหาย",
+      "ระบบกล้องวงจรปิด",
+      "แสงสว่างในเวลากลางคืน",
+      "อื่นๆ เกี่ยวกับความปลอดภัย"
+    ],
+    "หอพัก/ที่พักอาศัย": [
+      "สภาพห้องพัก",
+      "สาธารณูปโภคในหอพัก",
+      "กฎระเบียบหอพัก",
+      "พฤติกรรมผู้พักอาศัยร่วม",
+      "การให้บริการของเจ้าหน้าที่หอพัก",
+      "อื่นๆ เกี่ยวกับหอพัก/ที่พักอาศัย"
+    ],
+    "IT/ระบบสารสนเทศ": [
+      "ระบบลงทะเบียน",
+      "ระบบอีเมล",
+      "เว็บไซต์มหาวิทยาลัย",
+      "แอปพลิเคชันมือถือ",
+      "ระบบสารสนเทศนักศึกษา",
+      "อื่นๆ เกี่ยวกับ IT/ระบบสารสนเทศ"
+    ],
+    "อาหารและโภชนาการ": [
+      "คุณภาพอาหาร",
+      "ราคาอาหาร",
+      "สุขอนามัยของร้านอาหาร",
+      "ความหลากหลายของร้านอาหาร",
+      "อื่นๆ เกี่ยวกับอาหารและโภชนาการ"
+    ],
+    "การขนส่ง/การเดินทาง": [
+      "รถรับส่งภายในมหาวิทยาลัย",
+      "จุดจอดรถ/ที่จอดรถ",
+      "ความปลอดภัยในการเดินทาง",
+      "ตารางเวลารถรับส่ง",
+      "อื่นๆ เกี่ยวกับการขนส่ง/การเดินทาง"
+    ],
+    "เรื่องอื่นๆ": [
+      "ข้อเสนอแนะทั่วไป",
+      "ร้องเรียนอื่นๆ ที่ไม่มีในหมวดหมู่"
+    ]
+  };
 
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
@@ -108,80 +206,22 @@ const ComplaintTable: React.FC = () => {
 
 
 
-  const handleEdit = async (complaint: Complaint) => {
-    const result = await Swal.fire({
-      title: '<h2 style="font-size: 1.5rem; font-weight: bold;">แก้ไขข้อมูล</h2>',
-      html: `
-        <div style="text-align: left; font-size: 1rem; margin: 10px 20px;">
-          <label for="swal-date" style="font-weight: bold;">วันที่:</label>
-          <input type="text" id="swal-date" value="${formatDate(complaint.createDate)}" class="swal2-input" style="width: 90%; margin-top: 5px;" readonly>
-        </div>
-        <div style="text-align: left; font-size: 1rem; margin: 10px 20px;">
-          <label for="swal-topic" style="font-weight: bold;">ประเภทผู้ร้องเรียน:</label>
-          <input type="text" id="swal-topic" value="${complaint.topicOfComplaint}" class="swal2-input" style="width: 90%; margin-top: 5px;" readonly>
-        </div>
-        <div style="text-align: left; font-size: 1rem; margin: 10px 20px;">
-          <label for="swal-details" style="font-weight: bold;">หัวข้อร้องเรียน:</label>
-          <input type="text" id="swal-details" value="${complaint.detailsOfTheTopic}" class="swal2-input" style="width: 90%; margin-top: 5px;" readonly>
-        </div>
-        <div style="text-align: left; font-size: 1rem; margin: 10px 20px;">
-          <label for="swal-problem" style="font-weight: bold;">รายละเอียด:</label>
-          <textarea id="swal-problem" class="swal2-textarea" style="width: 90%; margin-top: 5px;" readonly>${complaint.problemDetail}</textarea>
-        </div>
-        <div style="text-align: left; font-size: 1rem; margin: 10px 20px;">
-          <label for="swal-status" style="font-weight: bold;">สถานะ:</label>
-          <select id="swal-status" class="swal2-input" style="width: 90%; margin-top: 5px;">
-            <option value="รอดำเนินการ" ${complaint.status === "รอดำเนินการ" ? "selected" : ""}>รอดำเนินการ</option>
-            <option value="กำลังดำเนินการ" ${complaint.status === "กำลังดำเนินการ" ? "selected" : ""}>กำลังดำเนินการ</option>
-            <option value="เสร็จสิ้น" ${complaint.status === "เสร็จสิ้น" ? "selected" : ""}>เสร็จสิ้น</option>
-          </select>
-        </div>
-      `,
-      showCancelButton: true,
-      confirmButtonText: 'บันทึก',
-      cancelButtonText: 'ยกเลิก',
-      preConfirm: () => {
-        const status = (document.getElementById('swal-status') as HTMLSelectElement).value;
-        if (!status) {
-          Swal.showValidationMessage('กรุณาเลือกสถานะ');
-          return false;
-        }
-        return { status };
+  const handleEdit = (params: any) => {
+    encrypting(params.id, {
+      onSuccess: (encryptedId: any) => {
+        router.push(`/admincomplaint/complaintdetail?id=${encryptedId}`);
       },
-    });
-
-    if (result.isConfirmed) {
-      try {
-        await mutateAsyncUpdate({
-          id: complaint.id,
-          payload: {
-            status: result.value.status,
-            state: result.value.status, // ใช้สถานะใหม่
-            firstName: session?.firstName || '',
-            lastName: session?.lastName || '',
-            fullName: session?.fullName || '',
-            emailAddress: session?.emailAddress || ''
-          }
-        });
-        
-        await Swal.fire({
-          icon: 'success',
-          title: 'อัพเดทสถานะสำเร็จ',
-          timer: 1500,
-          showConfirmButton: false,
-        });
-        router.push("/adminmain"); // นำทางไปที่ "/adminmain"
-      } catch (error) {
-        console.error("Error updating complaint:", error);
-        await Swal.fire({
-          icon: 'error',
-          title: 'เกิดข้อผิดพลาด',
-          text: 'ไม่สามารถอัพเดทสถานะได้ กรุณาลองใหม่อีกครั้ง'
-        });
+      onError: (error: any) => {
+        console.error("Error encrypting ID:", error);
       }
-    }
+    });
   };
-
+  useEffect(() => {
+    console.log(session); // ดูค่า session ที่ได้มา
+    if (session === null) {
+      router.push('/adminlogin');
+    }
+  }, [session]);
   return (
     <div className="min-h-screen bg-[#e8edff] flex flex-col items-center">
       <div className="w-full bg-gradient-to-b from-green-200 to-blue-200 h-32 rounded-b-lg shadow-md">
@@ -209,81 +249,127 @@ const ComplaintTable: React.FC = () => {
         </div>
       </div>
 
-      <div className="rounded-lg mt-6 ml-8 w-[90%]">
-        <ApplicantTrackingAdmin />
-      </div>
-
-      <div className="bg-white shadow-lg rounded-lg p-4 max-w-[90%] w-full">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <input
-            type="date"
-            value={filters.date}
-            onChange={(e) => setFilters({ ...filters, date: e.target.value })}
-            className="border rounded p-2"
-          />
-          <select
-            value={filters.topicOfComplaint}
-            onChange={(e) => setFilters({ ...filters, topicOfComplaint: e.target.value })}
-            className="border rounded p-2"
-          >
-            <option value="">ร้องเรียน/ร้องทุกข์จาก</option>
-            <option value="นักศึกษา">นักศึกษา</option>
-            <option value="อาจารย์">อาจารย์</option>
-            <option value="บุคคลภายนอก">บุคคลภายนอก</option>
-          </select>
-          <select
-            value={filters.detailsOfTheTopic}
-            onChange={(e) => setFilters({ ...filters, detailsOfTheTopic: e.target.value })}
-            className="border rounded p-2"
-          >
-            <option value="">หัวข้อร้องเรียนทั้งหมด</option>
-            <option value="บุคลากร">บุคลากร</option>
-            <option value="การเรียน/การสอน">การเรียน/การสอน</option>
-            <option value="ผลการเรียน">ผลการเรียน</option>
-            <option value="สิ่งอำนวยความสะดวก">สิ่งอำนวยความสะดวก</option>
-            <option value="เรื่องอื่นๆ">เรื่องอื่นๆ</option>
-          </select>
-          <select
-            value={filters.status}
-            onChange={(e) => setFilters({ ...filters, status: e.target.value })}
-            className="border rounded p-2"
-          >
-            <option value="">สถานะทั้งหมด</option>
-            <option value="รอดำเนินการ">รอดำเนินการ</option>
-            <option value="กำลังดำเนินการ">กำลังดำเนินการ</option>
-            <option value="เสร็จสิ้น">เสร็จสิ้น</option>
-          </select>
+      <div className="w-full px-8 mt-6">
+        <div className="flex flex-row justify-between items-center ">
+          <div className="text-left ml-16">
+            <ApplicantTrackingAdmin />
+          </div>
+          <div className="mb-6 mr-12">
+          <ExPdfBtn filteredData={filteredComplaints} />
+          </div>
         </div>
       </div>
 
+      <div className="bg-white shadow-lg rounded-lg p-4 max-w-[90%] w-full">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {/* Date Filter */}
+          <div className="relative">
+            <label className="block text-gray-700 mb-1">วันที่</label>
+            <div className="relative">
+              <input
+                type="date"
+                value={filters.date}
+                onChange={(e) => setFilters({ ...filters, date: e.target.value })}
+                className="border rounded p-1.5 w-full focus:border-blue-400 focus:ring-2 focus:ring-blue-200"
+              />
+            </div>
+          </div>
+          {/* Category & Subcategory Filters */}
+          <div>
+            <label className="block text-gray-700 mb-1">หมวดหมู่</label>
+            <div className="flex flex-col gap-2">
+              <select
+                value={filters.topicOfComplaint}
+                onChange={handleCategoryChange}
+                className="border rounded p-2 w-full focus:border-blue-400 focus:ring-2 focus:ring-blue-200"
+              >
+                <option value="">ประเด็นที่ร้องเรียน/ร้องทุกข์ทั้งหมด</option>
+                {Object.keys(categories).filter(cat => cat !== "").map((category, idx) => (
+                  <option key={idx} value={category}>{category}</option>
+                ))}
+              </select>
+              <select
+                value={filters.detailsOfTheTopic}
+                onChange={handleDetailChange}
+                className="border rounded p-2 w-full focus:border-blue-400 focus:ring-2 focus:ring-blue-200"
+                disabled={!filters.topicOfComplaint}
+              >
+                <option value="">เรื่องร้องเรียน/ร้องทุกข์ทั้งหมด</option>
+                {categories[filters.topicOfComplaint]?.map((detail, index) => (
+                  <option key={index} value={detail}>{detail}</option>
+                ))}
+              </select>
+            </div>
+          </div>
+
+          {/* Status & Search */}
+          <div className="space-y-2">
+            <div>
+              <label className="block text-gray-700 mb-1">สถานะ</label>
+              <select
+                value={filters.status}
+                onChange={(e) => setFilters({ ...filters, status: e.target.value })}
+                className="border rounded p-2 w-full focus:border-blue-400 focus:ring-2 focus:ring-blue-200"
+              >
+                <option value="">สถานะทั้งหมด</option>
+                <option value="รอดำเนินการ">รอดำเนินการ</option>
+                <option value="กำลังดำเนินการ">กำลังดำเนินการ</option>
+                <option value="รอตรวจสอบ">รอตรวจสอบ</option>
+                <option value="เสร็จสิ้น">เสร็จสิ้น</option>
+              </select>
+            </div>
+            <div className="relative">
+              <input
+                type="text"
+                value={filters.problemDetail}
+                onChange={(e) => setFilters({ ...filters, problemDetail: e.target.value })}
+                className="border rounded p-2 pl-10 w-full focus:border-blue-400 focus:ring-2 focus:ring-blue-200"
+                placeholder="ค้นหารายละเอียดปัญหา..."
+              />
+              <SearchIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500" />
+            </div>
+          </div>
+        </div>
+      </div>
       <div className="bg-white shadow-lg rounded-lg p-6 mt-2 max-w-[90%] w-full flex-grow mb-12">
-        <table className="min-w-full table-auto">
+        <table className="min-w-full table-auto ">
           <thead>
-            <tr>
-              <th className="px-4 py-2 border">ลำดับ</th>
-              <th className="px-4 py-2 border">วันที่</th>
-              <th className="px-4 py-2 border">ประเภทผู้ร้องเรียน</th>
-              <th className="px-4 py-2 border">หัวข้อร้องเรียน</th>
-              <th className="px-4 py-2 border">รายละเอียด</th>
-              <th className="px-4 py-2 border">สถานะ</th>
-              <th className="px-4 py-2 border">แก้ไข</th>
+            <tr className=" text-[#042278]">
+              <th className="px-2 py-2 border">ลำดับ</th>
+              <th className="px-2 py-2 border">วันที่</th>
+              <th className="px-2 py-2 border">ชื่อ - นามสกุล ผู้ร้องเรียน/ร้องทุกข์</th>
+              <th className="px-2 py-2 border">ประเด็นที่ร้องเรียน/ร้องทุกข์	</th>
+              <th className="px-2 py-2 border">เรื่องร้องเรียน/ร้องทุกข์</th>
+              <th className="px-2 py-2 border">รายละเอียดการร้องเรียน/ร้องทุกข์</th>
+              <th className="px-2 py-2 border">สถานะ</th>
+              <th className="px-2 px-4 py-2 border">แก้ไข</th>
             </tr>
           </thead>
           <tbody>
-            {paginatedComplaints.map((complaint:any) => (
+            {paginatedComplaints.map((complaint: any) => (
               <tr key={complaint.id} className="hover:bg-gray-100">
-                <td className="px-4 py-2 border text-center">{getAll?.filter((item) => item.id === complaint.id)[0]?.id}</td>
-                <td className="px-4 py-2 border text-center">{formatDates(getAll?.filter((item) => item.id === complaint.id)[0]?.createDate?.toString())}</td>
-                <td className="px-4 py-2 border">{getAll?.filter((item) => item.id === complaint.id)[0]?.topicOfComplaint}</td>
-                <td className="px-4 py-2 border">{getAll?.filter((item) => item.id === complaint.id)[0]?.detailsOfTheTopic}</td>
-                <td className="px-4 py-2 border">{getAll?.filter((item) => item.id === complaint.id)[0]?.problemDetail}</td>
+                <td className="px-2 py-2 border text-center">
+                  {sortedData?.find((item) => item.id === complaint.id)?.id}
+                </td>
+                <td className="px-2 py-2 border text-center">{formatDates(getAll?.filter((item) => item.id === complaint.id)[0]?.createDate?.toString())}</td>
+                <td className="px-2 py-2 border">{getAll?.filter((item) => item.id === complaint.id)[0]?.fullName}</td>
+                <td className="px-2 py-2 border">{getAll?.filter((item) => item.id === complaint.id)[0]?.topicOfComplaint}</td>
+                <td className="px-2 py-2 border">{getAll?.filter((item) => item.id === complaint.id)[0]?.detailsOfTheTopic}</td>
+                <td className="px-2 py-2 border" style={{
+                  whiteSpace: "nowrap",
+                  overflow: "hidden",
+                  textOverflow: "ellipsis",
+                  maxWidth: "200px" // ปรับตามความเหมาะสม
+                }}>
+                  {getAll?.filter((item) => item.id === complaint.id)[0]?.problemDetail}
+                </td>
                 <td className="border text-center">
                   <span
                     style={{
                       backgroundColor:
                         getAll?.filter((item) => item.id === complaint.id)[0]?.status === 'รอดำเนินการ' ? '#FFA500' :
                           getAll?.filter((item) => item.id === complaint.id)[0]?.status === 'กำลังดำเนินการ' ? '#3190FF' :
-                            getAll?.filter((item) => item.id === complaint.id)[0]?.status === 'รอตรวจสอบ' ? 'green' :
+                            getAll?.filter((item) => item.id === complaint.id)[0]?.status === 'รอตรวจสอบ' ? '#4B5563' :
                               getAll?.filter((item) => item.id === complaint.id)[0]?.status === 'เสร็จสิ้น' ? 'green' :
                                 '',
                       fontWeight: 'bold',
@@ -295,13 +381,15 @@ const ComplaintTable: React.FC = () => {
                     {getAll?.filter((item) => item.id === complaint.id)[0]?.status}
                   </span>
                 </td>
-                <td className="px-4 py-2 border text-center">
-                  <button
-                    onClick={() => handleEdit(complaint)}
-                    className="text-blue-500 hover:text-blue-700"
-                  >
-                    <EditIcon />
-                  </button>
+                <td className="px-2 py-2 border text-center">
+                  {getAll?.filter((item) => item.id === complaint.id)[0]?.status !== 'เสร็จสิ้น' && (
+                    <button
+                      onClick={() => handleEdit(complaint)}
+                      className="text-blue-500 hover:text-blue-700"
+                    >
+                      <EditIcon />
+                    </button>
+                  )}
                 </td>
               </tr>
             ))}

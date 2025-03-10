@@ -85,12 +85,7 @@ const MainPage: React.FC = () => {
     if (!phoneNumber.trim()) errors.push("เบอร์โทร");
 
     if (errors.length > 0) {
-      Swal.fire({
-        title: "กรุณากรอกข้อมูลให้ครบถ้วน!",
-        text: `กรุณาระบุ: ${errors.join(", ")}`,
-        icon: "warning",
-        confirmButtonText: "ตกลง",
-      });
+      handleAlert("warning", `กรุณาระบุ: ${errors.join(", ")}`);
       return;
     }
     setIsSubmitting(true);
@@ -122,22 +117,27 @@ const MainPage: React.FC = () => {
   };
 
   useEffect(() => {
-      let redirectTimeout: NodeJS.Timeout;
-  
-      if (shouldRedirect) {
-        redirectTimeout = setTimeout(() => {
-          router.push("/main");
-          setShouldRedirect(false); // Reset the redirect state
-        }, 1500);
-      }
-  
-      return () => {
-        if (redirectTimeout) {
-          clearTimeout(redirectTimeout);
-        }
-      };
-    }, [shouldRedirect, router]);
+    let redirectTimeout: NodeJS.Timeout;
 
+    if (shouldRedirect) {
+      redirectTimeout = setTimeout(() => {
+        router.push("/main");
+        setShouldRedirect(false); // Reset the redirect state
+      }, 1500);
+    }
+
+    return () => {
+      if (redirectTimeout) {
+        clearTimeout(redirectTimeout);
+      }
+    };
+  }, [shouldRedirect, router]);
+  useEffect(() => {
+    console.log(session); // ดูค่า session ที่ได้มา
+    if (session === null) {
+      router.push('/login');
+    }
+  }, [session]);
   return (
     <>
       <div className="min-h-screen bg-[#e8edff] flex flex-col items-center">
@@ -232,18 +232,18 @@ const MainPage: React.FC = () => {
                   />
                 </div>
                 <div>
-                    <label className="block text-xl font-medium text-gray-700">
-                      อีเมล
-                    </label>
-                    <input
-                      type="email"
-                      className="mt-2 p-3 border rounded-lg w-full text-gray-500 bg-gray-100 cursor-not-allowed focus:outline-none"
-                      placeholder="กรุณากรอกอีเมล"
-                      value={session?.emailAddress}
-                      readOnly
-                      style={{ pointerEvents: 'none' }} // ป้องกันการคลิกหรือโฟกัส
-                    />
-                  </div>
+                  <label className="block text-xl font-medium text-gray-700">
+                    อีเมล
+                  </label>
+                  <input
+                    type="email"
+                    className="mt-2 p-3 border rounded-lg w-full text-gray-500 bg-gray-100 cursor-not-allowed focus:outline-none"
+                    placeholder="กรุณากรอกอีเมล"
+                    value={session?.emailAddress}
+                    readOnly
+                    style={{ pointerEvents: 'none' }} // ป้องกันการคลิกหรือโฟกัส
+                  />
+                </div>
               </div>
             </div>
             <div>
@@ -255,9 +255,9 @@ const MainPage: React.FC = () => {
                 onChange={(e) => setProblemDetails(e.target.value)}
                 maxLength={1000}
               ></textarea>
-                <p className="text-right text-gray-500 text-sm mt-1">
-                  {problemDetails.length}/1000 ตัวอักษร
-                </p>
+              <p className="text-right text-gray-500 text-sm mt-1">
+                {problemDetails.length}/1000 ตัวอักษร
+              </p>
             </div>
           </div>
 

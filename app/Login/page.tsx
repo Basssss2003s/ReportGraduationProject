@@ -95,7 +95,7 @@ export default function Login() {
                   className="absolute right-3 top-8 transform -translate-y-1/2 text-gray-500"
                   onClick={() => setShowPassword(!showPassword)}
                 >
-                  {showPassword ? <VisibilityIcon /> : <VisibilityOffIcon />}
+                  {showPassword ?  <VisibilityOffIcon /> :<VisibilityIcon />}
                 </button>
               </div>
             </div>
