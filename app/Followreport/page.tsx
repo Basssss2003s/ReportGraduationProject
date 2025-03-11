@@ -309,7 +309,7 @@ const MainPage: React.FC = () => {
               <th className="px-4 py-2 border">เรื่องร้องเรียน/ร้องทุกข์</th>
               <th className="px-4 py-2 border">รายละเอียดการร้องเรียน/ร้องทุกข์</th>
               <th className="px-4 py-2 border w-40">สถานะ</th>
-              <th className="px-4 py-2 border text-center">หมายเหตุ</th>
+              <th className="px-4 py-2 border text-center">ดูรายละเอียด</th>
             </tr>
           </thead>
           <tbody>
