@@ -292,7 +292,7 @@ const MainPage: React.FC = () => {
                 value={filters.problemDetail}
                 onChange={(e) => setFilters({ ...filters, problemDetail: e.target.value })}
                 className="border rounded p-2 pl-10 w-full focus:border-blue-400 focus:ring-2 focus:ring-blue-200"
-                placeholder="ค้นหารายละเอียดปัญหา..."
+                placeholder="รายละเอียดการร้องเรียน/ร้องทุกข์..."
               />
               <SearchIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500" />
             </div>
