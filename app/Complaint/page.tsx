@@ -14,7 +14,7 @@ import PersonIcon from '@mui/icons-material/Person';
 import Link from "next/link";
 
 const MainPage: React.FC = () => {
-  const { session } = useSession();
+  const { session,loading } = useSession();
   const { logout } = useAuth();
   const router = useRouter();
   const [userName, setUserName] = useState<string>("");
@@ -225,12 +225,12 @@ const MainPage: React.FC = () => {
     setDetailsOfTheTopic("");
   };
 
-  useEffect(() => {
+   useEffect(() => {
       console.log(session); // ดูค่า session ที่ได้มา
-      if (session === null) {
+      if (!loading && session === null) {
         router.push('/login');
       }
-    }, [session]);
+    }, [session, loading]);
 
   return (
     <>

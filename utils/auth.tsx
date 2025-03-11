@@ -65,15 +65,23 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
- const logout = async () => {
+  const logout = async () => {
     try {
-      await axiosApi('post','/auth/logout', {}, 
+      await axiosApi('post', '/auth/logout', {}, 
         { 
           withCredentials: true 
         }
       );
+      
+      // Clear user state
       setUser(null);
+      setAdmin(null);  // Also clear admin state if present
       setIsAuthenticated(false);
+      
+      // Clear session data from localStorage
+      localStorage.removeItem('userSession');
+      localStorage.removeItem('sessionTimestamp');
+      
     } catch (error) {
       console.error('Logout failed:', error);
       throw error;

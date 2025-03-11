@@ -34,7 +34,7 @@ ChartJS.register(
 
 const MainPage = () => {
   const [view, setView] = useState("ทั้งหมด");
-  const { session } = useSession();
+  const { session, loading } = useSession();
   const { logout } = useAuth();
   const router = useRouter();
   const [userName, setUserName] = useState<string>("");
@@ -191,10 +191,10 @@ const MainPage = () => {
 
   useEffect(() => {
     console.log(session); // ดูค่า session ที่ได้มา
-    if (session === null) {
+    if (!loading && session === null) {
       router.push('/adminlogin');
     }
-  }, [session]);
+  }, [session, loading]);
 
   return (
     <div className="min-h-screen bg-[#e8edff] flex flex-col items-center">
@@ -320,8 +320,8 @@ const MainPage = () => {
           <div className="flex flex-col items-center p-4">
             <h3 className="text-lg font-medium text-center mb-2">กราฟเส้น</h3>
             <div className="w-full max-w-xs aspect-square">
-              <Line data={lineDataTeacher} options={{ 
-                 plugins: {
+              <Line data={lineDataTeacher} options={{
+                plugins: {
                   legend: {
                     labels: {
                       // ลบรูปแบบการแสดงจุดสีออกไปเลย
@@ -330,7 +330,8 @@ const MainPage = () => {
                     }
                   }
                 },
-                maintainAspectRatio: false }} />
+                maintainAspectRatio: false
+              }} />
             </div>
           </div>
         </div>

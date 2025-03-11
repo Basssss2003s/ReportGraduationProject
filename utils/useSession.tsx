@@ -31,69 +31,204 @@ export const SessionProvider = ({ children }: { children: React.ReactNode }) => 
   const [session, setSession] = useState<SessionData | null>(null);
   const [loading, setLoading] = useState(true);
   const [sessionTimestamp, setSessionTimestamp] = useState<number | null>(null);
+  const [initialCheckDone, setInitialCheckDone] = useState(false);
   const router = useRouter();
 
   const SESSION_TIMEOUT = 15 * 60 * 1000; // 15 นาที (900,000 มิลลิวินาที)
 
-  const getSession = async () => {
+  // อ่านข้อมูล session จาก localStorage เมื่อเริ่มต้น component
+  useEffect(() => {
+    const loadSessionFromStorage = async () => {
+      setLoading(true);
+      try {
+        const savedSession = localStorage.getItem('userSession');
+        const savedTimestamp = localStorage.getItem('sessionTimestamp');
+        
+        if (savedSession && savedTimestamp) {
+          const parsedSession = JSON.parse(savedSession);
+          const timestamp = parseInt(savedTimestamp, 10);
+          
+          // ตรวจสอบว่า session หมดอายุหรือไม่
+          if (Date.now() - timestamp < SESSION_TIMEOUT) {
+            console.log('พบ session ใน localStorage', parsedSession);
+            setSession(parsedSession);
+            setSessionTimestamp(timestamp);
+            setInitialCheckDone(true);
+            setLoading(false);
+            return true; // พบ session ที่ใช้งานได้
+          } else {
+            // ถ้า session หมดอายุ ให้ลบออกจาก localStorage
+            console.log('session หมดอายุ');
+            localStorage.removeItem('userSession');
+            localStorage.removeItem('sessionTimestamp');
+          }
+        } else {
+          console.log('ไม่พบ session ใน localStorage');
+        }
+        
+        // ถ้าไม่มี session ใน localStorage หรือ session หมดอายุ ให้ดึงข้อมูลใหม่
+        const fetchResult = await fetchSessionData();
+        setInitialCheckDone(true);
+        return fetchResult;
+      } catch (error) {
+        console.error('เกิดข้อผิดพลาดในการอ่าน session:', error);
+        setInitialCheckDone(true);
+        setLoading(false);
+        return false;
+      }
+    };
+
+    loadSessionFromStorage();
+  }, []);
+
+  // ฟังก์ชันสำหรับดึงข้อมูล session จาก API
+  const fetchSessionData = async () => {
+    let success = false;
     try {
-      const response = await axiosApi<SessionData>('get', '/auth/profileAdmin');
-      setSession(response);
-      setSessionTimestamp(Date.now());
-    } catch (error) {
-      console.error('ดึงข้อมูล session ไม่สำเร็จ:', error);
-      setSession(null);
+      console.log('กำลังดึงข้อมูล session จาก API...');
+      // ลองดึงข้อมูลจาก profile ก่อน
+      const response = await axiosApi<SessionData>('get', '/auth/profile');
+      if (response) {
+        setSession(response);
+        const currentTime = Date.now();
+        setSessionTimestamp(currentTime);
+        localStorage.setItem('userSession', JSON.stringify(response));
+        localStorage.setItem('sessionTimestamp', currentTime.toString());
+        console.log('ดึงข้อมูล session จาก /auth/profile สำเร็จ', response);
+        success = true;
+      }
+    } catch (profileError) {
+      console.error('ดึงข้อมูล session จาก /auth/profile ไม่สำเร็จ:', profileError);
+      
+      // ถ้าดึงข้อมูลจาก profile ไม่สำเร็จ ให้ลองดึงจาก profileAdmin
+      try {
+        const adminResponse = await axiosApi<SessionData>('get', '/auth/profileAdmin');
+        if (adminResponse) {
+          setSession(adminResponse);
+          const currentTime = Date.now();
+          setSessionTimestamp(currentTime);
+          localStorage.setItem('userSession', JSON.stringify(adminResponse));
+          localStorage.setItem('sessionTimestamp', currentTime.toString());
+          console.log('ดึงข้อมูล session จาก /auth/profileAdmin สำเร็จ', adminResponse);
+          success = true;
+        }
+      } catch (adminError) {
+        console.error('ดึงข้อมูล session จาก /auth/profileAdmin ไม่สำเร็จ:', adminError);
+        setSession(null);
+        localStorage.removeItem('userSession');
+        localStorage.removeItem('sessionTimestamp');
+      }
     } finally {
       setLoading(false);
     }
+    return success;
+  };
+
+  const getSession = async () => {
+    try {
+      const response = await axiosApi<SessionData>('get', '/auth/profileAdmin');
+      if (response) {
+        setSession(response);
+        const currentTime = Date.now();
+        setSessionTimestamp(currentTime);
+        localStorage.setItem('userSession', JSON.stringify(response));
+        localStorage.setItem('sessionTimestamp', currentTime.toString());
+        console.log('getSession สำเร็จ:', response);
+        return true;
+      }
+    } catch (error) {
+      console.error('ดึงข้อมูล session ไม่สำเร็จ (getSession):', error);
+      return false;
+    } finally {
+      setLoading(false);
+    }
+    return false;
   };
 
   const fetchSession = async () => {
     try {
       const response = await axiosApi<SessionData>('get', '/auth/profile');
-      setSession(response);
-      setSessionTimestamp(Date.now());
+      if (response) {
+        setSession(response);
+        const currentTime = Date.now();
+        setSessionTimestamp(currentTime);
+        localStorage.setItem('userSession', JSON.stringify(response));
+        localStorage.setItem('sessionTimestamp', currentTime.toString());
+        console.log('fetchSession สำเร็จ:', response);
+        return true;
+      }
     } catch (error) {
-      console.error('ดึงข้อมูล session ไม่สำเร็จ:', error);
-      setSession(null);
+      console.error('ดึงข้อมูล session ไม่สำเร็จ (fetchSession):', error);
+      return false;
     } finally {
       setLoading(false);
     }
+    return false;
   };
 
   const redirectToLogin = () => {
-    if (session?.emailAddress?.includes('@mail.rmutt.ac.th')) {
-      router.push('/adminlogin'); // ถ้าเป็น admin → ไปที่ /loginadmin
-    } else {
-      router.push('/login'); // ถ้าเป็น user ธรรมดา → ไปที่ /login
+    console.log('กำลัง redirect ไปหน้า login...');
+    // ดูข้อมูลจาก localStorage เพื่อตรวจสอบว่าเป็น admin หรือไม่
+    const savedSession = localStorage.getItem('userSession');
+    if (savedSession) {
+      try {
+        const parsedSession = JSON.parse(savedSession);
+        if (parsedSession?.emailAddress?.includes('@mail.rmutt.ac.th')) {
+          router.push('/adminlogin');
+          return;
+        }
+      } catch (e) {
+        console.error('เกิดข้อผิดพลาดในการตรวจสอบ email:', e);
+      }
     }
+    
+    // ถ้าไม่มีข้อมูลหรือไม่ใช่ admin ให้ไปที่ /login
+    router.push('/login');
   };
 
+  // ตรวจสอบ session หลังจากโหลดข้อมูลเสร็จแล้ว
   useEffect(() => {
-    fetchSession();
-    getSession();
+    if (initialCheckDone && !loading && session === null) {
+      console.log('initialCheckDone แล้ว, session เป็น null, เตรียม redirect');
+      redirectToLogin();
+    }
+  }, [initialCheckDone, loading, session]);
 
-    // ตั้ง timeout 15 นาที
+  // ตั้งเวลาตรวจสอบหมดอายุ session
+  useEffect(() => {
+    if (!sessionTimestamp) return;
+    
     const timeout = setTimeout(() => {
+      console.log('Session timeout!');
       setSession(null);
       setSessionTimestamp(null);
+      localStorage.removeItem('userSession');
+      localStorage.removeItem('sessionTimestamp');
       redirectToLogin();
     }, SESSION_TIMEOUT);
 
     return () => clearTimeout(timeout);
-  }, []);
+  }, [sessionTimestamp]);
 
+  // ตรวจสอบหมดอายุ session เป็นระยะ
   useEffect(() => {
     const interval = setInterval(() => {
-      if (sessionTimestamp && Date.now() - sessionTimestamp >= SESSION_TIMEOUT) {
-        setSession(null);
-        setSessionTimestamp(null);
-        redirectToLogin();
+      const savedTimestamp = localStorage.getItem('sessionTimestamp');
+      if (savedTimestamp) {
+        const timestamp = parseInt(savedTimestamp, 10);
+        if (Date.now() - timestamp >= SESSION_TIMEOUT) {
+          console.log('Session expired during interval check!');
+          setSession(null);
+          setSessionTimestamp(null);
+          localStorage.removeItem('userSession');
+          localStorage.removeItem('sessionTimestamp');
+          redirectToLogin();
+        }
       }
-    }, 1000);
+    }, 60000); // ตรวจสอบทุก 1 นาที
 
     return () => clearInterval(interval);
-  }, [sessionTimestamp]);
+  }, []);
 
   const refreshSession = async () => {
     setLoading(true);

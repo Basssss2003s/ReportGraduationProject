@@ -13,7 +13,7 @@ import Link from "next/link";
 import useEncryptData from "../../hooks/Encryption/Encryption";
 import SearchIcon from '@mui/icons-material/Search';
 const MainPage: React.FC = () => {
-  const { session } = useSession();
+  const { session,loading } = useSession();
   const { logout } = useAuth();
   const router = useRouter();
   const [userName, setUserName] = useState<string>("");
@@ -188,12 +188,12 @@ const MainPage: React.FC = () => {
   );
 
   const totalPages = Math.ceil(filteredComplaints.length / itemsPerPage);
-  useEffect(() => {
-    console.log(session); // ดูค่า session ที่ได้มา
-    if (session === null) {
-      router.push('/login');
-    }
-  }, [session]);
+   useEffect(() => {
+      console.log(session); // ดูค่า session ที่ได้มา
+      if (!loading && session === null) {
+        router.push('/login');
+      }
+    }, [session, loading]);
 
   return (
     <div className="min-h-screen bg-[#e8edff] flex flex-col items-center">

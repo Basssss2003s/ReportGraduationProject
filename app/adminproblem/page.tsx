@@ -15,7 +15,7 @@ import ApplicantTrackingAdmin from "../../navbar/BreadcrumpAdmin";
 import { useGetAllReport } from "../../hooks/useGetAllReport";
 
 const MainPage = () => {
-  const { session } = useSession();
+  const { session,loading } = useSession();
   const { logout } = useAuth();
   const router = useRouter();
   const [userName, setUserName] = useState<string>("");
@@ -93,13 +93,12 @@ const MainPage = () => {
   );
 
   const totalPages = Math.ceil(filteredComplaints.length / itemsPerPage);
-  useEffect(() => {
-    console.log(session); // ดูค่า session ที่ได้มา
-    if (session === null) {
-      router.push('/adminlogin');
-    }
-  }, [session]);
-
+   useEffect(() => {
+      console.log(session); // ดูค่า session ที่ได้มา
+      if (!loading && session === null) {
+        router.push('/adminlogin');
+      }
+    }, [session, loading]);
   const systemIssuesCategories: Record<string, string[]> = {
     "": [],
     "การเข้าสู่ระบบ": [
