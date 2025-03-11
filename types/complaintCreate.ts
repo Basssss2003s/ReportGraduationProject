@@ -52,3 +52,13 @@ export interface ReportProblemCreate {
     createDate:  Date
 }
 
+export interface ReportProblem {
+    id: number,
+    topic: string,  
+    problem: string  ,
+    problemDetail: string  ,
+    telephone: string  ,
+    emailAddress: string,  
+    createDate:  Date
+}
+
