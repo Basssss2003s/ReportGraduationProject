@@ -16,6 +16,7 @@ type SessionContextType = {
   loading: boolean;
   refreshSession: () => Promise<void>;
   refreshSession2: () => Promise<void>;
+  logout: () => Promise<void>;
 };
 
 const SessionContext = createContext<SessionContextType>({
@@ -23,6 +24,7 @@ const SessionContext = createContext<SessionContextType>({
   loading: true,
   refreshSession: async () => {},
   refreshSession2: async () => {},
+  logout: async () => {},
 });
 
 export const useSession = () => useContext(SessionContext);
@@ -166,6 +168,42 @@ export const SessionProvider = ({ children }: { children: React.ReactNode }) => 
     return false;
   };
 
+  const logout = async () => {
+    // เก็บข้อมูลว่าเป็น admin หรือไม่ไว้ก่อน
+    let isAdmin = false;
+    try {
+      const savedSession = localStorage.getItem('userSession');
+      if (savedSession) {
+        const parsedSession = JSON.parse(savedSession);
+        isAdmin = parsedSession?.emailAddress?.includes('@mail.rmutt.ac.th');
+      }
+    } catch (e) {
+      console.error('เกิดข้อผิดพลาดในการตรวจสอบ email:', e);
+    }
+    
+    try {
+      // เรียก API logout
+      await axiosApi('post', '/auth/logout', {}, { withCredentials: true });
+      console.log('Logout API successful');
+    } catch (error) {
+      console.error('Logout API failed:', error);
+    } finally {
+      // เคลียร์ข้อมูล session ทั้งหมด
+      setSession(null);
+      setSessionTimestamp(null);
+      localStorage.removeItem('userSession');
+      localStorage.removeItem('sessionTimestamp');
+      console.log('Session data cleared');
+      
+      // redirect โดยใช้ค่า isAdmin ที่เก็บไว้
+      if (isAdmin) {
+        router.push('/adminlogin');
+      } else {
+        router.push('/login');
+      }
+    }
+  };
+
   const redirectToLogin = () => {
     console.log('กำลัง redirect ไปหน้า login...');
     // ดูข้อมูลจาก localStorage เพื่อตรวจสอบว่าเป็น admin หรือไม่
@@ -198,13 +236,11 @@ export const SessionProvider = ({ children }: { children: React.ReactNode }) => 
   useEffect(() => {
     if (!sessionTimestamp) return;
     
-    const timeout = setTimeout(() => {
+    const timeout = setTimeout(async () => {
       console.log('Session timeout!');
-      setSession(null);
-      setSessionTimestamp(null);
-      localStorage.removeItem('userSession');
-      localStorage.removeItem('sessionTimestamp');
-      redirectToLogin();
+      
+      // เรียก logout เมื่อหมดเวลา
+      await logout();
     }, SESSION_TIMEOUT);
 
     return () => clearTimeout(timeout);
@@ -212,17 +248,15 @@ export const SessionProvider = ({ children }: { children: React.ReactNode }) => 
 
   // ตรวจสอบหมดอายุ session เป็นระยะ
   useEffect(() => {
-    const interval = setInterval(() => {
+    const interval = setInterval(async () => {
       const savedTimestamp = localStorage.getItem('sessionTimestamp');
       if (savedTimestamp) {
         const timestamp = parseInt(savedTimestamp, 10);
         if (Date.now() - timestamp >= SESSION_TIMEOUT) {
           console.log('Session expired during interval check!');
-          setSession(null);
-          setSessionTimestamp(null);
-          localStorage.removeItem('userSession');
-          localStorage.removeItem('sessionTimestamp');
-          redirectToLogin();
+          
+          // เรียก logout เมื่อ session หมดอายุ
+          await logout();
         }
       }
     }, 60000); // ตรวจสอบทุก 1 นาที
@@ -241,7 +275,7 @@ export const SessionProvider = ({ children }: { children: React.ReactNode }) => 
   };
 
   return (
-    <SessionContext.Provider value={{ session, loading, refreshSession, refreshSession2 }}>
+    <SessionContext.Provider value={{ session, loading, refreshSession, refreshSession2, logout }}>
       {children}
     </SessionContext.Provider>
   );
