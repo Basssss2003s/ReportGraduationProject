@@ -23,7 +23,7 @@ import TimelineIcon from '@mui/icons-material/Timeline';
 import CustomTabPanel, { a11yProps } from "../../../components/tabs";
 import Card from "@mui/material/Card";
 const MainPage: React.FC = () => {
-  const { session } = useSession();
+  const { session,loading } = useSession();
   const { logout } = useAuth();
   const router = useRouter();
   const [userName, setUserName] = useState<string>("");
@@ -162,11 +162,11 @@ const MainPage: React.FC = () => {
   };
 
   useEffect(() => {
-    console.log(session); // ดูค่า session ที่ได้มา
-    if (session === null) {
-      router.push('/login');
-    }
-  }, [session]);
+     console.log(session); // ดูค่า session ที่ได้มา
+     if (!loading && session === null) {
+       router.push('/login');
+     }
+   }, [session, loading]);
   return (
     <div className="min-h-screen bg-[#e8edff] flex flex-col items-center">
       <div className="w-full bg-gradient-to-b from-green-200 to-blue-200 h-32 rounded-b-lg shadow-md">

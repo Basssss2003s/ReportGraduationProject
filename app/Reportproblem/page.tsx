@@ -13,7 +13,7 @@ import { ReportProblemCreate } from "../../types/complaintCreate";
 import AlertBox from "../../components/modal/Alert";
 
 const MainPage: React.FC = () => {
-  const { session } = useSession();
+  const { session,loading } = useSession();
   const { logout } = useAuth();
   const router = useRouter();
   const [userName, setUserName] = useState<string>("");
@@ -179,12 +179,12 @@ const MainPage: React.FC = () => {
       }
     };
   }, [shouldRedirect, router]);
-  useEffect(() => {
-    console.log(session); // ดูค่า session ที่ได้มา
-    if (session === null) {
-      router.push('/login');
-    }
-  }, [session]);
+   useEffect(() => {
+      console.log(session); // ดูค่า session ที่ได้มา
+      if (!loading && session === null) {
+        router.push('/login');
+      }
+    }, [session, loading]);
   return (
     <>
       <div className="min-h-screen bg-[#e8edff] flex flex-col items-center">

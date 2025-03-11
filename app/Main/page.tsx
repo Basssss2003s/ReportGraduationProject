@@ -13,7 +13,7 @@ import { useGetComplaintByEmailAddress } from "../../hooks/useGetComplaintByEmai
 
 
 const MainPage = () => {
-  const { session } = useSession();
+  const { session,loading } = useSession();
   const { logout } = useAuth();
   const router = useRouter();
   const [userName, setUserName] = useState<string>("");
@@ -23,11 +23,11 @@ const MainPage = () => {
 
   useEffect(() => {
     console.log(session); // ดูค่า session ที่ได้มา
-    if (session === null) {
+    if (!loading && session === null) {
       router.push('/login');
     }
-  }, [session]);
-  
+  }, [session, loading]);
+
   useEffect(() => {
     if (session?.fullName) {
       setUserName(session.fullName);

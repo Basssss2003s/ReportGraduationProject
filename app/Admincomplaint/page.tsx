@@ -26,7 +26,7 @@ interface Complaint {
 }
 
 const ComplaintTable: React.FC = () => {
-  const { session } = useSession();
+  const { session, loading } = useSession();
   const { logout } = useAuth();
   const router = useRouter();
   const [userName, setUserName] = useState<string>("");
@@ -221,19 +221,10 @@ const ComplaintTable: React.FC = () => {
 
   useEffect(() => {
     console.log(session); // ดูค่า session ที่ได้มา
-    if (session === null) {
-      router.push('/login');
-    }
-  }, [session]);
-
-
-  useEffect(() => {
-    console.log(session); // ดูค่า session ที่ได้มา
-    if (session === null) {
+    if (!loading && session === null) {
       router.push('/adminlogin');
     }
-  }, [session]);
-
+  }, [session, loading]);
 
   const handleEdit = async (complaint: Complaint) => {
     // Define the order of states
@@ -255,7 +246,7 @@ const ComplaintTable: React.FC = () => {
     const renderTimelineHTML = (currentStatus: string, selectedStatus: string) => {
       const currentIndex = statusOrder.indexOf(currentStatus);
       const selectedIndex = statusOrder.indexOf(selectedStatus);
-    
+
       return statusOrder.map((status, index) => {
         // Status is completed if it's before or equal to current status
         const isCompleted = index <= currentIndex;
@@ -265,9 +256,9 @@ const ComplaintTable: React.FC = () => {
         const isLast = index === statusOrder.length - 1;
         // Check if the status is being selected and is a future status (not completed yet)
         const isFutureSelected = isSelected && index > currentIndex;
-    
+
         const statusColor = getStatusColor(status);
-    
+
         return `
           <div style="display: flex; align-items: center; margin-bottom: ${isLast ? '0' : '30px'}; position: relative; width: 100%;">
             <div style="
