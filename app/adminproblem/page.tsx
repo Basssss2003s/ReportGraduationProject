@@ -7,20 +7,29 @@ import { useSession } from "../../utils/useSession";
 import { useAuth } from "../../utils/auth";
 import { useGetComplaintByEmailAddress } from "../../hooks/useGetComplaintByEmailAddress";
 import { Complaint } from "../../types/complaintCreate";
-import PersonIcon from '@mui/icons-material/Person';
+import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
 import Navbar from "../adminnavbar/page";
 import ApplicantTracking from "../../navbar/Breadcrump";
 import SearchIcon from '@mui/icons-material/Search';
 import ApplicantTrackingAdmin from "../../navbar/BreadcrumpAdmin";
 import { useGetAllReport } from "../../hooks/useGetAllReport";
+import LogoutIcon from '@mui/icons-material/Logout';
 
 const MainPage = () => {
-  const { session,loading } = useSession();
+  const { session, loading } = useSession();
   const { logout } = useAuth();
   const router = useRouter();
   const [userName, setUserName] = useState<string>("");
   const { data: getAll } = useGetAllReport();
   const sortedData = getAll?.sort((a, b) => a.id - b.id);
+
+
+ const [showSignout, setShowSignout] = useState(false);
+
+  const handleButtonClick = () => {
+    setShowSignout(!showSignout);
+  };
+
 
   const formatDates = (dateString: string | undefined) => {
     if (!dateString) return '-';
@@ -43,7 +52,8 @@ const MainPage = () => {
     }
   };
   const [filters, setFilters] = useState({
-    date: "",
+    startDate: "",
+    endDate: "",
     topic: "",
     problem: "",
     problemDetail: "",
@@ -77,13 +87,18 @@ const MainPage = () => {
   const filteredComplaints = getAll?.filter((report) => {
     // แปลงวันที่ทั้งสองให้อยู่ในรูปแบบเดียวกันก่อนเปรียบเทียบ
     const complaintDate = report.createDate ? formatSearchDate(report.createDate.toString()) : '';
-    const searchDate = filters.date ? formatSearchDate(filters.date) : '';
+    const searchStartDate = filters.startDate ? formatSearchDate(filters.startDate) : '';
+    const searchEndDate = filters.endDate ? formatSearchDate(filters.endDate) : '';
 
-    const dateMatch = !searchDate || complaintDate === searchDate;
+    // Check if date is within range (or if no range is specified)
+    const dateMatch = (!searchStartDate && !searchEndDate) ||
+      (searchStartDate && !searchEndDate && complaintDate >= searchStartDate) ||
+      (!searchStartDate && searchEndDate && complaintDate <= searchEndDate) ||
+      (searchStartDate && searchEndDate && complaintDate >= searchStartDate && complaintDate <= searchEndDate);
     const topicMatch = !filters.topic || report.topic === filters.topic;
     const detailsMatch = filters.problem === "" || report.problem === filters.problem;
-    const problemDetailMatch = filters.problemDetail === "" || 
-    report.problemDetail.toLowerCase().includes(filters.problemDetail.toLowerCase());
+    const problemDetailMatch = filters.problemDetail === "" ||
+      report.problemDetail.toLowerCase().includes(filters.problemDetail.toLowerCase());
     return dateMatch && topicMatch && detailsMatch && problemDetailMatch;
   }) || [];
 
@@ -93,12 +108,12 @@ const MainPage = () => {
   );
 
   const totalPages = Math.ceil(filteredComplaints.length / itemsPerPage);
-   useEffect(() => {
-      console.log(session); // ดูค่า session ที่ได้มา
-      if (!loading && session === null) {
-        router.push('/adminlogin');
-      }
-    }, [session, loading]);
+  useEffect(() => {
+    console.log(session); // ดูค่า session ที่ได้มา
+    if (!loading && session === null) {
+      router.push('/adminlogin');
+    }
+  }, [session, loading]);
   const systemIssuesCategories: Record<string, string[]> = {
     "": [],
     "การเข้าสู่ระบบ": [
@@ -175,16 +190,39 @@ const MainPage = () => {
             alt="Logo"
           />
         </Link>
-        <div className="text-right mr-[60px] mt-[40px] w-[95%]">
-          <button
-            onClick={handleLogout}
-            className="inline-flex items-center"
-          >
-            <span className="text-gray-800 font-medium">
-              {userName}
-              <PersonIcon style={{ marginBottom: "8px", marginLeft: "5px" }} />
-            </span>
-          </button>
+        <div style={{ position: 'relative' }}>
+          <div className="text-right" style={{ marginRight: '60px', marginTop: '40px', width: '95%' }}>
+            <div className="flex flex-col items-end">
+              <button
+                onClick={handleButtonClick}
+                className="inline-flex items-center"
+              >
+                <span className="text-gray-800 font-medium">
+                  {userName}
+                  <AdminPanelSettingsIcon style={{ marginLeft: "5px" }} />
+                </span>
+              </button>
+
+              {showSignout && (
+                <div style={{
+                  position: 'absolute',
+                  top: '100%',
+                  right: '10px',
+                  zIndex: 50,
+                  marginTop: '5px'
+                }}>
+                  <button
+                    onClick={handleLogout}
+                    className="bg-white text-black text-sm flex items-center px-4 py-1 rounded-full shadow-md hover:bg-gray-200 hover:shadow-lg"
+                  >
+                    <span>Logout</span>
+                    <LogoutIcon style={{ marginLeft: "8px", color: 'red' }} />
+                  </button>
+
+                </div>
+              )}
+            </div>
+          </div>
         </div>
       </div>
 
@@ -199,16 +237,38 @@ const MainPage = () => {
       </div>
       <div className="bg-white shadow-lg rounded-lg p-4 max-w-[90%] w-full">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {/* Date Filter */}
-          <div>
-            <label className="block text-gray-700 mb-1">วันที่</label>
-            <div className="relative">
-              <input
-                type="date"
-                value={filters.date}
-                onChange={(e) => setFilters({ ...filters, date: e.target.value })}
-                className="border rounded p-2 w-full focus:border-blue-400 focus:ring-2 focus:ring-blue-200"
-              />
+          <div className="relative w-full">
+            <div className="flex w-full">
+              <div className="flex-1">
+                <label className="block text-gray-700 mb-1">วันที่เริ่มต้น</label>
+              </div>
+              <div className="w-8"></div>
+              <div className="flex-1">
+                <label className="block text-gray-700 mb-1">วันที่สิ้นสุด</label>
+              </div>
+            </div>
+            <div className="flex items-center w-full">
+              <div className="flex-1">
+                <input
+                  type="date"
+                  value={filters.startDate}
+                  onChange={(e) => setFilters({ ...filters, startDate: e.target.value })}
+                  className="border rounded p-1.5 w-full focus:border-blue-400 focus:ring-2 focus:ring-blue-200"
+                  placeholder="วันที่เริ่มต้น"
+                />
+              </div>
+              <div className="flex justify-center items-center w-8">
+                <span>ถึง</span>
+              </div>
+              <div className="flex-1">
+                <input
+                  type="date"
+                  value={filters.endDate}
+                  onChange={(e) => setFilters({ ...filters, endDate: e.target.value })}
+                  className="border rounded p-1.5 w-full focus:border-blue-400 focus:ring-2 focus:ring-blue-200"
+                  placeholder="วันที่สิ้นสุด"
+                />
+              </div>
             </div>
           </div>
 
@@ -248,7 +308,7 @@ const MainPage = () => {
                 type="text"
                 value={filters.problemDetail}
                 onChange={(e) => setFilters({ ...filters, problemDetail: e.target.value })}
-                className="border rounded p-2 pl-10 w-full focus:border-blue-400 focus:ring-2 focus:ring-blue-200"
+                className="border rounded p-1.5 pl-10 w-full focus:border-blue-400 focus:ring-2 focus:ring-blue-200"
                 placeholder="ค้นหารายละเอียดการแจ้งปัญหา..."
               />
               <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">

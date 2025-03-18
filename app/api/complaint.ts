@@ -1,4 +1,4 @@
-import { ComplaintCreate, GetComplaint, ReportProblemCreate,ReportProblem } from '../../types/complaintCreate';
+import { ComplaintCreate, GetComplaint, ReportProblemCreate,ReportProblem, AdmUser } from '../../types/complaintCreate';
 import { IResponse } from '../../other/IResponse';
 import { axiosApi } from '../../utils/axios';
 import axios, { isAxiosError } from 'axios';
@@ -85,6 +85,7 @@ export const updateComplaintApi = async (id: number, payload: {
   lastName: string;
   fullName: string;
   emailAddress: string;
+  dueDate: Date;
 }) => {
   try {
     const response = await axiosApi('put', `/auth/update/${id}`, payload);
@@ -103,6 +104,24 @@ export const updateComplaintApi = async (id: number, payload: {
 export const getAllReportApi = async (): Promise<ReportProblem[]> => {
   try {
     const response = await axiosApi<ReportProblem[]>(`get`,`/auth/getAllReport`);
+    if (!response || !Array.isArray(response)) {
+      throw new Error("Response data is not an array or is undefined");
+    }
+    return response;
+  } catch (err) {
+    if (isAxiosError(err)) {
+      console.error(err);
+      throw err;
+    } else {
+      console.error(err);
+      throw err;
+    }
+  }
+};
+
+export const getAllUserApi = async (): Promise<AdmUser[]> => {
+  try {
+    const response = await axiosApi<AdmUser[]>(`get`,`/auth/getAllUser`);
     if (!response || !Array.isArray(response)) {
       throw new Error("Response data is not an array or is undefined");
     }

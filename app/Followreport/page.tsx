@@ -12,13 +12,23 @@ import { Complaint } from "../../types/complaintCreate";
 import Link from "next/link";
 import useEncryptData from "../../hooks/Encryption/Encryption";
 import SearchIcon from '@mui/icons-material/Search';
+import LogoutIcon from '@mui/icons-material/Logout';
+
 const MainPage: React.FC = () => {
-  const { session,loading } = useSession();
+  const { session, loading } = useSession();
   const { logout } = useAuth();
   const router = useRouter();
   const [userName, setUserName] = useState<string>("");
   const { data: responseData } = useGetComplaintByEmailAddress(session?.emailAddress) as { data?: Complaint[] };
   const { mutate: encrypting } = useEncryptData();
+
+  const [showSignout, setShowSignout] = useState(false);
+
+  
+
+  const handleButtonClick = () => {
+    setShowSignout(!showSignout);
+  };
   const formatSearchDate = (dateString: string): string => {
     if (!dateString) return '';
     const d = new Date(dateString);
@@ -57,7 +67,8 @@ const MainPage: React.FC = () => {
     });
   };
   const [filters, setFilters] = useState({
-    date: "",
+    startDate: "",
+    endDate: "",
     topicOfComplaint: "",
     detailsOfTheTopic: "",
     problemDetail: "",
@@ -94,6 +105,7 @@ const MainPage: React.FC = () => {
       "อื่นๆ เกี่ยวกับบุคลากร"
     ],
     "การเรียนการสอน": [
+      "เกณฑ์การให้เกรด",
       "เนื้อหาไม่ตรงกับคำอธิบายรายวิชา",
       "อาจารย์ขาดสอน/มาสอนสาย",
       "การประเมินผลไม่เป็นธรรม",
@@ -169,11 +181,18 @@ const MainPage: React.FC = () => {
   };
 
   const filteredComplaints = responseData?.filter((complaint) => {
-    // แปลงวันที่ทั้งสองให้อยู่ในรูปแบบเดียวกันก่อนเปรียบเทียบ
+    // แปลงวันที่ให้อยู่ในรูปแบบเดียวกันก่อนเปรียบเทียบ
     const complaintDate = complaint.createDate ? formatSearchDate(complaint.createDate.toString()) : '';
-    const searchDate = filters.date ? formatSearchDate(filters.date) : '';
+    const searchStartDate = filters.startDate ? formatSearchDate(filters.startDate) : '';
+    const searchEndDate = filters.endDate ? formatSearchDate(filters.endDate) : '';
 
-    const dateMatch = !searchDate || complaintDate === searchDate;
+    // Check if date is within range (or if no range is specified)
+    const dateMatch = (!searchStartDate && !searchEndDate) ||
+      (searchStartDate && !searchEndDate && complaintDate >= searchStartDate) ||
+      (!searchStartDate && searchEndDate && complaintDate <= searchEndDate) ||
+      (searchStartDate && searchEndDate && complaintDate >= searchStartDate && complaintDate <= searchEndDate);
+
+    // Other filters remain the same
     const topicMatch = !filters.topicOfComplaint || complaint.topicOfComplaint === filters.topicOfComplaint;
     const detailsMatch = filters.detailsOfTheTopic === "" || complaint.detailsOfTheTopic === filters.detailsOfTheTopic;
     const statusMatch = filters.status === "" || complaint.status === filters.status;
@@ -188,12 +207,12 @@ const MainPage: React.FC = () => {
   );
 
   const totalPages = Math.ceil(filteredComplaints.length / itemsPerPage);
-   useEffect(() => {
-      console.log(session); // ดูค่า session ที่ได้มา
-      if (!loading && session === null) {
-        router.push('/login');
-      }
-    }, [session, loading]);
+  useEffect(() => {
+    console.log(session); // ดูค่า session ที่ได้มา
+    if (!loading && session === null) {
+      router.push('/login');
+    }
+  }, [session, loading]);
 
   return (
     <div className="min-h-screen bg-[#e8edff] flex flex-col items-center">
@@ -206,16 +225,39 @@ const MainPage: React.FC = () => {
             alt="Logo"
           />
         </Link>
-        <div className="text-right mr-[60px] mt-[40px] w-[95%]">
-          <button
-            onClick={handleLogout}
-            className="inline-flex items-center"
-          >
-            <span className="text-gray-800 font-medium">
-              {userName}
-              <PersonIcon style={{ marginBottom: "8px", marginLeft: "5px" }} />
-            </span>
-          </button>
+        <div style={{ position: 'relative' }}>
+          <div className="text-right" style={{ marginRight: '60px', marginTop: '40px', width: '95%' }}>
+            <div className="flex flex-col items-end">
+              <button
+                onClick={handleButtonClick}
+                className="inline-flex items-center"
+              >
+                <span className="text-gray-800 font-medium">
+                  {userName}
+                  <PersonIcon style={{ marginLeft: "5px" }} />
+                </span>
+              </button>
+
+              {showSignout && (
+                <div style={{
+                  position: 'absolute',
+                  top: '100%',
+                  right: '10px',
+                  zIndex: 50,
+                  marginTop: '5px'
+                }}>
+                  <button
+                    onClick={handleLogout}
+                    className="bg-white text-black text-sm flex items-center px-4 py-1 rounded-full shadow-md hover:bg-gray-200 hover:shadow-lg"
+                  >
+                    <span>Logout</span>
+                    <LogoutIcon style={{ marginLeft: "8px", color: 'red' }} />
+                  </button>
+
+                </div>
+              )}
+            </div>
+          </div>
         </div>
       </div>
 
@@ -230,16 +272,38 @@ const MainPage: React.FC = () => {
       </div>
       <div className="bg-white shadow-lg rounded-lg p-4 max-w-[90%] w-full">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {/* Date Filter */}
-          <div className="relative">
-            <label className="block text-gray-700 mb-1">วันที่</label>
-            <div className="relative">
-              <input
-                type="date"
-                value={filters.date}
-                onChange={(e) => setFilters({ ...filters, date: e.target.value })}
-                className="border rounded p-1.5 w-full focus:border-blue-400 focus:ring-2 focus:ring-blue-200"
-              />
+          <div className="relative w-full">
+            <div className="flex w-full">
+              <div className="flex-1">
+                <label className="block text-gray-700 mb-1">วันที่เริ่มต้น</label>
+              </div>
+              <div className="w-8"></div>
+              <div className="flex-1">
+                <label className="block text-gray-700 mb-1">วันที่สิ้นสุด</label>
+              </div>
+            </div>
+            <div className="flex items-center w-full">
+              <div className="flex-1">
+                <input
+                  type="date"
+                  value={filters.startDate}
+                  onChange={(e) => setFilters({ ...filters, startDate: e.target.value })}
+                  className="border rounded p-1.5 w-full focus:border-blue-400 focus:ring-2 focus:ring-blue-200"
+                  placeholder="วันที่เริ่มต้น"
+                />
+              </div>
+              <div className="flex justify-center items-center w-8">
+                <span>ถึง</span>
+              </div>
+              <div className="flex-1">
+                <input
+                  type="date"
+                  value={filters.endDate}
+                  onChange={(e) => setFilters({ ...filters, endDate: e.target.value })}
+                  className="border rounded p-1.5 w-full focus:border-blue-400 focus:ring-2 focus:ring-blue-200"
+                  placeholder="วันที่สิ้นสุด"
+                />
+              </div>
             </div>
           </div>
           {/* Category & Subcategory Filters */}
@@ -291,9 +355,9 @@ const MainPage: React.FC = () => {
                 type="text"
                 value={filters.problemDetail}
                 onChange={(e) => setFilters({ ...filters, problemDetail: e.target.value })}
-                className="border rounded p-2 pl-10 w-full focus:border-blue-400 focus:ring-2 focus:ring-blue-200"
-                placeholder="รายละเอียดการร้องเรียน/ร้องทุกข์..."
-              />
+                className="border rounded p-1.5 pl-10 w-full focus:border-blue-400 focus:ring-2 focus:ring-blue-200"
+                placeholder="ค้นหาคำร้องเรียน/ร้องทุกข์..."
+                />
               <SearchIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500" />
             </div>
           </div>
@@ -308,6 +372,8 @@ const MainPage: React.FC = () => {
               <th className="px-4 py-2 border">ประเด็นที่ร้องเรียน/ร้องทุกข์</th>
               <th className="px-4 py-2 border">เรื่องร้องเรียน/ร้องทุกข์</th>
               <th className="px-4 py-2 border">รายละเอียดการร้องเรียน/ร้องทุกข์</th>
+              {/* <th className="px-4 py-2 border text-center">ระยะเวลาการรับข้อร้องเรียน (1 วัน)</th>
+              <th className="px-4 py-2 border text-center">ระยะเวลาในการพิจารณาข้อร้องเรียน (15 วัน)</th> */}
               <th className="px-4 py-2 border w-40">สถานะ</th>
               <th className="px-4 py-2 border text-center">ดูรายละเอียด</th>
             </tr>
@@ -330,6 +396,12 @@ const MainPage: React.FC = () => {
                   }}>
                     {complaint.problemDetail || '-'}
                   </td>
+                  {/* <td className="border text-center">
+                    test
+                    </td>
+                    <td className="border text-center">
+                    test2
+                    </td> */}
                   <td className="border text-center">
                     <span
                       style={{

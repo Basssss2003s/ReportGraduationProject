@@ -20,7 +20,9 @@ import Link from "next/link";
 import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
 import ApplicantTrackingAdmin from "../../navbar/BreadcrumpAdmin";
 import { useGetAll } from "../../hooks/useGetAll";
-
+import { useGetAllUser } from "../../hooks/useGetAllUser";
+import MaleIcon from '@mui/icons-material/Male';
+import FemaleIcon from '@mui/icons-material/Female';
 ChartJS.register(
   ArcElement,
   Tooltip,
@@ -31,7 +33,7 @@ ChartJS.register(
   LineElement,
   PointElement
 );
-
+import LogoutIcon from '@mui/icons-material/Logout';
 const MainPage = () => {
   const [view, setView] = useState("ทั้งหมด");
   const { session, loading } = useSession();
@@ -39,8 +41,14 @@ const MainPage = () => {
   const router = useRouter();
   const [userName, setUserName] = useState<string>("");
   const { data: getAll } = useGetAll();
+  const { data: getAllUser } = useGetAllUser();
 
 
+  const [showSignout, setShowSignout] = useState(false);
+
+  const handleButtonClick = () => {
+    setShowSignout(!showSignout);
+  };
 
   useEffect(() => {
     if (session?.fullName) {
@@ -144,44 +152,22 @@ const MainPage = () => {
 
   const pieDataTeacher = {
     labels: [
-      "บุคลากร",
-      "การเรียนการสอน",
-      "บริการนักศึกษา",
-      "สิ่งอำนวยความสะดวก",
-      "ค่าธรรมเนียมและการเงิน",
-      "ความปลอดภัย",
-      "หอพัก/ที่พักอาศัย",
-      "IT/ระบบสารสนเทศ",
-      "อาหารและโภชนาการ",
-      "การขนส่ง/การเดินทาง",
-      "เรื่องอื่นๆ"
+      "อาจารย์",
+      "นักศึกษา",
+      "เจ้าหน้าที่",
+      "บุคคลภายนอก"
     ],
     datasets: [
       {
-        label: "ประเด็นการร้องเรียน/ร้องทุกข์",
         data: [
-          getAll?.filter(item => item.topicOfComplaint === "บุคลากร").length,
-          getAll?.filter(item => item.topicOfComplaint === "การเรียนการสอน").length,
-          getAll?.filter(item => item.topicOfComplaint === "บริการนักศึกษา").length,
-          getAll?.filter(item => item.topicOfComplaint === "สิ่งอำนวยความสะดวก").length,
-          getAll?.filter(item => item.topicOfComplaint === "ค่าธรรมเนียมและการเงิน").length,
-          getAll?.filter(item => item.topicOfComplaint === "ความปลอดภัย").length,
-          getAll?.filter(item => item.topicOfComplaint === "หอพัก/ที่พักอาศัย").length,
-          getAll?.filter(item => item.topicOfComplaint === "IT/ระบบสารสนเทศ").length,
-          getAll?.filter(item => item.topicOfComplaint === "อาหารและโภชนาการ").length,
-          getAll?.filter(item => item.topicOfComplaint === "การขนส่ง/การเดินทาง").length,
-          getAll?.filter(item => item.topicOfComplaint === "เรื่องอื่นๆ").length
+          getAllUser?.filter(item => item.typePersonal === "อาจารย์").length || 0,
+          getAllUser?.filter(item => item.typePersonal === "เจ้าหน้าที่").length || 0,
+          getAllUser?.filter(item => item.typePersonal === "นักศึกษา").length || 0,
+          getAllUser?.filter(item => item.typePersonal === "บุคคลภายนอก").length || 0
         ],
         backgroundColor: [
-          "#FF6384", // แดง
-          "#36A2EB", // ฟ้า
           "#FFCE56", // เหลือง
-          "#4BC0C0", // เขียวมิ้นต์
-          "#9966FF", // ม่วง
-          "#FF9F40", // ส้ม
-          "#4d5a46", // เทาอ่อน
           "#8b0000", // น้ำเงินเข้ม  
-          "#D35400", // ส้มเข้ม  
           "#27AE60", // เขียวสด  
           "#8E44AD"  // ม่วงเข้ม  
         ]
@@ -208,16 +194,39 @@ const MainPage = () => {
             alt="Logo"
           />
         </Link>
-        <div className="text-right mr-[60px] mt-[40px] w-[95%]">
-          <button
-            onClick={handleLogout}
-            className="inline-flex items-center"
-          >
-            <span className="text-gray-800 font-medium">
-              {userName}
-              <AdminPanelSettingsIcon style={{ marginBottom: "8px", marginLeft: "5px" }} />
-            </span>
-          </button>
+        <div style={{ position: 'relative' }}>
+          <div className="text-right" style={{ marginRight: '60px', marginTop: '40px', width: '95%' }}>
+            <div className="flex flex-col items-end">
+              <button
+                onClick={handleButtonClick}
+                className="inline-flex items-center"
+              >
+                <span className="text-gray-800 font-medium">
+                  {userName}
+                  <AdminPanelSettingsIcon style={{ marginLeft: "5px" }} />
+                </span>
+              </button>
+
+              {showSignout && (
+                <div style={{
+                  position: 'absolute',
+                  top: '100%',
+                  right: '10px',
+                  zIndex: 50,
+                  marginTop: '5px'
+                }}>
+                  <button
+                    onClick={handleLogout}
+                    className="bg-white text-black text-sm flex items-center px-4 py-1 rounded-full shadow-md hover:bg-gray-200 hover:shadow-lg"
+                  >
+                    <span>Logout</span>
+                    <LogoutIcon style={{ marginLeft: "8px", color: 'red' }} />
+                  </button>
+
+                </div>
+              )}
+            </div>
+          </div>
         </div>
       </div>
 
@@ -269,8 +278,9 @@ const MainPage = () => {
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 p-4">
           <div className="flex flex-col items-center p-4">
-            <h3 className="text-lg font-medium text-center mb-2">แผนภูมิวงกลม</h3>
-            <div className="w-full max-w-xs aspect-square">
+            <h3 className="text-xl font-bold text-center mb-4">แผนภูมิวงกลม</h3>
+            {/* Modified Pie Chart container - increased height and centered */}
+            <div className="w-full h-48 flex justify-center items-center">
               <Pie
                 data={pieDataTeacher}
                 options={{
@@ -279,23 +289,32 @@ const MainPage = () => {
                     legend: {
                       position: 'right',
                       labels: {
-                        font: { size: 12 },
-                        padding: 10,
+                        font: { size: 14 },
+                        padding: 20,
                         usePointStyle: true,
                         textAlign: 'left',
                         boxWidth: 15,
                       } as any,
-                      maxWidth: 150, // จำกัดความกว้าง legend
                     },
                     title: {
-                      display: true,
-                      text: 'แผนภูมิวงกลม',
-                      font: { size: 16 }
+                      display: false
                     }
                   }
                 }}
               />
-
+            </div>
+            {/* Modified gender icons with color and larger size */}
+            <div className="flex justify-center items-center mt-6 space-x-12">
+              <div className="flex flex-col items-center">
+                <MaleIcon style={{ color: "#3498db", fontSize: 36 }} />
+                <span className="text-blue-500 font-medium">ชาย</span>
+                <span>{getAllUser?.filter(item => item.title === "นาย").length}</span>
+              </div>
+              <div className="flex flex-col items-center">
+                <FemaleIcon style={{ color: "#e84393", fontSize: 36 }} />
+                <span className="text-pink-500 font-medium">หญิง</span>
+                <span>{getAllUser?.filter(item => item.title === "นาง" || item.title === "นางสาว").length}</span>
+              </div>
             </div>
           </div>
 

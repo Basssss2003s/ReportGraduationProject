@@ -62,3 +62,9 @@ export interface ReportProblem {
     createDate:  Date
 }
 
+export interface AdmUser {
+    id: number,
+    title:string,
+    typePersonal:string
+}
+

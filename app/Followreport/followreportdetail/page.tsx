@@ -22,8 +22,11 @@ import DescriptionIcon from '@mui/icons-material/Description';
 import TimelineIcon from '@mui/icons-material/Timeline';
 import CustomTabPanel, { a11yProps } from "../../../components/tabs";
 import Card from "@mui/material/Card";
+import { HourglassEmpty, Autorenew, Visibility, Check } from "@mui/icons-material";
+import LogoutIcon from '@mui/icons-material/Logout';
+
 const MainPage: React.FC = () => {
-  const { session,loading } = useSession();
+  const { session, loading } = useSession();
   const { logout } = useAuth();
   const router = useRouter();
   const [userName, setUserName] = useState<string>("");
@@ -32,6 +35,12 @@ const MainPage: React.FC = () => {
   const [tabValue, setTabValue] = useState(0);
   const { data: dataById } = useGetComplaintById(decryptedId?.toString());
   const { mutate: decrypt } = useDecryptData();
+
+  const [showSignout, setShowSignout] = useState(false);
+
+  const handleButtonClick = () => {
+    setShowSignout(!showSignout);
+  };
 
   const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
     setTabValue(newValue);
@@ -63,6 +72,23 @@ const MainPage: React.FC = () => {
     return acc;
   }, {});
 
+  const formatThaiDateTime = (dateString: any) => {
+    const date = new Date(dateString);
+
+    const day = date.getDate();
+    const thaiYear = date.getFullYear() + 543; // แปลงเป็นพุทธศักราช (พ.ศ.)
+    const hours = date.getHours();
+    const minutes = date.getMinutes().toString().padStart(2, '0'); // เติม 0 ถ้าหลักเดียว
+
+    const thaiMonths = [
+      'มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม', 'มิถุนายน',
+      'กรกฎาคม', 'สิงหาคม', 'กันยายน', 'ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'
+    ];
+
+    const month = thaiMonths[date.getMonth()];
+
+    return `วันที่ ${day} เดือน ${month} พ.ศ. ${thaiYear} เวลา ${hours}:${minutes} น.`;
+};
 
   const reorganizeStages = (groupedStages: { [x: string]: any[]; }) => {
     const allActivities = Object.keys(groupedStages);
@@ -137,6 +163,21 @@ const MainPage: React.FC = () => {
       alert("รหัสผ่านหรืออีเมลไม่ถูกต้อง");
     }
   };
+
+  const getStatusIcon = (status: string) => {
+    switch (status) {
+      case "รอดำเนินการ":
+        return <HourglassEmpty fontSize="large" style={{ color: "white" }} />;
+      case "กำลังดำเนินการ":
+        return <Autorenew fontSize="large" style={{ color: "white" }} />;
+      case "รอตรวจสอบ":
+        return <Visibility fontSize="large" style={{ color: "white" }} />;
+      case "เสร็จสิ้น":
+        return <Check fontSize="large" style={{ color: "white" }} />;
+      default:
+        return null;
+    }
+  };
   const getStatusColor = (state: string) => {
     // ตรวจสอบว่ามี stageStatus หรือไม่
     const currentState = dataById?.data.stageStatus.some((status: { state: string; }) => status.state === state);
@@ -162,11 +203,11 @@ const MainPage: React.FC = () => {
   };
 
   useEffect(() => {
-     console.log(session); // ดูค่า session ที่ได้มา
-     if (!loading && session === null) {
-       router.push('/login');
-     }
-   }, [session, loading]);
+    console.log(session); // ดูค่า session ที่ได้มา
+    if (!loading && session === null) {
+      router.push('/login');
+    }
+  }, [session, loading]);
   return (
     <div className="min-h-screen bg-[#e8edff] flex flex-col items-center">
       <div className="w-full bg-gradient-to-b from-green-200 to-blue-200 h-32 rounded-b-lg shadow-md">
@@ -178,16 +219,39 @@ const MainPage: React.FC = () => {
             alt="Logo"
           />
         </Link>
-        <div className="text-right mr-[60px] mt-[40px] w-[95%]">
-          <button
-            onClick={handleLogout}
-            className="inline-flex items-center"
-          >
-            <span className="text-gray-800 font-medium">
-              {userName}
-              <PersonIcon style={{ marginBottom: "8px", marginLeft: "5px" }} />
-            </span>
-          </button>
+        <div style={{ position: 'relative' }}>
+          <div className="text-right" style={{ marginRight: '60px', marginTop: '40px', width: '95%' }}>
+            <div className="flex flex-col items-end">
+              <button
+                onClick={handleButtonClick}
+                className="inline-flex items-center"
+              >
+                <span className="text-gray-800 font-medium">
+                  {userName}
+                  <PersonIcon style={{ marginLeft: "5px" }} />
+                </span>
+              </button>
+
+              {showSignout && (
+                <div style={{
+                  position: 'absolute',
+                  top: '100%',
+                  right: '10px',
+                  zIndex: 50,
+                  marginTop: '5px'
+                }}>
+                  <button
+                    onClick={handleLogout}
+                    className="bg-white text-black text-sm flex items-center px-4 py-1 rounded-full shadow-md hover:bg-gray-200 hover:shadow-lg"
+                  >
+                    <span>Logout</span>
+                    <LogoutIcon style={{ marginLeft: "8px", color: 'red' }} />
+                  </button>
+
+                </div>
+              )}
+            </div>
+          </div>
         </div>
       </div>
 
@@ -290,56 +354,146 @@ const MainPage: React.FC = () => {
 
           <CustomTabPanel value={tabValue} index={1}>
             <h2 className="text-2xl font-bold mb-4 text-[#3190FF]">STATE</h2>
-            <Timeline>
+            <Timeline
+              sx={{
+                '& .MuiTimelineItem-root': {
+                  minHeight: '120px',
+                },
+                '& .MuiTimelineContent-root': {
+                  flex: 1,
+                },
+              }}
+            >
               {reorganizedStages.map((stageGroup, index) => {
                 return stageGroup.stages.map((stage, stageIndex) => {
-                  const isCurrentState = dataById?.data.stageStatus.some((status: { state: any; }) => status.state === stage.state);
+                  const isCurrentState = dataById?.data.stageStatus.some(
+                    (status: { state: any }) => status.state === stage.state
+                  );
+
                   return (
-                    <TimelineItem key={`${stageGroup.activity}-${index}-${stageIndex}`}>
+                    <TimelineItem
+                      key={`${stageGroup.activity}-${index}-${stageIndex}`}
+                      sx={{
+                        '&::before': {
+                          flex: 1,
+                          padding: 0,
+                        },
+                      }}
+                    >
+                      {/* Left side comment container - improved styling */}
+                      <div style={{
+                        width: '320px',
+                        paddingRight: '20px',
+                        position: 'absolute',
+                        right: '50%',
+                        marginRight: '70px',
+                        textAlign: 'left',
+                      }}>
+                        <div
+                          style={{
+                            width: '100%',
+                            padding: '16px 20px',
+                            position: 'absolute',
+                            textAlign: 'left',
+                            right: '0',
+                            backgroundColor: '#ffffff',
+                            border: stage.state !== 'รอดำเนินการ' ? `2px solid ${getStatusColor(stage.state)}` : 'none',
+                            borderRadius: '12px',
+                            boxShadow: stage.state !== 'รอดำเนินการ' ? '0 4px 8px rgba(0, 0, 0, 0.1)' : 'none',
+                            wordBreak: 'break-word',
+                            whiteSpace: 'normal',
+                            overflowWrap: 'break-word',
+                            visibility: stage.state === 'รอดำเนินการ' ? 'hidden' : 'visible',
+                          }}
+                        >
+                          {stage.state !== 'รอดำเนินการ' && stage.state !== 'รอตรวจสอบ' && (
+                            <p
+                              style={{
+                                fontSize: '16px',
+                                fontWeight: 'bold',
+                                color: isCurrentState ? '#333' : '#888',
+                                lineHeight: '1.5',
+                                marginBottom: '4px',
+                              }}
+                            >
+                              {stage.comment}
+                            </p>
+                          )}
+                          {stage.state !== 'รอดำเนินการ' && stage.state !== 'กำลังดำเนินการ' && stage.state !== 'เสร็จสิ้น' && (
+                            <p
+                              style={{
+                                fontSize: '16px',
+                                fontWeight: 'bold',
+                                color: isCurrentState ? '#333' : '#888',
+                                lineHeight: '1.5',
+                                marginBottom: '4px',
+                              }}
+                            >
+                              {stage.comment}: {formatThaiDateTime(stage.dueDate)}
+                            </p>
+                          )}
+                          
+                        </div>
+                      </div>
+                      {/* Middle timeline element - kept exactly the same */}
                       <TimelineSeparator>
                         <TimelineDot
                           style={{
                             backgroundColor: getStatusColor(stage.state),
-                            width: '48px',
-                            height: '48px',
-                            transition: 'all 0.3s ease',
+                            width: "48px",
+                            height: "48px",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            transition: "all 0.3s ease",
                           }}
-                        />
-                        {(index === reorganizedStages.length - 1 || stageIndex < stageGroup.stages.length - 1) && stage.state !== 'เสร็จสิ้น' && (
-                          <TimelineConnector
-                            style={{
-                              backgroundColor: getStatusColor(stage.state),
-                              width: '2px',
-                              height: '60px',
-                            }}
-                          />
-                        )}
-                        {(index === reorganizedStages.length - 1 && stageIndex === stageGroup.stages.length - 1) && stage.state !== 'เสร็จสิ้น' && (
-                          <TimelineDot
-                            style={{
-                              backgroundColor: '#CCCCCC',
-                              width: '24px',
-                              height: '24px',
-                              marginLeft: 'auto',
-                              marginRight: 'auto',
-                            }}
-                          />
-                        )}
+                        >
+                          {getStatusIcon(stage.state)}
+                        </TimelineDot>
+                        {(index === reorganizedStages.length - 1 ||
+                          stageIndex < stageGroup.stages.length - 1) &&
+                          stage.state !== "เสร็จสิ้น" && (
+                            <TimelineConnector
+                              style={{
+                                backgroundColor: getStatusColor(stage.state),
+                                width: "2px",
+                                height: "60px",
+                              }}
+                            />
+                          )}
+                        {(index === reorganizedStages.length - 1 &&
+                          stageIndex === stageGroup.stages.length - 1) &&
+                          stage.state !== "เสร็จสิ้น" && (
+                            <TimelineDot
+                              style={{
+                                backgroundColor: "#CCCCCC",
+                                width: "24px",
+                                height: "24px",
+                                marginLeft: "auto",
+                                marginRight: "auto",
+                              }}
+                            />
+                          )}
                       </TimelineSeparator>
+
+                      {/* Right side content - kept exactly the same as your original */}
                       <TimelineContent>
                         <div className="ml-4">
-                          <h3 className={`font-semibold text-lg ${isCurrentState ? 'text-gray-900' : 'text-gray-400'}`}>
+                          <h3
+                            className={`font-semibold text-lg ${isCurrentState ? "text-black" : "text-black"
+                              }`}
+                          >
                             {stage.state}
                           </h3>
                           {isCurrentState && (
                             <div className="mt-2">
-                              <p className="text-gray-600">
-                                {new Date(stage.createDate).toLocaleString('th-TH', {
-                                  year: 'numeric',
-                                  month: 'long',
-                                  day: 'numeric',
-                                  hour: '2-digit',
-                                  minute: '2-digit',
+                              <p className="text-black">
+                                {new Date(stage.createDate).toLocaleString("th-TH", {
+                                  year: "numeric",
+                                  month: "long",
+                                  day: "numeric",
+                                  hour: "2-digit",
+                                  minute: "2-digit",
                                 })}
                               </p>
                               {stage.detailsOfTheTopic && (

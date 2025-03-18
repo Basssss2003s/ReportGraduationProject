@@ -9,10 +9,11 @@ export const useUpdateComplaint = () => {
   return useMutation({
     mutationFn: async ({ id, payload }: { 
       id: number; 
-
       payload: {
         status: string;
         state: string;
+        comment: string;
+        dueDate: Date;
         firstName: string;
         lastName: string;
         fullName: string;
