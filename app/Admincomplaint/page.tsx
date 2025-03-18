@@ -688,8 +688,6 @@ const ComplaintTable: React.FC = () => {
                 <th className="px-2 py-2 border">ประเด็นที่ร้องเรียน/ร้องทุกข์	</th>
                 <th className="px-2 py-2 border">เรื่องร้องเรียน/ร้องทุกข์</th>
                 <th className="px-2 py-2 border">รายละเอียดการร้องเรียน/ร้องทุกข์</th>
-                <th className="px-2 py-2 border">ระยะเวลาการรับข้อร้องเรียน (1 วัน)</th>
-                <th className="px-2 py-2 border">ระยะเวลาในการพิจารณาข้อร้องเรียน (15 วัน)</th>
                 <th className="px-12 py-2 border">สถานะ</th>
                 <th className="px-2 py-2 border">แก้ไข</th>
               </tr>
@@ -712,8 +710,6 @@ const ComplaintTable: React.FC = () => {
                   }}>
                     {getAll?.filter((item) => item.id === complaint.id)[0]?.problemDetail}
                   </td>
-                  <td className="px-2 py-2 border">1</td>
-                  <td className="px-2 py-2 border">2</td>
                   <td className="border text-center">
                     <span
                       style={{
