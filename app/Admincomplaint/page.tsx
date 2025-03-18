@@ -15,7 +15,7 @@ import { useUpdateComplaint } from "../../hooks/useUpdateComplaint";
 import SearchIcon from '@mui/icons-material/Search';
 import ExPdfBtn from "../../components/button/ExPdfBtn";
 import AlertBox from "../../components/modal/Alert";
-
+import LogoutIcon from '@mui/icons-material/Logout';
 interface Complaint {
   id: number;
   createDate: string;
@@ -37,7 +37,12 @@ const ComplaintTable: React.FC = () => {
   const [openAlert, setOpenAlert] = useState(false);
   const [typeAlert, setTypeAlert] = useState("");
   const [textAlert, setTextAlert] = useState("");
-  const [shouldRedirect, setShouldRedirect] = useState(false);
+
+  const [showSignout, setShowSignout] = useState(false);
+
+  const handleButtonClick = () => {
+    setShowSignout(!showSignout);
+  };
 
   const handleAlert = (type: ("success" | "error" | "warning" | "info"), text: string) => {
     setOpenAlert(true);
@@ -83,7 +88,8 @@ const ComplaintTable: React.FC = () => {
     }
   };
   const [filters, setFilters] = useState({
-    date: "",
+    startDate: "",
+    endDate: "",
     topicOfComplaint: "",
     detailsOfTheTopic: "",
     problemDetail: "",
@@ -115,6 +121,7 @@ const ComplaintTable: React.FC = () => {
       "อื่นๆ เกี่ยวกับบุคลากร"
     ],
     "การเรียนการสอน": [
+      "เกณฑ์การให้เกรด",
       "เนื้อหาไม่ตรงกับคำอธิบายรายวิชา",
       "อาจารย์ขาดสอน/มาสอนสาย",
       "การประเมินผลไม่เป็นธรรม",
@@ -202,9 +209,14 @@ const ComplaintTable: React.FC = () => {
   const filteredComplaints = getAll?.filter((complaint) => {
     // แปลงวันที่ทั้งสองให้อยู่ในรูปแบบเดียวกันก่อนเปรียบเทียบ
     const complaintDate = complaint.createDate ? formatSearchDate(complaint.createDate.toString()) : '';
-    const searchDate = filters.date ? formatSearchDate(filters.date) : '';
+    const searchStartDate = filters.startDate ? formatSearchDate(filters.startDate) : '';
+    const searchEndDate = filters.endDate ? formatSearchDate(filters.endDate) : '';
 
-    const dateMatch = !searchDate || complaintDate === searchDate;
+    // Check if date is within range (or if no range is specified)
+    const dateMatch = (!searchStartDate && !searchEndDate) ||
+      (searchStartDate && !searchEndDate && complaintDate >= searchStartDate) ||
+      (!searchStartDate && searchEndDate && complaintDate <= searchEndDate) ||
+      (searchStartDate && searchEndDate && complaintDate >= searchStartDate && complaintDate <= searchEndDate);
     const topicMatch = !filters.topicOfComplaint || complaint.topicOfComplaint === filters.topicOfComplaint;
     const detailsMatch = filters.detailsOfTheTopic === "" || complaint.detailsOfTheTopic === filters.detailsOfTheTopic;
     const statusMatch = filters.status === "" || complaint.status === filters.status;
@@ -309,6 +321,16 @@ const ComplaintTable: React.FC = () => {
           <option value="รอดำเนินการ" selected>รอดำเนินการ</option>
           <option value="กำลังดำเนินการ">กำลังดำเนินการ</option>
         `;
+      } else if (complaint.status === "กำลังดำเนินการ") {
+        return `
+        <option value="กำลังดำเนินการ" selected>กำลังดำเนินการ</option>
+        <option value="รอตรวจสอบ">รอตรวจสอบ</option>
+      `;
+      } else if (complaint.status === "รอตรวจสอบ") {
+        return `
+         <option value="รอตรวจสอบ" selected>รอตรวจสอบ</option>
+        <option value="เสร็จสิ้น">เสร็จสิ้น</option>
+      `;
       } else {
         // For other statuses, show all options but disable inappropriate ones
         return statusOrder.map(status => {
@@ -330,46 +352,99 @@ const ComplaintTable: React.FC = () => {
     };
 
     const result = await Swal.fire({
-      title: '<h2 style="font-size: 1.5rem; font-weight: bold;">อัพเดทสถานะ</h2>',
+      title: '<h2 style="font-size: 1.5rem; font-weight: bold; color: black;">อัพเดทสถานะ</h2>',
       html: `
-        <div style="margin-bottom: 20px;">
-          <div style="text-align: left; font-size: 1rem; margin: 10px 20px;">
-            <label for="swal-status" style="font-weight: bold;">เลือกสถานะ:</label>
-            <select id="swal-status" class="swal2-input" style="width: 90%; margin-top: 5px;">
-              ${generateStatusOptions()}
-            </select>
-          </div>
-        </div>
-        
-        <div style="margin-top: 20px; position: relative;">
-          <h3 style="text-align: center; font-weight: bold; margin-bottom: 15px;">Timeline</h3>
-          
-<div style="width: 90%; margin: 0 auto; padding-left: 30%; display: flex; flex-direction: column; align-items: flex-start;" id="timeline-content">           
- ${renderTimelineHTML(complaint.status, complaint.status)}
-          </div>
-        </div>
-        
-        <style>
-          @keyframes blink {
-            0% { opacity: 0.5; transform: scale(0.95); }
-            100% { opacity: 1; transform: scale(1.05); }
-          }
-          @keyframes textBlink {
-            0% { opacity: 0.7; }
-            100% { opacity: 1; }
-          }
-          
-         
-        </style>
-      `,
-      didOpen: () => {
-        // This runs after the modal is opened
-        const statusSelect = document.getElementById('swal-status') as HTMLSelectElement;
-        const timelineContent = document.getElementById('timeline-content');
+  <div style="margin-bottom: 20px;">
+    <div style="text-align: left; font-size: 1rem; margin: 10px 20px; color: black;">
+      <p style="margin-bottom: 10px;"><strong>ประเด็นที่ร้องเรียน/ร้องทุกข์:</strong>  ${complaint?.topicOfComplaint || '-'}</p>
+      <p><strong>เรื่องร้องเรียน/ร้องทุกข์:</strong>  ${complaint?.detailsOfTheTopic || '-'}</p>
+    </div>
+    <div style="text-align: left; font-size: 1rem; margin: 10px 20px; color: black;">
+      <label for="swal-status" style="font-weight: bold;">เลือกสถานะ:</label>
+      <select id="swal-status" class="swal2-input" style="width: 90%; margin-top: 5px;">
+        ${generateStatusOptions()}
+      </select>
+    </div>
+  </div>
+  <div id="swal-comment-box" style="display: none; text-align: left; font-size: 1rem; margin: 10px 20px; color: black;">
+    <label for="swal-comment" style="font-weight: bold;">รายละเอียดจากผู้ดูแลระบบ: <span style="color: red;">*</span></label>
+    <input id="swal-comment" class="swal2-input" type="text" style="width: 90%; margin-top: 5px;" />
+    <div id="comment-error" style="color: red; font-size: 0.8rem; display: none;">กรุณากรอกรายละเอียด</div>
+  </div>
+  <div id="swal-date-picker" style="display: none; text-align: left; font-size: 1rem; margin: 10px 20px; color: black;">
+  <label for="swal-date" style="font-weight: bold;">เลือกวันที่และเวลา:</label><span style="color: red;">*</span>
+  <input id="swal-date" class="swal2-input" type="datetime-local" style="width: 90%; margin-top: 5px;" />
+</div>
 
-        if (statusSelect && timelineContent) {
+
+  <div style="margin-top: 20px; position: relative;">
+    <h3 style="text-align: center; font-weight: bold; margin-bottom: 15px; color: black;">Timeline</h3>
+    
+    <div style="width: 90%; margin: 0 auto; padding-left: 30%; display: flex; flex-direction: column; align-items: flex-start; color: black;" id="timeline-content">           
+      ${renderTimelineHTML(complaint.status, complaint.status)}
+    </div>
+  </div>
+
+  <style>
+    @keyframes blink {
+      0% { opacity: 0.5; transform: scale(0.95); }
+      100% { opacity: 1; transform: scale(1.05); }
+    }
+    @keyframes textBlink {
+      0% { opacity: 0.7; }
+      100% { opacity: 1; }
+    }
+  </style>
+    `,
+      didOpen: () => {
+        const statusSelect = document.getElementById('swal-status') as HTMLSelectElement;
+        const commentBox = document.getElementById('swal-comment-box') as HTMLDivElement;
+        const timelineContent = document.getElementById('timeline-content');
+        const datePicker = document.getElementById('swal-date-picker') as HTMLDivElement;
+        const dateInput = document.getElementById('swal-date') as HTMLInputElement;
+
+        if (statusSelect && commentBox && timelineContent && datePicker) {
+          const currentDate = new Date();
+          currentDate.setMinutes(currentDate.getMinutes() - currentDate.getTimezoneOffset()); 
+          const currentDateTime = currentDate.toISOString().slice(0, 16);
+          dateInput.min = currentDateTime;
+          dateInput.addEventListener("input", function () {
+            if (dateInput.value < dateInput.min) {
+              dateInput.value = dateInput.min; // รีเซ็ตค่าให้เป็นเวลาปัจจุบัน
+            }
+          });
+          
+
+          // ตรวจสอบค่าเริ่มต้นและแสดงกล่องข้อความถ้าจำเป็น
+          if (statusSelect.value === "กำลังดำเนินการ") {
+            commentBox.style.display = "block";
+            datePicker.style.display = "none"; // ซ่อน date picker สำหรับสถานะนี้
+          } else if (statusSelect.value === "รอตรวจสอบ") {
+            commentBox.style.display = "block";
+            datePicker.style.display = "block"; // แสดง date picker สำหรับสถานะนี้
+          } else if (statusSelect.value === "เสร็จสิ้น") {
+            commentBox.style.display = "block";
+            datePicker.style.display = "none"; // ซ่อน date picker สำหรับสถานะนี้
+          }
+
           statusSelect.addEventListener('change', function () {
-            // Render timeline with the current status and newly selected status
+            // แสดงกล่องใส่หมายเหตุเมื่อเลือก 'กำลังดำเนินการ'
+            if (this.value === "กำลังดำเนินการ") {
+              commentBox.style.display = "block";
+              datePicker.style.display = "none"; // ซ่อน date picker
+            } else if (this.value === "รอตรวจสอบ") {
+              commentBox.style.display = "block";
+              datePicker.style.display = "block"; // แสดง date picker
+            } else if (this.value === "เสร็จสิ้น") {
+              commentBox.style.display = "block";
+              datePicker.style.display = "none"; // ซ่อน date picker
+            } else {
+              commentBox.style.display = "none";
+              document.getElementById('comment-error')!.style.display = "none";
+              datePicker.style.display = "none"; // ซ่อน date picker ถ้าเลือกสถานะอื่น
+            }
+
+            // อัปเดต Timeline
             timelineContent.innerHTML = renderTimelineHTML(complaint.status, this.value);
           });
         }
@@ -380,11 +455,39 @@ const ComplaintTable: React.FC = () => {
       width: 600,
       preConfirm: () => {
         const status = (document.getElementById('swal-status') as HTMLSelectElement).value;
+        const commentInput = (document.getElementById('swal-comment') as HTMLInputElement);
+        const comment = commentInput?.value || "";
+        const date = (document.getElementById('swal-date') as HTMLInputElement)?.value || "";
+        const commentError = document.getElementById('comment-error');
+
         if (!status) {
           Swal.showValidationMessage('กรุณาเลือกสถานะ');
           return false;
         }
-        return { status };
+
+        // ตรวจสอบว่าถ้าสถานะเป็น "กำลังดำเนินการ" จะต้องกรอกรายละเอียด
+        if (status === "กำลังดำเนินการ" && !comment.trim()) {
+          if (commentError) commentError.style.display = "block";
+          commentInput.style.borderColor = "red";
+          Swal.showValidationMessage('กรุณากรอกรายละเอียดจากผู้ดูแลระบบ');
+          return false;
+        }
+        if (status === "รอตรวจสอบ" && !comment.trim()) {
+          commentInput.style.borderColor = "red";
+          Swal.showValidationMessage('กรุณากรอกรายละเอียดจากผู้ดูแลระบบ');
+          return false;
+        }
+        if (status === "รอตรวจสอบ" && !date) {
+          commentInput.style.borderColor = "red";
+          Swal.showValidationMessage('กรุณาเลือกวันที่');
+          return false;
+        }
+        if (status === "เสร็จสิ้น" && !comment.trim()) {
+          commentInput.style.borderColor = "red";
+          Swal.showValidationMessage('กรุณากรอกรายละเอียดจากผู้ดูแลระบบ');
+          return false;
+        }
+        return { status, comment, date };
       },
     });
 
@@ -395,6 +498,8 @@ const ComplaintTable: React.FC = () => {
           payload: {
             status: result.value.status,
             state: result.value.status,
+            comment: result.value.comment, // เพิ่มหมายเหตุที่ผู้ใช้ใส่
+            dueDate: result.value.date, // ส่งวันที่
             firstName: session?.firstName || '',
             lastName: session?.lastName || '',
             fullName: session?.fullName || '',
@@ -402,7 +507,7 @@ const ComplaintTable: React.FC = () => {
           }
         });
 
-        handleAlert("success", "อัพเดทสถานะสําเร็จ");
+        handleAlert("success", "Update Success");
         setTimeout(() => {
           router.push("/adminmain");
         }, 1500);
@@ -414,6 +519,7 @@ const ComplaintTable: React.FC = () => {
       }
     }
   };
+
   return (
     <>
       <div className="min-h-screen bg-[#e8edff] flex flex-col items-center">
@@ -426,13 +532,39 @@ const ComplaintTable: React.FC = () => {
               alt="Logo"
             />
           </Link>
-          <div className="text-right mr-[60px] mt-[40px] w-[95%]">
-            <button onClick={handleLogout} className="inline-flex items-center">
-              <span className="text-gray-800 font-medium">
-                {userName}
-                <AdminPanelSettingsIcon style={{ marginBottom: "8px", marginLeft: "5px" }} />
-              </span>
-            </button>
+          <div style={{ position: 'relative' }}>
+            <div className="text-right" style={{ marginRight: '60px', marginTop: '40px', width: '95%' }}>
+              <div className="flex flex-col items-end">
+                <button
+                  onClick={handleButtonClick}
+                  className="inline-flex items-center"
+                >
+                  <span className="text-gray-800 font-medium">
+                    {userName}
+                    <AdminPanelSettingsIcon style={{ marginLeft: "5px" }} />
+                  </span>
+                </button>
+
+                {showSignout && (
+                  <div style={{
+                    position: 'absolute',
+                    top: '100%',
+                    right: '10px',
+                    zIndex: 50,
+                    marginTop: '5px'
+                  }}>
+                    <button
+                      onClick={handleLogout}
+                      className="bg-white text-black text-sm flex items-center px-4 py-1 rounded-full shadow-md hover:bg-gray-200 hover:shadow-lg"
+                    >
+                      <span>Logout</span>
+                      <LogoutIcon style={{ marginLeft: "8px", color: 'red' }} />
+                    </button>
+
+                  </div>
+                )}
+              </div>
+            </div>
           </div>
         </div>
 
@@ -455,16 +587,38 @@ const ComplaintTable: React.FC = () => {
 
         <div className="bg-white shadow-lg rounded-lg p-4 max-w-[90%] w-full">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {/* Date Filter */}
-            <div className="relative">
-              <label className="block text-gray-700 mb-1">วันที่</label>
-              <div className="relative">
-                <input
-                  type="date"
-                  value={filters.date}
-                  onChange={(e) => setFilters({ ...filters, date: e.target.value })}
-                  className="border rounded p-1.5 w-full focus:border-blue-400 focus:ring-2 focus:ring-blue-200"
-                />
+            <div className="relative w-full">
+              <div className="flex w-full">
+                <div className="flex-1">
+                  <label className="block text-gray-700 mb-1">วันที่เริ่มต้น</label>
+                </div>
+                <div className="w-8"></div>
+                <div className="flex-1">
+                  <label className="block text-gray-700 mb-1">วันที่สิ้นสุด</label>
+                </div>
+              </div>
+              <div className="flex items-center w-full">
+                <div className="flex-1">
+                  <input
+                    type="date"
+                    value={filters.startDate}
+                    onChange={(e) => setFilters({ ...filters, startDate: e.target.value })}
+                    className="border rounded p-1.5 w-full focus:border-blue-400 focus:ring-2 focus:ring-blue-200"
+                    placeholder="วันที่เริ่มต้น"
+                  />
+                </div>
+                <div className="flex justify-center items-center w-8">
+                  <span>ถึง</span>
+                </div>
+                <div className="flex-1">
+                  <input
+                    type="date"
+                    value={filters.endDate}
+                    onChange={(e) => setFilters({ ...filters, endDate: e.target.value })}
+                    className="border rounded p-1.5 w-full focus:border-blue-400 focus:ring-2 focus:ring-blue-200"
+                    placeholder="วันที่สิ้นสุด"
+                  />
+                </div>
               </div>
             </div>
             {/* Category & Subcategory Filters */}
@@ -516,8 +670,8 @@ const ComplaintTable: React.FC = () => {
                   type="text"
                   value={filters.problemDetail}
                   onChange={(e) => setFilters({ ...filters, problemDetail: e.target.value })}
-                  className="border rounded p-2 pl-10 w-full focus:border-blue-400 focus:ring-2 focus:ring-blue-200"
-                  placeholder="รายละเอียดการร้องเรียน/ร้องทุกข์..."
+                  className="border rounded p-1.5 pl-10 w-full focus:border-blue-400 focus:ring-2 focus:ring-blue-200"
+                  placeholder="ค้นหาคำร้องเรียน/ร้องทุกข์..."
                 />
                 <SearchIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500" />
               </div>
@@ -534,8 +688,10 @@ const ComplaintTable: React.FC = () => {
                 <th className="px-2 py-2 border">ประเด็นที่ร้องเรียน/ร้องทุกข์	</th>
                 <th className="px-2 py-2 border">เรื่องร้องเรียน/ร้องทุกข์</th>
                 <th className="px-2 py-2 border">รายละเอียดการร้องเรียน/ร้องทุกข์</th>
-                <th className="px-2 py-2 border">สถานะ</th>
-                <th className="px-2 px-4 py-2 border">แก้ไข</th>
+                <th className="px-2 py-2 border">ระยะเวลาการรับข้อร้องเรียน (1 วัน)</th>
+                <th className="px-2 py-2 border">ระยะเวลาในการพิจารณาข้อร้องเรียน (15 วัน)</th>
+                <th className="px-12 py-2 border">สถานะ</th>
+                <th className="px-2 py-2 border">แก้ไข</th>
               </tr>
             </thead>
             <tbody>
@@ -556,6 +712,8 @@ const ComplaintTable: React.FC = () => {
                   }}>
                     {getAll?.filter((item) => item.id === complaint.id)[0]?.problemDetail}
                   </td>
+                  <td className="px-2 py-2 border">1</td>
+                  <td className="px-2 py-2 border">2</td>
                   <td className="border text-center">
                     <span
                       style={{

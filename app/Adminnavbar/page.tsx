@@ -18,7 +18,7 @@ const Navbar = () => {
         </li>
         <li>
           <Link href="/admincomplaint" className="hover:underline">
-            คำร้องเรียน
+            คำร้องเรียน/ร้องทุกข์
           </Link>
         </li>
         <li>

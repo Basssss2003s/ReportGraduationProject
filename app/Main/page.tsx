@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import Navbar from "../navbar/page";
 import { useSession } from '../../utils/useSession';
 import { useAuth } from "../../utils/auth";
@@ -10,17 +10,21 @@ import Link from "next/link";
 import { useGetAll } from "../../hooks/useGetAll";
 import { Complaint } from "../../types/complaintCreate";
 import { useGetComplaintByEmailAddress } from "../../hooks/useGetComplaintByEmailAddress";
-
-
+import LogoutIcon from '@mui/icons-material/Logout';
 const MainPage = () => {
-  const { session,loading } = useSession();
+  const { session, loading } = useSession();
   const { logout } = useAuth();
   const router = useRouter();
   const [userName, setUserName] = useState<string>("");
   const { data: getAll } = useGetAll();
   const { data: responseData } = useGetComplaintByEmailAddress(session?.emailAddress) as { data?: Complaint[] };
   const userComplaintsCount = responseData?.length || 0; // นับจำนวนคำร้องทั้งหมดของ user ปัจจุบัน
+  // Inside your component:
+  const [showSignout, setShowSignout] = useState(false);
 
+  const handleButtonClick = () => {
+    setShowSignout(!showSignout);
+  };
   useEffect(() => {
     console.log(session); // ดูค่า session ที่ได้มา
     if (!loading && session === null) {
@@ -44,6 +48,8 @@ const MainPage = () => {
   };
 
 
+
+
   return (
     <div className="min-h-screen bg-[#e8edff] flex flex-col items-center">
       {/* Gradient Header */}
@@ -56,19 +62,41 @@ const MainPage = () => {
             alt="Logo"
           />
         </Link>
-        <div className="text-right mr-[60px] mt-[40px] w-[95%]">
-          <button
-            onClick={handleLogout}
-            className="inline-flex items-center"
-          >
-            <span className="text-gray-800 font-medium">
-              {userName}
-              <PersonIcon style={{ marginBottom: "8px", marginLeft: "5px" }} />
-            </span>
-          </button>
+        <div style={{ position: 'relative' }}>
+          <div className="text-right" style={{ marginRight: '60px', marginTop: '40px', width: '95%' }}>
+            <div className="flex flex-col items-end">
+              <button
+                onClick={handleButtonClick}
+                className="inline-flex items-center"
+              >
+                <span className="text-gray-800 font-medium">
+                  {userName}
+                  <PersonIcon style={{ marginLeft: "5px" }} />
+                </span>
+              </button>
+
+              {showSignout && (
+                <div style={{
+                  position: 'absolute',
+                  top: '100%',
+                  right: '10px',
+                  zIndex: 50,
+                  marginTop: '5px'
+                }}>
+                  <button
+                    onClick={handleLogout}
+                    className="bg-white text-black text-sm flex items-center px-4 py-1 rounded-full shadow-md hover:bg-gray-200 hover:shadow-lg"
+                  >
+                    <span>Logout</span>
+                    <LogoutIcon style={{ marginLeft: "8px", color: 'red' }} />
+                  </button>
+
+                </div>
+              )}
+            </div>
+          </div>
         </div>
       </div>
-
       {/* Navbar */}
       <div className="w-full max-w-[90%] -mt-10 z-10">
         <div className="bg-white shadow-lg rounded-xl">
@@ -108,8 +136,8 @@ const MainPage = () => {
             </p>
           </div>
 
-           {/* Card: Resolved Reports */}
-           <div className="bg-teal-100 rounded-lg p-6 shadow-md text-center transform transition-transform hover:scale-105">
+          {/* Card: Resolved Reports */}
+          <div className="bg-teal-100 rounded-lg p-6 shadow-md text-center transform transition-transform hover:scale-105">
             <h2 className="text-xl font-semibold text-teal-800">คำร้องที่รอตรวจสอบ</h2>
             <p className="mt-4 text-3xl font-bold text-teal-800">
               {getAll?.filter(item => item.status === 'รอตรวจสอบ').length}

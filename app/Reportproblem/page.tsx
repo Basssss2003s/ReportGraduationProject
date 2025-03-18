@@ -11,9 +11,9 @@ import Link from "next/link";
 import useReportProblemCreate from "../../hooks/useReportProblemCreate";
 import { ReportProblemCreate } from "../../types/complaintCreate";
 import AlertBox from "../../components/modal/Alert";
-
+import LogoutIcon from '@mui/icons-material/Logout';
 const MainPage: React.FC = () => {
-  const { session,loading } = useSession();
+  const { session, loading } = useSession();
   const { logout } = useAuth();
   const router = useRouter();
   const [userName, setUserName] = useState<string>("");
@@ -29,6 +29,12 @@ const MainPage: React.FC = () => {
   const [shouldRedirect, setShouldRedirect] = useState(false);
 
   const { mutateAsync: mutateAsyncCreate } = useReportProblemCreate();
+
+  const [showSignout, setShowSignout] = useState(false);
+
+  const handleButtonClick = () => {
+    setShowSignout(!showSignout);
+  };
   const handleAlert = (type: ("success" | "error" | "warning" | "info"), text: string) => {
     setOpenAlert(true);
     setTypeAlert(type);
@@ -112,7 +118,7 @@ const MainPage: React.FC = () => {
       "ข้อเสนอแนะ",
       "ปัญหาอื่นๆ ที่ไม่มีในหมวดหมู่"
     ]
-};
+  };
 
 
   const resetForm = () => {
@@ -179,12 +185,12 @@ const MainPage: React.FC = () => {
       }
     };
   }, [shouldRedirect, router]);
-   useEffect(() => {
-      console.log(session); // ดูค่า session ที่ได้มา
-      if (!loading && session === null) {
-        router.push('/login');
-      }
-    }, [session, loading]);
+  useEffect(() => {
+    console.log(session); // ดูค่า session ที่ได้มา
+    if (!loading && session === null) {
+      router.push('/login');
+    }
+  }, [session, loading]);
   return (
     <>
       <div className="min-h-screen bg-[#e8edff] flex flex-col items-center">
@@ -197,16 +203,39 @@ const MainPage: React.FC = () => {
               alt="Logo"
             />
           </Link>
-          <div className="text-right mr-[60px] mt-[40px] w-[95%]">
-            <button
-              onClick={handleLogout}
-              className="inline-flex items-center"
-            >
-              <span className="text-gray-800 font-medium">
-                {userName}
-                <PersonIcon style={{ marginBottom: "8px", marginLeft: "5px" }} />
-              </span>
-            </button>
+          <div style={{ position: 'relative' }}>
+            <div className="text-right" style={{ marginRight: '60px', marginTop: '40px', width: '95%' }}>
+              <div className="flex flex-col items-end">
+                <button
+                  onClick={handleButtonClick}
+                  className="inline-flex items-center"
+                >
+                  <span className="text-gray-800 font-medium">
+                    {userName}
+                    <PersonIcon style={{ marginLeft: "5px" }} />
+                  </span>
+                </button>
+
+                {showSignout && (
+                  <div style={{
+                    position: 'absolute',
+                    top: '100%',
+                    right: '10px',
+                    zIndex: 50,
+                    marginTop: '5px'
+                  }}>
+                    <button
+                      onClick={handleLogout}
+                      className="bg-white text-black text-sm flex items-center px-4 py-1 rounded-full shadow-md hover:bg-gray-200 hover:shadow-lg"
+                    >
+                      <span>Logout</span>
+                      <LogoutIcon style={{ marginLeft: "8px", color: 'red' }} />
+                    </button>
+
+                  </div>
+                )}
+              </div>
+            </div>
           </div>
         </div>
 

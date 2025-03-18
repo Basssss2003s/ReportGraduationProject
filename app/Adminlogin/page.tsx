@@ -55,7 +55,7 @@ export default function Login() {
         }}
       >
         <div className="bg-white p-8 rounded-lg shadow-lg w-96 opacity-100">
-          <h2 className="text-2xl font-semibold text-center text-gray-700 mb-6">เข้าสู่ระบบ</h2>
+          <h2 className="text-2xl font-semibold text-center text-black mb-6">เข้าสู่ระบบ</h2>
           {error && (
             <div className="mb-4 p-3 bg-red-100 text-red-700 rounded-lg text-center">
               {error}
@@ -63,7 +63,7 @@ export default function Login() {
           )}
           <form onSubmit={handleLogin}>
             <div className="mb-4">
-              <label htmlFor="email" className="block text-gray-700">อีเมล</label>
+              <label htmlFor="email" className="block text-black">อีเมล</label>
               <input
                 type="email"
                 id="email"
@@ -76,7 +76,7 @@ export default function Login() {
               />
             </div>
             <div className="mb-4">
-              <label className="block text-gray-700 mb-2">รหัสผ่าน</label>
+              <label className="block text-black mb-2">รหัสผ่าน</label>
               <div className="relative">
                 <input
                   type={showPassword ? "text" : "password"}

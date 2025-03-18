@@ -18,12 +18,12 @@ const Navbar = () => {
         </li>
         <li>
           <Link href="/complaint" className="hover:underline">
-            เขียนคำร้องเรียน
+            เขียนคำร้องเรียน/ร้องทุกข์
           </Link>
         </li>
         <li>
           <Link href="/followreport" className="hover:underline">
-            ติดตามสถานะ
+            ติดตามสถานะการร้องเรียน/ร้องทุกข์
           </Link>
         </li>
         <li>

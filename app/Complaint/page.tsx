@@ -12,9 +12,10 @@ import { useAuth } from "../../utils/auth";
 import ApplicantTracking from "../../navbar/Breadcrump";
 import PersonIcon from '@mui/icons-material/Person';
 import Link from "next/link";
-
+import LogoutIcon from '@mui/icons-material/Logout';
 const MainPage: React.FC = () => {
-  const { session,loading } = useSession();
+  const { mutateAsync: mutateAsyncCreate } = useComplaintCreate();
+  const { session, loading } = useSession();
   const { logout } = useAuth();
   const router = useRouter();
   const [userName, setUserName] = useState<string>("");
@@ -27,7 +28,12 @@ const MainPage: React.FC = () => {
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
 
 
-  const { mutateAsync: mutateAsyncCreate } = useComplaintCreate();
+  const [showSignout, setShowSignout] = useState(false);
+
+  const handleButtonClick = () => {
+    setShowSignout(!showSignout);
+  };
+
   //Modal Alert
   const [openAlert, setOpenAlert] = useState(false);
   const [typeAlert, setTypeAlert] = useState("");
@@ -97,7 +103,7 @@ const MainPage: React.FC = () => {
       handleAlert("warning", `กรุณาระบุ: ${errors.join(", ")}`);
       return;
     }
-    
+
 
     setIsSubmitting(true);
 
@@ -142,6 +148,7 @@ const MainPage: React.FC = () => {
       "อื่นๆ เกี่ยวกับบุคลากร"
     ],
     "การเรียนการสอน": [
+      "เกณฑ์การให้เกรด",
       "เนื้อหาไม่ตรงกับคำอธิบายรายวิชา",
       "อาจารย์ขาดสอน/มาสอนสาย",
       "การประเมินผลไม่เป็นธรรม",
@@ -225,12 +232,12 @@ const MainPage: React.FC = () => {
     setDetailsOfTheTopic("");
   };
 
-   useEffect(() => {
-      console.log(session); // ดูค่า session ที่ได้มา
-      if (!loading && session === null) {
-        router.push('/login');
-      }
-    }, [session, loading]);
+  useEffect(() => {
+    console.log(session); // ดูค่า session ที่ได้มา
+    if (!loading && session === null) {
+      router.push('/login');
+    }
+  }, [session, loading]);
 
   return (
     <>
@@ -245,16 +252,39 @@ const MainPage: React.FC = () => {
               alt="Logo"
             />
           </Link>
-          <div className="text-right mr-[60px] mt-[40px] w-[95%]">
-            <button
-              onClick={handleLogout}
-              className="inline-flex items-center"
-            >
-              <span className="text-gray-800 font-medium">
-                {userName}
-                <PersonIcon style={{ marginBottom: "8px", marginLeft: "5px" }} />
-              </span>
-            </button>
+          <div style={{ position: 'relative' }}>
+            <div className="text-right" style={{ marginRight: '60px', marginTop: '40px', width: '95%' }}>
+              <div className="flex flex-col items-end">
+                <button
+                  onClick={handleButtonClick}
+                  className="inline-flex items-center"
+                >
+                  <span className="text-gray-800 font-medium">
+                    {userName}
+                    <PersonIcon style={{ marginLeft: "5px" }} />
+                  </span>
+                </button>
+
+                {showSignout && (
+                  <div style={{
+                    position: 'absolute',
+                    top: '100%',
+                    right: '10px',
+                    zIndex: 50,
+                    marginTop: '5px'
+                  }}>
+                    <button
+                      onClick={handleLogout}
+                      className="bg-white text-black text-sm flex items-center px-4 py-1 rounded-full shadow-md hover:bg-gray-200 hover:shadow-lg"
+                    >
+                      <span>Logout</span>
+                      <LogoutIcon style={{ marginLeft: "8px", color: 'red' }} />
+                    </button>
+
+                  </div>
+                )}
+              </div>
+            </div>
           </div>
         </div>
 
@@ -347,7 +377,7 @@ const MainPage: React.FC = () => {
                 {selectedCategory && categories[selectedCategory].length > 0 && (
                   <div>
                     <label className="block text-xl font-medium text-gray-700">
-                      มีเรื่องร้องเรียน/ร้องทุกข์ ดังนี้
+                      รายละเอียดของประเด็น
                       <span className="text-red-500"> *</span>
                     </label>
                     <select
@@ -413,7 +443,7 @@ const MainPage: React.FC = () => {
               {/* Right Column */}
               <div className="col-span-1 flex flex-col justify-between">
                 <label className="block text-xl font-medium text-gray-700">
-                  รายละเอียดที่ต้องการร้องเรียน/ร้องทุกข์
+                  รายละเอียดเพิ่มเติมของประเด็น
                   <span className="text-red-500"> *</span>
                 </label>
                 <textarea
