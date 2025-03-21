@@ -22,6 +22,8 @@ const MainPage: React.FC = () => {
   const [problemDetails, setProblemDetails] = useState<string>("");
   const [phoneNumber, setPhoneNumber] = useState<string>("");
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+  const [rank, setRank] = useState<string>("");
+  
   //Modal Alert
   const [openAlert, setOpenAlert] = useState(false);
   const [typeAlert, setTypeAlert] = useState("");
@@ -32,6 +34,11 @@ const MainPage: React.FC = () => {
 
   const [showSignout, setShowSignout] = useState(false);
 
+   useEffect(() => {
+      if (session?.rank) {
+        setRank(session.rank);
+      }
+    }, [session]);
   const handleButtonClick = () => {
     setShowSignout(!showSignout);
   };
@@ -211,7 +218,7 @@ const MainPage: React.FC = () => {
                   className="inline-flex items-center"
                 >
                   <span className="text-gray-800 font-medium">
-                    {userName}
+                  {rank} {userName}
                     <PersonIcon style={{ marginLeft: "5px" }} />
                   </span>
                 </button>
@@ -352,6 +359,9 @@ const MainPage: React.FC = () => {
             </button>
           </div>
         </div>
+        <footer className="text-center py-4 text-sm text-gray-600">
+          Copyright © 2025 ระบบรับเรื่องร้องเรียนร้องทุกข์ | Developed by Nattanun Naknaree & Rittinun Disaraphong | Version (1.0)
+        </footer>
       </div>
       <AlertBox
         type={typeAlert}

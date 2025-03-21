@@ -21,7 +21,7 @@ const MainPage: React.FC = () => {
   const [userName, setUserName] = useState<string>("");
   const { data: responseData } = useGetComplaintByEmailAddress(session?.emailAddress) as { data?: Complaint[] };
   const { mutate: encrypting } = useEncryptData();
-
+  const [rank, setRank] = useState<string>("");
   const [showSignout, setShowSignout] = useState(false);
 
   
@@ -40,6 +40,11 @@ const MainPage: React.FC = () => {
       setUserName(session.fullName);
     }
   }, [session]);
+  useEffect(() => {
+      if (session?.rank) {
+        setRank(session.rank);
+      }
+    }, [session]);
 
   const handleLogout = async () => {
     try {
@@ -233,8 +238,8 @@ const MainPage: React.FC = () => {
                 className="inline-flex items-center"
               >
                 <span className="text-gray-800 font-medium">
-                  {userName}
-                  <PersonIcon style={{ marginLeft: "5px" }} />
+                {rank} {userName}
+                <PersonIcon style={{ marginLeft: "5px" }} />
                 </span>
               </button>
 
@@ -462,6 +467,9 @@ const MainPage: React.FC = () => {
           width: 700px !important;
         }
       `}</style>
+      <footer className="text-center py-4 text-sm text-gray-600">
+        Copyright © 2025 ระบบรับเรื่องร้องเรียนร้องทุกข์ | Developed by Nattanun Naknaree & Rittinun Disaraphong | Version (1.0)
+      </footer>
     </div>
   );
 };

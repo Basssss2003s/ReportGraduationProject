@@ -35,6 +35,7 @@ const MainPage: React.FC = () => {
   const [tabValue, setTabValue] = useState(0);
   const { data: dataById } = useGetComplaintById(decryptedId?.toString());
   const { mutate: decrypt } = useDecryptData();
+  const [rank, setRank] = useState<string>("");
 
   const [showSignout, setShowSignout] = useState(false);
 
@@ -128,6 +129,11 @@ const MainPage: React.FC = () => {
   };
 
   const reorganizedStages = reorganizeStages(groupedStages);
+  useEffect(() => {
+      if (session?.rank) {
+        setRank(session.rank);
+      }
+    }, [session]);
 
   useEffect(() => {
     console.log("dataById:", dataById);
@@ -227,8 +233,8 @@ const MainPage: React.FC = () => {
                 className="inline-flex items-center"
               >
                 <span className="text-gray-800 font-medium">
-                  {userName}
-                  <PersonIcon style={{ marginLeft: "5px" }} />
+                {rank} {userName}
+                <PersonIcon style={{ marginLeft: "5px" }} />
                 </span>
               </button>
 
@@ -517,6 +523,9 @@ const MainPage: React.FC = () => {
     width: 700px !important;
   }
 `}</style>
+      <footer className="text-center py-4 text-sm text-gray-600">
+        Copyright © 2025 ระบบรับเรื่องร้องเรียนร้องทุกข์ | Developed by Nattanun Naknaree & Rittinun Disaraphong | Version (1.0)
+      </footer>
     </div>
   );
 

@@ -26,6 +26,7 @@ const MainPage: React.FC = () => {
   const [problemDetails, setProblemDetails] = useState<string>("");
   const [phoneNumber, setPhoneNumber] = useState<string>("");
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+  const [rank, setRank] = useState<string>("");
 
 
   const [showSignout, setShowSignout] = useState(false);
@@ -45,7 +46,11 @@ const MainPage: React.FC = () => {
     setTypeAlert(type);
     setTextAlert(text);
   }
-
+ useEffect(() => {
+    if (session?.rank) {
+      setRank(session.rank);
+    }
+  }, [session]);
   useEffect(() => {
     if (session?.fullName) {
       setUserName(session.fullName);
@@ -260,7 +265,7 @@ const MainPage: React.FC = () => {
                   className="inline-flex items-center"
                 >
                   <span className="text-gray-800 font-medium">
-                    {userName}
+                  {rank} {userName}
                     <PersonIcon style={{ marginLeft: "5px" }} />
                   </span>
                 </button>
@@ -478,6 +483,9 @@ const MainPage: React.FC = () => {
             </div>
           </motion.div>
         </div>
+        <footer className="text-center py-4 text-sm text-gray-600">
+          Copyright © 2025 ระบบรับเรื่องร้องเรียนร้องทุกข์ | Developed by Nattanun Naknaree & Rittinun Disaraphong | Version (1.0)
+        </footer>
       </div>
       <AlertBox
         type={typeAlert}
@@ -485,6 +493,7 @@ const MainPage: React.FC = () => {
         isOpen={openAlert}
         setIsOpen={setOpenAlert}
       />
+      
     </>
   );
 };

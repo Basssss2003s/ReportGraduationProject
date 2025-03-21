@@ -161,8 +161,8 @@ const MainPage = () => {
       {
         data: [
           getAllUser?.filter(item => item.typePersonal === "อาจารย์").length || 0,
-          getAllUser?.filter(item => item.typePersonal === "เจ้าหน้าที่").length || 0,
           getAllUser?.filter(item => item.typePersonal === "นักศึกษา").length || 0,
+          getAllUser?.filter(item => item.typePersonal === "เจ้าหน้าที่").length || 0,
           getAllUser?.filter(item => item.typePersonal === "บุคคลภายนอก").length || 0
         ],
         backgroundColor: [
@@ -357,6 +357,9 @@ const MainPage = () => {
 
 
       </div>
+      <footer className="text-center py-4 text-sm text-gray-600">
+        Copyright © 2025 ระบบรับเรื่องร้องเรียนร้องทุกข์ | Developed by Nattanun Naknaree & Rittinun Disaraphong | Version (1.0)
+      </footer>
     </div>
   );
 };

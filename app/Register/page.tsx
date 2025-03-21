@@ -19,7 +19,7 @@ export default function Register() {
   const [password, setPassword] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-
+  const [rank, setRank] = useState("");
   //Modal Alert
   const [openAlert, setOpenAlert] = useState(false);
   const [typeAlert, setTypeAlert] = useState("");
@@ -61,7 +61,7 @@ export default function Register() {
     setIsSubmitting(true);
 
     try {
-      await register(email, password, firstName, lastName, title, typePersonal);
+      await register(email, password, firstName, lastName, title, typePersonal,rank);
       handleAlert("success", "Register Success");
       setTimeout(() => {
         router.push("/login");
@@ -149,69 +149,93 @@ export default function Register() {
                 </div>
 
                 {/* Right column */}
-                <div>
-                  <div className="mb-4">
-                    <label htmlFor="title" className="block text-gray-700">
-                      คำนำหน้า<span className="text-red-500">*</span>
-                    </label>
-                    <select
-                      id='title'
-                      className="w-full p-3 border border-gray-300 rounded-lg mt-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      required
-                      value={title}
-                      onChange={(e) => setTitle(e.target.value)}
-                    >
-                      <option value="" disabled>เลือกคำนำหน้า</option>
-                      <option value="นาย">นาย</option>
-                      <option value="นาง">นาง</option>
-                      <option value="นางสาว">นางสาว</option>
-                    </select>
-                  </div>
+<div>
+  <div className="mb-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+    <div>
+      <label htmlFor="title" className="block text-gray-700">
+        คำนำหน้า<span className="text-red-500">*</span>
+      </label>
+      <select
+        id='title'
+        className="w-full p-3 border border-gray-300 rounded-lg mt-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+        required
+        value={title}
+        onChange={(e) => setTitle(e.target.value)}
+      >
+        <option value="" disabled>เลือกคำนำหน้า</option>
+        <option value="นาย">นาย</option>
+        <option value="นาง">นาง</option>
+        <option value="นางสาว">นางสาว</option>
+      </select>
+    </div>
 
-                  <div className="mb-4">
-                    <label htmlFor="surname" className="block text-gray-700">
-                      นามสกุล<span className="text-red-500">*</span>
-                    </label>
-                    <input
-                      type="text"
-                      id="surname"
-                      className="w-full p-3 border border-gray-300 rounded-lg mt-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      placeholder="นามสกุล"
-                      required
-                      value={lastName}
-                      onChange={(e) => {
-                        const value = formatName(e.target.value);
-                        setLastName(value);
-                      }}
-                    />
+    {typePersonal === "อาจารย์" && (
+      <div>
+        <label htmlFor="position" className="block text-gray-700">
+          ตำแหน่ง<span className="text-red-500">*</span>
+        </label>
+        <select
+          id="position"
+          className="w-full p-3 border border-gray-300 rounded-lg mt-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          value={rank}
+          onChange={(e) => setRank(e.target.value)}
+          required
+        >
+          <option value="" disabled>เลือกตำแหน่ง</option>
+          <option value="ศ.ดร">ศ.ดร</option>
+          <option value="ผศ.ดร">ผศ.ดร</option>
+          <option value="รศ.ดร">รศ.ดร</option>
+          <option value="ดร.">ดร.</option>
+        </select>
+      </div>
+    )}
+  </div>
 
-                  </div>
-
-                  <div className="mb-4">
-                    <label htmlFor="password" className="block text-gray-700">รหัสผ่าน
-                      <span className="text-red-500"> *</span>
-                    </label>
-                    <div className="relative">
-                      <input
-                        type={showPassword ? "text" : "password"}
-                        id="password"
-                        className="w-full p-3 border border-gray-300 rounded-lg mt-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        placeholder="รหัสผ่าน"
-                        onChange={(e) => setPassword(e.target.value)}
-                        value={password}
-                        required
-                      />
-                      <button
-                        type="button"
-                        className="absolute right-3 top-8 transform -translate-y-1/2 text-gray-500"
-                        onClick={() => setShowPassword(!showPassword)}
-                      >
-                        {showPassword ? <VisibilityOffIcon /> : <VisibilityIcon />}
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </div>
+  {/* นามสกุล */}
+  <div className="mb-4">
+    <label htmlFor="surname" className="block text-gray-700">
+      นามสกุล<span className="text-red-500">*</span>
+    </label>
+    <input
+      type="text"
+      id="surname"
+      className="w-full p-3 border border-gray-300 rounded-lg mt-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+      placeholder="นามสกุล"
+      required
+      value={lastName}
+      onChange={(e) => {
+        const value = formatName(e.target.value);
+        setLastName(value);
+      }}
+    />
+  </div>
+  
+  {/* รหัสผ่าน */}
+  <div className="mb-4">
+    <label htmlFor="password" className="block text-gray-700">รหัสผ่าน
+      <span className="text-red-500"> *</span>
+    </label>
+    <div className="relative">
+      <input
+        type={showPassword ? "text" : "password"}
+        id="password"
+        className="w-full p-3 border border-gray-300 rounded-lg mt-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+        placeholder="รหัสผ่าน"
+        onChange={(e) => setPassword(e.target.value)}
+        value={password}
+        required
+      />
+      <button
+        type="button"
+        className="absolute right-3 top-8 transform -translate-y-1/2 text-gray-500"
+        onClick={() => setShowPassword(!showPassword)}
+      >
+        {showPassword ? <VisibilityOffIcon /> : <VisibilityIcon />}
+      </button>
+    </div>
+  </div>
+</div>
+</div>
 
               {/* Buttons - full width on all screen sizes */}
               <div className="mt-6">
@@ -234,6 +258,9 @@ export default function Register() {
                   เข้าสู่ระบบ
                 </button>
               </Link>
+              <footer className="text-center py-4 text-sm text-gray-600 mt-4">
+                Copyright © 2025 ระบบรับเรื่องร้องเรียนร้องทุกข์  Developed by Nattanun & Rittinun
+              </footer>
             </div>
           </div>
         </div>

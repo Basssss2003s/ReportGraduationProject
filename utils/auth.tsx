@@ -50,7 +50,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   
 
 
-  const register = async (email: string, password: string,firstName:string,lastName:string,title:string,typePersonal:string): Promise<any> => {
+  const register = async (email: string, password: string,firstName:string,lastName:string,title:string,typePersonal:string,rank:string): Promise<any> => {
     try {
       const response = await axiosApi('post','/auth/register', {
         emailAddress: email,
@@ -58,7 +58,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         firstName:firstName,
         lastName:lastName,
         title:title,
-        typePersonal:typePersonal
+        typePersonal:typePersonal,
+        rank:rank
       });
       return response;
     } catch (error) {

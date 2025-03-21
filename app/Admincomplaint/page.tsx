@@ -769,6 +769,9 @@ const ComplaintTable: React.FC = () => {
           width: 700px !important;
         }
       `}</style>
+        <footer className="text-center py-4 text-sm text-gray-600">
+          Copyright © 2025 ระบบรับเรื่องร้องเรียนร้องทุกข์ | Developed by Nattanun Naknaree & Rittinun Disaraphong | Version (1.0)
+        </footer>
       </div>
       <AlertBox
         type={typeAlert}

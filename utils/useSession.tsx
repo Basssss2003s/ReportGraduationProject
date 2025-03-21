@@ -9,6 +9,7 @@ type SessionData = {
   firstName: string;
   lastName: string;
   fullName: string;
+  rank: string;
 };
 
 type SessionContextType = {

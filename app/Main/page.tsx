@@ -16,6 +16,7 @@ const MainPage = () => {
   const { logout } = useAuth();
   const router = useRouter();
   const [userName, setUserName] = useState<string>("");
+  const [rank, setRank] = useState<string>("");
   const { data: getAll } = useGetAll();
   const { data: responseData } = useGetComplaintByEmailAddress(session?.emailAddress) as { data?: Complaint[] };
   const userComplaintsCount = responseData?.length || 0; // นับจำนวนคำร้องทั้งหมดของ user ปัจจุบัน
@@ -35,6 +36,12 @@ const MainPage = () => {
   useEffect(() => {
     if (session?.fullName) {
       setUserName(session.fullName);
+    }
+  }, [session]);
+  
+  useEffect(() => {
+    if (session?.rank) {
+      setRank(session.rank);
     }
   }, [session]);
   const handleLogout = async () => {
@@ -70,7 +77,7 @@ const MainPage = () => {
                 className="inline-flex items-center"
               >
                 <span className="text-gray-800 font-medium">
-                  {userName}
+                  {rank} {userName}
                   <PersonIcon style={{ marginLeft: "5px" }} />
                 </span>
               </button>
@@ -183,7 +190,11 @@ const MainPage = () => {
           </div>
         </div>
       </div>
+      <footer className="text-center py-4 text-sm text-gray-600">
+        Copyright © 2025 ระบบรับเรื่องร้องเรียนร้องทุกข์ | Developed by Nattanun Naknaree & Rittinun Disaraphong | Version (1.0)
+      </footer>
     </div>
+    
   );
 };
 
