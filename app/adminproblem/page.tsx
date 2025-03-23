@@ -372,7 +372,9 @@ const MainPage = () => {
           </button>
         </div>
       </div>
-
+      <footer className="text-center py-4 text-sm text-gray-600">
+        Copyright © 2025 ระบบรับเรื่องร้องเรียนร้องทุกข์ | Developed by Nattanun Naknaree & Rittinun Disaraphong | Version (1.0)
+      </footer>
 
       <style jsx global>{`
       .swal2-popup {

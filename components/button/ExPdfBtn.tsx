@@ -190,11 +190,11 @@ export default function ExportPdfButton({ filteredData = [] }: Props) {
                   <tr style="${index % 2 === 0 ? 'background-color: #f9f9f9;' : ''}">
                     <td style="border: 1px solid #ddd; padding: 6px; text-align: center; width: 5%;">${item.id}</td>
                     <td style="border: 1px solid #ddd; padding: 6px; width: 12%;">${formatDate(item.createDate?.toString())}</td>
-                    <td style="border: 1px solid #ddd; padding: 6px; word-wrap: break-word; width: 15%;">${item.fullName || '-'}</td>
-                    <td style="border: 1px solid #ddd; padding: 6px; word-wrap: break-word; width: 15%;">${item.topicOfComplaint || '-'}</td>
-                    <td style="border: 1px solid #ddd; padding: 6px; word-wrap: break-word; width: 15%;">${item.detailsOfTheTopic || '-'}</td>
+                    <td style="border: 1px solid #ddd; padding: 6px; text-align: center; word-wrap: break-word; width: 15%;">${item.fullName || '-'}</td>
+                    <td style="border: 1px solid #ddd; padding: 6px; text-align: center; word-wrap: break-word; width: 15%;">${item.topicOfComplaint || '-'}</td>
+                    <td style="border: 1px solid #ddd; padding: 6px; text-align: center; word-wrap: break-word; width: 15%;">${item.detailsOfTheTopic || '-'}</td>
                     <td style="border: 1px solid #ddd; padding: 6px; word-wrap: break-word; width: 28%;">${item.problemDetail || '-'}</td>
-                    <td style="border: 1px solid #ddd; padding: 6px; color: ${statusStyle.color}; font-weight: bold; width: 15%;">${statusStyle.text}</td>
+                    <td style="border: 1px solid #ddd; padding: 6px; text-align: center; color: ${statusStyle.color}; font-weight: bold; width: 15%;">${statusStyle.text}</td>
                   </tr>
                 `;
         }).join('')}

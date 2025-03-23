@@ -119,8 +119,12 @@ export default function Login() {
               สำหรับผู้ดูแลระบบ
             </button>
           </Link>
+          <footer className="text-center py-4 text-sm text-gray-600 mt-4">
+            Copyright © 2025 ระบบรับเรื่องร้องเรียนร้องทุกข์  Developed by Nattanun & Rittinun
+          </footer>
         </div>
       </div>
+     
       <AlertBox
         type={typeAlert}
         text={textAlert}
@@ -128,5 +132,6 @@ export default function Login() {
         setIsOpen={setOpenAlert}
       />
     </>
+    
   );
 }

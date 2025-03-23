@@ -64,7 +64,7 @@ export interface ReportProblem {
 
 export interface AdmUser {
     id: number,
-    title:string,
+    gender:string,
     typePersonal:string
 }
 

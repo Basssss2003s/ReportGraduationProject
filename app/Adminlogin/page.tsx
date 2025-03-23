@@ -55,7 +55,7 @@ export default function Login() {
         }}
       >
         <div className="bg-white p-8 rounded-lg shadow-lg w-96 opacity-100">
-          <h2 className="text-2xl font-semibold text-center text-black mb-6">เข้าสู่ระบบ</h2>
+          <h2 className="text-2xl font-semibold text-center text-black mb-6">เข้าสู่ระบบ (ผู้ดูแลระบบ)</h2>
           {error && (
             <div className="mb-4 p-3 bg-red-100 text-red-700 rounded-lg text-center">
               {error}
@@ -110,6 +110,9 @@ export default function Login() {
               สำหรับผู้ใช้งานทั่วไป
             </button>
           </Link>
+          <footer className="text-center py-4 text-sm text-gray-600 mt-4">
+            Copyright © 2025 ระบบรับเรื่องร้องเรียนร้องทุกข์  Developed by Nattanun & Rittinun
+          </footer>
         </div>
       </div>
       <AlertBox
