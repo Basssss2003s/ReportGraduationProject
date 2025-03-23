@@ -50,14 +50,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   
 
 
-  const register = async (email: string, password: string,firstName:string,lastName:string,title:string,typePersonal:string,rank:string): Promise<any> => {
+  const register = async (email: string, password: string,firstName:string,lastName:string,gender:string,typePersonal:string,rank:string): Promise<any> => {
     try {
       const response = await axiosApi('post','/auth/register', {
         emailAddress: email,
         passWord: password,
         firstName:firstName,
         lastName:lastName,
-        title:title,
+        gender:gender,
         typePersonal:typePersonal,
         rank:rank
       });

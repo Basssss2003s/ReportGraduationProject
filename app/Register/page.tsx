@@ -10,7 +10,7 @@ import Swal from "sweetalert2";
 
 export default function Register() {
   const [firstName, setFirstName] = useState("");
-  const [title, setTitle] = useState("");
+  const [gender, setGender] = useState("");
   const [typePersonal, setTypePersonal] = useState("");
   const [lastName, setLastName] = useState("");
   const router = useRouter();
@@ -45,7 +45,7 @@ export default function Register() {
     if (!lastName) errors.push("นามสกุล");
     if (!email.trim()) errors.push("อีเมล");
     if (!password.trim()) errors.push("รหัสผ่าน");
-    if (!title.trim()) errors.push("คำนำหน้า")
+    if (!gender.trim()) errors.push("เพศ")
     if (!typePersonal.trim()) errors.push("ประเภทผู้ใช้")
 
     if (errors.length > 0) {
@@ -61,7 +61,7 @@ export default function Register() {
     setIsSubmitting(true);
 
     try {
-      await register(email, password, firstName, lastName, title, typePersonal,rank);
+      await register(email, password, firstName, lastName, gender, typePersonal, rank);
       handleAlert("success", "Register Success");
       setTimeout(() => {
         router.push("/login");
@@ -85,7 +85,7 @@ export default function Register() {
         }}
       >
         <div className="flex justify-center rounded-lg items-center bg-gray-100">
-          <div className="bg-white p-8 rounded-lg shadow-lg w-full max-w-4xl">
+          <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-4xl">
             <h2 className="text-2xl font-semibold text-center text-gray-700 mb-4">Register</h2>
             <p className="font-semibold text-center text-gray-700 mb-6">กรุณากรอกข้อมูลตามความเป็นจริง</p>
 
@@ -96,7 +96,7 @@ export default function Register() {
                 <div>
                   <div className='mb-4'>
                     <label htmlFor="typePersonal" className="block text-gray-700">
-                    ประเภทผู้ใช้<span className="text-red-500">*</span>
+                      ประเภทผู้ใช้<span className="text-red-500">*</span>
                     </label>
                     <select
                       id='typePersonal'
@@ -149,93 +149,93 @@ export default function Register() {
                 </div>
 
                 {/* Right column */}
-<div>
-  <div className="mb-4 grid grid-cols-1 md:grid-cols-2 gap-4">
-    <div>
-      <label htmlFor="title" className="block text-gray-700">
-        คำนำหน้า<span className="text-red-500">*</span>
-      </label>
-      <select
-        id='title'
-        className="w-full p-3 border border-gray-300 rounded-lg mt-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-        required
-        value={title}
-        onChange={(e) => setTitle(e.target.value)}
-      >
-        <option value="" disabled>เลือกคำนำหน้า</option>
-        <option value="นาย">นาย</option>
-        <option value="นาง">นาง</option>
-        <option value="นางสาว">นางสาว</option>
-      </select>
-    </div>
+                <div>
+                  <div className={`grid grid-cols-1 ${typePersonal === "อาจารย์" ? "md:grid-cols-2" : "md:grid-cols-1"} gap-4 mb-4`}>
+                    <div>
+                      <label htmlFor="gender" className="block text-gray-700">
+                        เพศ<span className="text-red-500">*</span>
+                      </label>
+                      <select
+                        id='gender'
+                        className="w-full p-3 border border-gray-300 rounded-lg mt-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        required
+                        value={gender}
+                        onChange={(e) => setGender(e.target.value)}
+                      >
+                        <option value="" disabled>เลือกเพศ</option>
+                        <option value="ชาย">ชาย</option>
+                        <option value="หญิง">หญิง</option>
+                        <option value="LGBTQ+">LGBTQ+</option>
+                      </select>
+                    </div>
 
-    {typePersonal === "อาจารย์" && (
-      <div>
-        <label htmlFor="position" className="block text-gray-700">
-          ตำแหน่ง<span className="text-red-500">*</span>
-        </label>
-        <select
-          id="position"
-          className="w-full p-3 border border-gray-300 rounded-lg mt-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-          value={rank}
-          onChange={(e) => setRank(e.target.value)}
-          required
-        >
-          <option value="" disabled>เลือกตำแหน่ง</option>
-          <option value="ศ.ดร">ศ.ดร</option>
-          <option value="ผศ.ดร">ผศ.ดร</option>
-          <option value="รศ.ดร">รศ.ดร</option>
-          <option value="ดร.">ดร.</option>
-        </select>
-      </div>
-    )}
-  </div>
+                    {typePersonal === "อาจารย์" && (
+                      <div>
+                        <label htmlFor="position" className="block text-gray-700">
+                          ตำแหน่ง<span className="text-red-500">*</span>
+                        </label>
+                        <select
+                          id="position"
+                          className="w-full p-3 border border-gray-300 rounded-lg mt-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          value={rank}
+                          onChange={(e) => setRank(e.target.value)}
+                          required
+                        >
+                          <option value="" disabled>เลือกตำแหน่ง</option>
+                          <option value="ศ.ดร">ศ.ดร</option>
+                          <option value="ผศ.ดร">ผศ.ดร</option>
+                          <option value="รศ.ดร">รศ.ดร</option>
+                          <option value="ดร.">ดร.</option>
+                        </select>
+                      </div>
+                    )}
+                  </div>
 
-  {/* นามสกุล */}
-  <div className="mb-4">
-    <label htmlFor="surname" className="block text-gray-700">
-      นามสกุล<span className="text-red-500">*</span>
-    </label>
-    <input
-      type="text"
-      id="surname"
-      className="w-full p-3 border border-gray-300 rounded-lg mt-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-      placeholder="นามสกุล"
-      required
-      value={lastName}
-      onChange={(e) => {
-        const value = formatName(e.target.value);
-        setLastName(value);
-      }}
-    />
-  </div>
-  
-  {/* รหัสผ่าน */}
-  <div className="mb-4">
-    <label htmlFor="password" className="block text-gray-700">รหัสผ่าน
-      <span className="text-red-500"> *</span>
-    </label>
-    <div className="relative">
-      <input
-        type={showPassword ? "text" : "password"}
-        id="password"
-        className="w-full p-3 border border-gray-300 rounded-lg mt-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-        placeholder="รหัสผ่าน"
-        onChange={(e) => setPassword(e.target.value)}
-        value={password}
-        required
-      />
-      <button
-        type="button"
-        className="absolute right-3 top-8 transform -translate-y-1/2 text-gray-500"
-        onClick={() => setShowPassword(!showPassword)}
-      >
-        {showPassword ? <VisibilityOffIcon /> : <VisibilityIcon />}
-      </button>
-    </div>
-  </div>
-</div>
-</div>
+                  {/* นามสกุล */}
+                  <div className="mb-4">
+                    <label htmlFor="surname" className="block text-gray-700">
+                      นามสกุล<span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      id="surname"
+                      className="w-full p-3 border border-gray-300 rounded-lg mt-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      placeholder="นามสกุล"
+                      required
+                      value={lastName}
+                      onChange={(e) => {
+                        const value = formatName(e.target.value);
+                        setLastName(value);
+                      }}
+                    />
+                  </div>
+
+                  {/* รหัสผ่าน */}
+                  <div className="mb-4">
+                    <label htmlFor="password" className="block text-gray-700">รหัสผ่าน
+                      <span className="text-red-500"> *</span>
+                    </label>
+                    <div className="relative">
+                      <input
+                        type={showPassword ? "text" : "password"}
+                        id="password"
+                        className="w-full p-3 border border-gray-300 rounded-lg mt-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        placeholder="รหัสผ่าน"
+                        onChange={(e) => setPassword(e.target.value)}
+                        value={password}
+                        required
+                      />
+                      <button
+                        type="button"
+                        className="absolute right-3 top-8 transform -translate-y-1/2 text-gray-500"
+                        onClick={() => setShowPassword(!showPassword)}
+                      >
+                        {showPassword ? <VisibilityOffIcon /> : <VisibilityIcon />}
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
 
               {/* Buttons - full width on all screen sizes */}
               <div className="mt-6">

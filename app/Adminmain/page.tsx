@@ -308,12 +308,26 @@ const MainPage = () => {
               <div className="flex flex-col items-center">
                 <MaleIcon style={{ color: "#3498db", fontSize: 36 }} />
                 <span className="text-blue-500 font-medium">ชาย</span>
-                <span>{getAllUser?.filter(item => item.title === "นาย").length}</span>
+                <span>{getAllUser?.filter(item => item.gender === "ชาย").length}</span>
               </div>
               <div className="flex flex-col items-center">
                 <FemaleIcon style={{ color: "#e84393", fontSize: 36 }} />
                 <span className="text-pink-500 font-medium">หญิง</span>
-                <span>{getAllUser?.filter(item => item.title === "นาง" || item.title === "นางสาว").length}</span>
+                <span>{getAllUser?.filter(item => item.gender === "หญิง").length}</span>
+              </div>
+              <div className="flex flex-col items-center mt-3">
+                <span style={{ fontSize: 16 }}>🌈</span>
+                <span
+                  className="font-medium mt-0.5"
+                  style={{
+                    background: "linear-gradient(90deg, #FF0000, #FF7F00, #FFFF00, #00FF00, #0000FF, #4B0082, #8B00FF)",
+                    WebkitBackgroundClip: "text",
+                    WebkitTextFillColor: "transparent",
+                  }}
+                >
+                  LGBTQ+
+                </span>
+                <span>{getAllUser?.filter(item => item.gender === "LGBTQ+").length}</span>
               </div>
             </div>
           </div>
